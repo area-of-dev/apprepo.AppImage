@@ -39,8 +39,8 @@ class Application(object):
 
         self.kernel = module.Kernel(options, args)
 
-    def exec_(self, options=None, args=None):
-        print(options, args)
+    def exec_(self, options, args):
+        pass
 
 
 if __name__ == "__main__":
