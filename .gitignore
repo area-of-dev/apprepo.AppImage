@@ -1,0 +1,10 @@
+__pycache__/
+.DS_Store
+.idea/
+.idea
+.project
+.pydevproject
+.settings
+/venv/
+/build/application/
+/AppDir/application/

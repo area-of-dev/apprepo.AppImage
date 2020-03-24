@@ -1,0 +1,7 @@
+altgraph==0.16.1
+Inject==3.5.4
+pydux==0.2.2
+PyInstaller==3.6
+PyQt5==5.14.1
+PyQt5-sip==12.7.1
+six==1.14.0
