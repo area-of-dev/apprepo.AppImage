@@ -13,6 +13,7 @@
 import os
 
 from .task.search import SearchTask
+from .task.install import InstallPackageTask
 from .task.upload import VersionUploadTask
 
 
@@ -51,12 +52,12 @@ class Console(object):
         if result is None or not result:
             raise Exception('Result can not be empty')
 
-        print('Uploaded: {} {} - {}, {}'.format(
+        yield 'Uploaded: {} {} - {}, {}'.format(
             result['package'],
             result['version'],
             result['description'],
             path
-        ))
+        )
 
     def search_package(self, string=None, options=None):
         if string is None or not len(string):
@@ -77,7 +78,19 @@ class Console(object):
 
         task = SearchTask('{}/package/groups'.format(self.api))
         for entity in task.process(string):
-            print("{:>s} - {:>s}".format(
+            yield "{:>s} - {:>s}".format(
                 entity['name'],
                 entity['description']
-            ))
+            )
+
+    def install_package(self, string=None, options=None):
+        if string is None or not len(string):
+            raise Exception('search string can not be empty')
+
+        task = InstallPackageTask('{}/package'.format(self.api))
+        for entity in task.process(string, options.force, options.systemwide):
+            yield "{:>s} ({:>s}) - {:>s}".format(
+                entity['name'],
+                entity['version'],
+                entity['file']
+            )

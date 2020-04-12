@@ -48,6 +48,7 @@ class Application(object):
             'upload-package': console.upload_version,
             'push-version': console.upload_version,
             'push-package': console.upload_version,
+            'install': console.install_package,
         }
 
         command = args[0] or None
@@ -58,7 +59,11 @@ class Application(object):
         if action is None or not callable(action):
             raise Exception('command action not defined: {}'.format(command))
 
-        return action(' '.join(args[1:]).strip('\'" '), options)
+        try:
+            for output in action(' '.join(args[1:]).strip('\'" '), options):
+                print(output)
+        except Exception as ex:
+            print('Failed: {}'.format(ex))
 
 
 if __name__ == "__main__":
@@ -71,6 +76,8 @@ if __name__ == "__main__":
     parser.add_option("--version-token", dest="version_token", help="Upload token", default=None)
     parser.add_option("--version-description", dest="version_description", help="description", default=None)
     parser.add_option("--version-name", dest="version_name", help="Upload name", default=None)
+    parser.add_option("--force", dest="force", help="Force command execution", action='store_true')
+    parser.add_option("--global", dest="systemwide", help="Install the application globally", action='store_true')
 
     configfile = os.path.expanduser('~/.config/AOD-Store/default.conf')
     parser.add_option("--config", default=configfile, dest="config", help="Config file location")
