@@ -12,15 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import os
 import sys
-import math
-import pydux
-import hashlib
 import logging
 import optparse
 import inject
-import glob
-import configparser
-import importlib
 
 from importlib import util
 
@@ -32,15 +26,39 @@ os.chdir(os.path.dirname(abspath))
 
 class Application(object):
 
-    def __init__(self, options=None, args=None):
+    def __init__(self, options, args):
         spec = util.find_spec('lib.kernel')
         module = spec.loader.load_module()
         if module is None: return None
 
         self.kernel = module.Kernel(options, args)
 
-    def exec_(self, options, args):
-        pass
+    @inject.params(console='console')
+    def exec_(self, options, args, console=None):
+        if not len(args): return None
+
+        actionsmap = {
+            'find': console.search_package,
+            'find-package': console.search_package,
+            'search': console.search_package,
+            'search-package': console.search_package,
+            'find-group': console.search_group,
+            'upload': console.upload_version,
+            'upload-version': console.upload_version,
+            'upload-package': console.upload_version,
+            'push-version': console.upload_version,
+            'push-package': console.upload_version,
+        }
+
+        command = args[0] or None
+        if not len(command) or command not in actionsmap.keys():
+            raise Exception('unknown command: {}'.format(command))
+
+        action = actionsmap[command] or None
+        if action is None or not callable(action):
+            raise Exception('command action not defined: {}'.format(command))
+
+        return action(' '.join(args[1:]).strip('\'" '), options)
 
 
 if __name__ == "__main__":
@@ -50,6 +68,9 @@ if __name__ == "__main__":
 
     parser.add_option("--logfile", default=logfile, dest="logfile", help="Logfile location")
     parser.add_option("--loglevel", default=logging.DEBUG, dest="loglevel", help="Logging level")
+    parser.add_option("--version-token", dest="version_token", help="Upload token", default=None)
+    parser.add_option("--version-description", dest="version_description", help="description", default=None)
+    parser.add_option("--version-name", dest="version_name", help="Upload name", default=None)
 
     configfile = os.path.expanduser('~/.config/AOD-Store/default.conf')
     parser.add_option("--config", default=configfile, dest="config", help="Config file location")

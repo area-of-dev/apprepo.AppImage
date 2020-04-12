@@ -16,7 +16,6 @@ from .service import Console
 
 
 class Loader(object):
-    console = Console()
 
     def __enter__(self):
         return self
@@ -24,20 +23,12 @@ class Loader(object):
     def __exit__(self, type, value, traceback):
         pass
 
-    def boot(self, options, args):
-        if not len(args): return None
-
-        if args[0] in ['search', 'lookup', 'se']:
-            return self.console.search(args[1:])
-
-        if args[0] in ['install', 'download', 'get', 'in']:
-            return self.console.install(args[1:])
-
-        if args[0] in ['update', 'refresh', 'up']:
-            return self.console.update(args[1:])
-
-        if args[0] in ['remove', 'delete', 'del', 'rm']:
-            return self.console.remove(args[1:])
-
-        if args[0] in ['synchronize', 'actualize', 'sync']:
-            return self.console.synchronize(args[1:])
+    def configure(self, binder, options, args):
+        """
+        Configure service container for the dependency injections
+        :param binder:
+        :param options:
+        :param args:
+        :return:
+        """
+        binder.bind('console', Console())

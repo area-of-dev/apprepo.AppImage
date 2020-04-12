@@ -10,25 +10,74 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import inject
+import os
+
+from .task.search import SearchTask
+from .task.upload import VersionUploadTask
 
 
 class Console(object):
+    api = 'http://localhost:8000/rest/api'
 
-    def search(self, request=None):
-        print('search', request)
+    def upload_version(self, path=None, options=None):
+        if path is None or not len(path):
+            raise Exception('File path can not be empty')
 
-    def install(self, collection=[]):
-        for word in collection:
-            print('install', word)
+        if not os.path.exists(path) or os.path.isdir(path):
+            raise Exception('File does not exist: {}'.format(path))
 
-    def update(self, collection=[]):
-        for word in collection:
-            print('update', word)
+        if options is None or not options:
+            raise Exception('Please setup version options')
 
-    def remove(self, collection=[]):
-        for word in collection:
-            print('remove', word)
+        if options.version_token is None or not len(options.version_token):
+            raise Exception('token not found')
 
-    def synchronize(self, request=None):
-        print('synchronize', request)
+        if options.version_description is None or not len(options.version_description):
+            raise Exception('description not found')
+
+        if options.version_name is None or not len(options.version_name):
+            raise Exception('name not found')
+
+        url_initialize = "{}/package/upload/initialize/".format(self.api)
+        url_finalize = '{}/package/upload/complete/finalize/'.format(self.api)
+        task = VersionUploadTask(url_initialize, url_finalize)
+
+        result = task.upload(path, {
+            'token': options.version_token,
+            'description': options.version_description,
+            'name': options.version_name,
+        })
+
+        if result is None or not result:
+            raise Exception('Result can not be empty')
+
+        print('Uploaded: {} {} - {}, {}'.format(
+            result['package'],
+            result['version'],
+            result['description'],
+            path
+        ))
+
+    def search_package(self, string=None, options=None):
+        if string is None or not len(string):
+            raise Exception('search string can not be empty')
+
+        task = SearchTask('{}/package'.format(self.api))
+
+        for entity in task.process(string):
+            print("{:>s} ({:>s}) - {:>s}".format(
+                entity['name'],
+                entity['version'],
+                entity['description']
+            ))
+
+    def search_group(self, string=None, options=None):
+        if string is None or not len(string):
+            raise Exception('search string can not be empty')
+
+        task = SearchTask('{}/package/groups'.format(self.api))
+        for entity in task.process(string):
+            print("{:>s} - {:>s}".format(
+                entity['name'],
+                entity['description']
+            ))
