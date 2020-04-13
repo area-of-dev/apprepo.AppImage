@@ -15,6 +15,7 @@ import os
 from .task.search import SearchTask
 from .task.install import InstallPackageTask
 from .task.upload import VersionUploadTask
+from .task.synchronize import SynchronizePackageTask
 
 
 class Console(object):
@@ -53,10 +54,10 @@ class Console(object):
             raise Exception('Result can not be empty')
 
         yield 'Uploaded: {} {} - {}, {}'.format(
-            result['package'],
-            result['version'],
-            result['description'],
-            path
+            result['package'] or 'Unknown',
+            result['version'] or 'Unknown',
+            result['description'] or 'Unknown',
+            path or 'Unknown'
         )
 
     def search_package(self, string=None, options=None):
@@ -67,9 +68,9 @@ class Console(object):
 
         for entity in task.process(string):
             print("{:>s} ({:>s}) - {:>s}".format(
-                entity['name'],
-                entity['version'],
-                entity['description']
+                entity['name'] or 'Unknown',
+                entity['version'] or 'Unknown',
+                entity['description'] or 'Unknown'
             ))
 
     def search_group(self, string=None, options=None):
@@ -79,8 +80,8 @@ class Console(object):
         task = SearchTask('{}/package/groups'.format(self.api))
         for entity in task.process(string):
             yield "{:>s} - {:>s}".format(
-                entity['name'],
-                entity['description']
+                entity['name'] or 'Unknown',
+                entity['description'] or 'Unknown'
             )
 
     def install_package(self, string=None, options=None):
@@ -89,8 +90,28 @@ class Console(object):
 
         task = InstallPackageTask('{}/package'.format(self.api))
         for entity in task.process(string, options.force, options.systemwide):
-            yield "{:>s} ({:>s}) - {:>s}".format(
-                entity['name'],
-                entity['version'],
-                entity['file']
+            yield "Installed: {:>s}, latest version: {}, download: {}".format(
+                entity['name'] or 'Unknown',
+                entity['version'] or 'Unknown',
+                entity['file'] or 'Unknown'
             )
+
+    def synchronize_package(self, string=None, options=None):
+
+        task = SynchronizePackageTask('{}/package'.format(self.api))
+        for entity in task.process(string, options.systemwide):
+            assert ('name' in entity.keys())
+            assert ('package' in entity.keys())
+            assert ('version' in entity.keys())
+            assert ('file' in entity.keys())
+
+            yield "Found: {:>s} - recognized as {:>s}, latest version: {}, download: {}".format(
+                entity['package'] or 'Unknown',
+                entity['name'] or 'Unknown',
+                entity['version'] or 'Unknown',
+                entity['file'] or 'Unknown',
+            )
+
+            assert ('slug' in entity.keys())
+            for output in self.install_package(entity['slug'], options):
+                yield output

@@ -49,6 +49,9 @@ class Application(object):
             'push-version': console.upload_version,
             'push-package': console.upload_version,
             'install': console.install_package,
+            'synchronize': console.synchronize_package,
+            'update': console.synchronize_package,
+            'sync': console.synchronize_package,
         }
 
         command = args[0] or None
@@ -63,7 +66,8 @@ class Application(object):
             for output in action(' '.join(args[1:]).strip('\'" '), options):
                 print(output)
         except Exception as ex:
-            print('Failed: {}'.format(ex))
+            # print('Failed: {}'.format(ex))
+            raise ex
 
 
 if __name__ == "__main__":

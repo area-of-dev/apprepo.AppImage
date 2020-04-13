@@ -34,7 +34,7 @@ class InstallPackageTask(object):
         return '/Applications/{}'.format(package)
 
     def process(self, string=None, replace=False, systemwide=False):
-        response = requests.get('{}/{}'.format(self.url, string))
+        response = requests.get('{}/{}/'.format(self.url, string))
         if response is None or not response:
             raise Exception('Response object can not be empty')
 
