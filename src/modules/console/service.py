@@ -14,6 +14,7 @@ import os
 
 from .task.search import SearchTask
 from .task.install import InstallPackageTask
+from .task.uninstall import UninstallPackageTask
 from .task.upload import VersionUploadTask
 from .task.synchronize import SynchronizePackageTask
 
@@ -90,16 +91,28 @@ class Console(object):
 
         task = InstallPackageTask('{}/package'.format(self.api))
         for entity in task.process(string, options.force, options.systemwide):
-            yield "Installed: {:>s}, latest version: {}, download: {}".format(
+            yield "Installed: {:>s}, latest version: {}, from: {}".format(
                 entity['name'] or 'Unknown',
                 entity['version'] or 'Unknown',
                 entity['file'] or 'Unknown'
             )
 
+    def uninstall_package(self, string=None, options=None):
+        if string is None or not len(string):
+            raise Exception('search string can not be empty')
+
+        task = UninstallPackageTask('{}/package'.format(self.api))
+        for entity in task.process(string, options):
+            yield "Uninstalled: {:>s} - latest version: {} ({})".format(
+                entity['package'] or 'Unknown',
+                entity['name'] or 'Unknown',
+                entity['version'] or 'Unknown',
+            )
+
     def synchronize_package(self, string=None, options=None):
 
         task = SynchronizePackageTask('{}/package'.format(self.api))
-        for entity in task.process(string, options.systemwide):
+        for entity in task.process(string, options):
             assert ('name' in entity.keys())
             assert ('package' in entity.keys())
             assert ('version' in entity.keys())
@@ -113,5 +126,6 @@ class Console(object):
             )
 
             assert ('slug' in entity.keys())
+            if entity['slug'] is None: continue
             for output in self.install_package(entity['slug'], options):
                 yield output

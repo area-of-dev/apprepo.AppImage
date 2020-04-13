@@ -38,7 +38,7 @@ class SynchronizePackageTask(object):
                 md5.update(data)
         return md5.hexdigest()
 
-    def process(self, string=None, systemwide=False):
+    def process(self, string=None, options=None):
         response = requests.get('{}/?search={}'.format(self.url, string))
         if response is None or not response:
             raise Exception('Response object can not be empty')
@@ -51,9 +51,22 @@ class SynchronizePackageTask(object):
         for package in json.loads(response.content):
             hashmap[package['package']] = package
 
-        for path in glob.glob('{}/*.AppImage'.format(self._destination(systemwide))):
+        for path in glob.glob('{}/*.AppImage'.format(self._destination(options.systemwide))):
             basename = os.path.basename(path)
             if basename not in hashmap.keys():
+                if not options.cleanup:
+                    continue
+
+                if options.force:
+                    os.remove(path)
+
+                yield {
+                    'name': None,
+                    'package': os.path.basename(path),
+                    'version': None,
+                    'file': None,
+                    'slug': None,
+                }
                 continue
 
             package_remote = hashmap[basename]

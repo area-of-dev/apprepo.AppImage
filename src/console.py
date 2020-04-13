@@ -52,6 +52,8 @@ class Application(object):
             'synchronize': console.synchronize_package,
             'update': console.synchronize_package,
             'sync': console.synchronize_package,
+            'uninstall': console.uninstall_package,
+            'remove': console.uninstall_package,
         }
 
         command = args[0] or None
@@ -80,8 +82,9 @@ if __name__ == "__main__":
     parser.add_option("--version-token", dest="version_token", help="Upload token", default=None)
     parser.add_option("--version-description", dest="version_description", help="description", default=None)
     parser.add_option("--version-name", dest="version_name", help="Upload name", default=None)
-    parser.add_option("--force", dest="force", help="Force command execution", action='store_true')
-    parser.add_option("--global", dest="systemwide", help="Install the application globally", action='store_true')
+    parser.add_option("--force", dest="force", help="Force execution", action='store_true')
+    parser.add_option("--global", dest="systemwide", help="Install the application for all users", action='store_true')
+    parser.add_option("--cleanup", dest="cleanup", help="Remove unknown packages", action='store_true')
 
     configfile = os.path.expanduser('~/.config/AOD-Store/default.conf')
     parser.add_option("--config", default=configfile, dest="config", help="Config file location")

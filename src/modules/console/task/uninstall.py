@@ -16,27 +16,22 @@ import json
 import requests
 
 
-class InstallPackageTask(object):
+class UninstallPackageTask(object):
     def __init__(self, url=None):
         if url is None or not len(url):
             raise Exception('Init url can not be empty')
 
         self.url = url
 
-    def _permissions(self, systemwide=False):
-        if systemwide is None or not systemwide:
-            return stat.S_IRWXU
-        return stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IRWXO | stat.S_IROTH
-
     def _destination(self, package, systemwide=False):
         if systemwide is None or not systemwide:
             return os.path.expanduser('~/Applications/{}'.format(package))
         return '/Applications/{}'.format(package)
 
-    def process(self, string=None, replace=False, systemwide=False):
+    def process(self, string=None, options=False):
         response = requests.get('{}/{}/'.format(self.url, string))
         if response is None or not response:
-            raise Exception('Response object can not be empty')
+            raise Exception('package "{}" not found'.format(string))
 
         if response.status_code not in [200]:
             raise Exception('Please check your internet connection or try later')
@@ -51,27 +46,16 @@ class InstallPackageTask(object):
 
         response = requests.get(result['file'])
         if response is None or not response:
-            raise Exception('package name not found')
+            raise Exception('package "{}" not found'.format(string))
 
         if response.status_code not in [200]:
             raise Exception('Please check your internet connection or try later')
 
-        destination = self._destination(result['package'], systemwide)
-        if destination is not None and os.path.exists(destination):
-            if replace is None or not replace:
-                raise Exception('{} already exists, use --force to override t'
-                                'he existing package'.format(destination))
+        destination = self._destination(result['package'], options.systemwide)
+        if not os.path.exists(destination):
+            raise Exception('{} not found'.format(destination))
 
         if os.path.exists(destination):
             os.remove(destination)
-
-        destination_folder = os.path.dirname(destination)
-        if not os.path.exists(destination_folder):
-            os.makedirs(destination_folder, exist_ok=False)
-
-        with open(destination, 'wb') as stream:
-            os.chmod(destination, self._permissions(systemwide))
-            stream.write(response.content)
-            stream.close()
 
         return [result]
