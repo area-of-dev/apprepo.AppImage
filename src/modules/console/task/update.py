@@ -10,14 +10,16 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import os
-import json
-import requests
 import glob
 import hashlib
-import glob
+import json
 import optparse
+import os
 import sys
+import pathlib
+
+import inject
+import requests
 
 
 class SynchronizePackageTask(object):
@@ -88,8 +90,60 @@ class SynchronizePackageTask(object):
             yield package_remote
 
 
-def main(options=None, args=None):
-    yield "not implemented yeat: {}".format(' '.join(args).strip('\'" '))
+@inject.params(appimagetool='appimagetool', apprepo='apprepo', downloader='downloader')
+def main(options=None, args=None, appimagetool=None, apprepo=None, downloader=None):
+    search = ' '.join(args).strip('\'" ')
+
+    for appimage in appimagetool.list():
+        appimage = pathlib.Path(appimage)
+        if appimage is None: continue
+
+        appimage_name = appimage.stem
+        appimage_name = appimage_name.lower()
+        if len(search) and appimage_name != search:
+            continue
+
+        yield "Processing: {}...".format(appimage)
+        for entity in apprepo.package(appimage_name):
+            assert ('package' in entity.keys())
+            assert ('file' in entity.keys())
+
+            temp_file = downloader.download(entity['file'])
+            if temp_file is None or not len(temp_file):
+                yield 'Can not download: {}'.format(entity['file'])
+            #
+            # assert (os.path.exists(temp_file))
+            #
+            # appimage, desktop, icon = appimagetool.install(temp_file, entity['package'], options.force,
+            #                                                options.systemwide)
+            # if desktop is None or icon is None or not len(desktop) or not len(icon):
+            #     raise Exception('Can not install, desktop or icon file is empty')
+            #
+            # yield "Installed: {}".format(appimage)
+            # yield "\tdesktop file: {}".format(desktop)
+            # yield "\tdesktop icon file: {}".format(icon)
+
+    #
+    #     task = SynchronizePackageTask('{}/package'.format(self.api))
+    #     for entity in task.process(string, options):
+    #         assert ('name' in entity.keys())
+    #         assert ('package' in entity.keys())
+    #         assert ('version' in entity.keys())
+    #         assert ('file' in entity.keys())
+    #
+    #         yield "Found: {:>s} - recognized as {:>s}, latest version: {}, download: {}".format(
+    #             entity['package'] or 'Unknown',
+    #             entity['name'] or 'Unknown',
+    #             entity['version'] or 'Unknown',
+    #             entity['file'] or 'Unknown',
+    #         )
+    #
+    #         assert ('slug' in entity.keys())
+    #         if entity['slug'] is None: continue
+    #         for output in self.install_package(entity['slug'], options):
+    #             yield output
+
+    # yield "not implemented yeat: {}".format(' '.join(args).strip('\'" '))
     return 0
 
 

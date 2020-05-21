@@ -7,7 +7,7 @@ all: init appimage clean
 
 init:
 	rm -rf $(PWD)/venv
-	python3 -m venv --copies $(PWD)/venv
+	python3.6 -m venv --copies $(PWD)/venv
 	source $(PWD)/venv/bin/activate && python3 -m pip install --upgrade pip && python3 -m pip install -r $(PWD)/requirements.txt
 
 
@@ -16,11 +16,9 @@ appimage: clean
 	cp -r ./src/icons $(APPDIR)/application
 	cp -r ./src/lib $(APPDIR)/application
 	cp -r ./src/modules $(APPDIR)/application
-	cp -r ./src/plugins $(APPDIR)/application
-	cp -r ./src/themes $(APPDIR)/application
 
-	bin/appimagetool-x86_64.AppImage  ./AppDir bin/AOD-Notes.AppImage
-	@echo "done: bin/AOD-Notes.AppImage"
+	bin/appimagetool.AppImage  ./AppDir bin/apprepo.AppImage
+	@echo "done: bin/apprepo.AppImage"
 
 clean:
 	rm -rf ${APPDIR}/venv

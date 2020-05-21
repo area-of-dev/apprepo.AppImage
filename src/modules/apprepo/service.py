@@ -29,5 +29,5 @@ class ServiceApprepo(object):
     def package(self, string=None):
         response = requests.get('{}/package/{}/'.format(self.url, string))
         if response is None or response.status_code not in [200]:
-            raise Exception('something went wrong, please try later')
+            raise Exception('Can not fetch package data: {}'.format(string))
         yield json.loads(response.content)

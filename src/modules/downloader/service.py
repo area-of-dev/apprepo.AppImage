@@ -25,7 +25,7 @@ class ServiceDownloader(object):
     def download(self, path=None):
         response = requests.get(path)
         if response is None or response.status_code not in [200]:
-            raise Exception('Please check your internet connection or try later')
+            raise Exception('Can not download file: {}'.format(path))
 
         with tempfile.NamedTemporaryFile(delete=False) as destination:
             destination.write(response.content)

@@ -52,27 +52,6 @@ class Console(object):
         for entity in update.main(options, args):
             yield entity
 
-    #     from .task.sync import SynchronizePackageTask
-    #
-    #     task = SynchronizePackageTask('{}/package'.format(self.api))
-    #     for entity in task.process(string, options):
-    #         assert ('name' in entity.keys())
-    #         assert ('package' in entity.keys())
-    #         assert ('version' in entity.keys())
-    #         assert ('file' in entity.keys())
-    #
-    #         yield "Found: {:>s} - recognized as {:>s}, latest version: {}, download: {}".format(
-    #             entity['package'] or 'Unknown',
-    #             entity['name'] or 'Unknown',
-    #             entity['version'] or 'Unknown',
-    #             entity['file'] or 'Unknown',
-    #         )
-    #
-    #         assert ('slug' in entity.keys())
-    #         if entity['slug'] is None: continue
-    #         for output in self.install_package(entity['slug'], options):
-    #             yield output
-
     def upload(self, options=None, args=None):
         from .task import upload
         for entity in upload.main(options, args):
