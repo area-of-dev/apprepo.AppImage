@@ -10,107 +10,36 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import os
-
-from .task.search import SearchTask
-from .task.install import InstallPackageTask
-# from .task.uninstall import UninstallPackageTask
-from .task.upload import VersionUploadTask
 
 
 class Console(object):
-    # api = 'http://localhost:8000/rest/api'
 
-    def info(self, options=None, args=None):
-        """
-        List all installed application
-        :param args:
-        :param options:
-        :return:
-        """
-        from .task import info
-        for entity in info.main(options, args):
+    def status(self, options=None, args=None):
+        from .task import status
+        for entity in status.main(options, args):
             yield entity
 
     def synchronize(self, options=None, args=None):
-        """
-        Synchronize all found Applications with the system.
-        Generate .desktop files and the icons and put them into system folders
-
-        :param args:
-        :param options:
-        :return:
-        """
         from .task import synchronize
         for entity in synchronize.main(options, args):
             yield entity
 
     def cleanup(self, options=None, args=None):
-        """
-        Synchronize all found Applications with the system.
-        Generate .desktop files and the icons and put them into system folders
-
-        :param args:
-        :param options:
-        :return:
-        """
         from .task import cleanup
         for entity in cleanup.main(options, args):
             yield entity
 
     def search(self, options=None, args=None):
-        """
-        Find application in the repository
-        :param options:
-        :param args:
-        :return:
-        """
         from .task import search
         for entity in search.main(options, args):
             yield entity
 
-        # if string is None or not len(string):
-        #     raise Exception('search string can not be empty')
-        #
-        # task = SearchTask('{}/package'.format(self.api))
-        #
-        # for entity in task.process(string):
-        #     print("{:>s} ({:>s}) - {:>s}".format(
-        #         entity['name'] or 'Unknown',
-        #         entity['version'] or 'Unknown',
-        #         entity['description'] or 'Unknown'
-        #     ))
-
     def install(self, options=None, args=None):
-        """
-        Install application from the repository
-        :param options:
-        :param args:
-        :return:
-        """
         from .task import install
         for entity in install.main(options, args):
             yield entity
 
-        # if string is None or not len(string):
-        #     raise Exception('search string can not be empty')
-
-    #
-    #     task = InstallPackageTask('{}/package'.format(self.api))
-    #     for entity in task.process(string, options.force, options.systemwide):
-    #         yield "Installed: {:>s}, latest version: {}, from: {}".format(
-    #             entity['name'] or 'Unknown',
-    #             entity['version'] or 'Unknown',
-    #             entity['file'] or 'Unknown'
-    #         )
-
     def uninstall(self, options=None, args=None):
-        """
-        Uninstall application from local system
-        :param options:
-        :param args:
-        :return:
-        """
         from .task import uninstall
         for entity in uninstall.main(options, args):
             yield entity
@@ -118,26 +47,7 @@ class Console(object):
         for output in self.cleanup(options, args):
             yield output
 
-    #     if string is None or not len(string):
-    #         raise Exception('search string can not be empty')
-    #
-    #     task = UninstallPackageTask('{}/package'.format(self.api))
-    #     for entity in task.process(string, options):
-    #         yield "Uninstalled: {:>s} - latest version: {} ({})".format(
-    #             entity['package'] or 'Unknown',
-    #             entity['name'] or 'Unknown',
-    #             entity['version'] or 'Unknown',
-    #         )
-    #
-
     def update(self, options=None, args=None):
-        """
-        Update selected package or all packages
-        if no packages were selected
-        :param options:
-        :param args:
-        :return:
-        """
         from .task import update
         for entity in update.main(options, args):
             yield entity
@@ -164,12 +74,6 @@ class Console(object):
     #             yield output
 
     def upload(self, options=None, args=None):
-        """
-        Upload new version of the package into repository
-        :param options:
-        :param args:
-        :return:
-        """
         from .task import upload
         for entity in upload.main(options, args):
             yield entity
@@ -211,15 +115,3 @@ class Console(object):
     #         result['description'] or 'Unknown',
     #         path or 'Unknown'
     #     )
-    #
-    # def search_group(self, string=None, options=None):
-    #     if string is None or not len(string):
-    #         raise Exception('search string can not be empty')
-    #
-    #     task = SearchTask('{}/package/groups'.format(self.api))
-    #     for entity in task.process(string):
-    #         yield "{:>s} - {:>s}".format(
-    #             entity['name'] or 'Unknown',
-    #             entity['description'] or 'Unknown'
-    #         )
-    #

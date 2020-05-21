@@ -37,7 +37,7 @@ class Application(object):
     def exec_(self, options, args, console=None, logger=None):
 
         actionsmap = {
-            'info': console.info,
+            'status': console.status,
             'cleanup': console.cleanup,
             'install': console.install,
             'update': console.update,
@@ -65,7 +65,7 @@ class Application(object):
             # 'push-package': console.upload_version,
         }
 
-        command = args[0] if len(args) else 'cleanup'
+        command = args[0] if len(args) else 'status'
         logger.info('command: {}'.format(command))
         if not len(command) or command not in actionsmap.keys():
             return logger.error('unknown command: {}'.format(command))

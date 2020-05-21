@@ -13,15 +13,9 @@
 import inject
 
 
-@inject.params(config='config', appimagetool='appimagetool', logger='logger')
-def main(options=None, args=None, config=None, appimagetool=None, logger=None):
-    applications_global = config.get('applications.global', '/Applications')
-    applications_global = applications_global.split(':')
-
-    applications_local = config.get('applications.local', '~/Applications')
-    applications_local = applications_local.split(':')
-
-    for appimage in appimagetool.find(applications_global + applications_local):
+@inject.params(appimagetool='appimagetool', logger='logger')
+def main(options=None, args=None, appimagetool=None, logger=None):
+    for appimage in appimagetool.list():
         yield "Application: {}".format(appimage)
 
     return 0

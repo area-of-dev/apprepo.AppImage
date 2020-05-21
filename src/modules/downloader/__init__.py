@@ -12,17 +12,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import inject
 
+from .service import ServiceDownloader
 
-@inject.params(config='config', apprepo='apprepo', logger='logger')
-def main(options=None, args=None, config=None, apprepo=None, logger=None):
-    string = ' '.join(args).strip('\'" ')
-    if string is None or not len(string):
-        raise Exception('search string can not be empty')
 
-    for entity in apprepo.search(string):
-        yield ("{:>s} ({:>s}) - {:>s}".format(
-            entity['name'] or 'Unknown',
-            entity['version'] or 'Unknown',
-            entity['description'] or 'Unknown'
-        ))
-    return 0
+class Loader(object):
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        pass
+
+    def configure(self, binder, options, args):
+        """
+        Configure service container for the dependency injections
+        :param binder:
+        :param options:
+        :param args:
+        :return:
+        """
+        binder.bind('downloader', ServiceDownloader())

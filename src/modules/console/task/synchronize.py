@@ -15,30 +15,12 @@ import glob
 import inject
 
 
-@inject.params(config='config', appimagetool='appimagetool', logger='logger')
-def main(options=None, args=None, config=None, appimagetool=None, logger=None):
-    applications_global = config.get('applications.global', '/Applications')
-    applications_global = applications_global.split(':')
-
-    applications_local = config.get('applications.local', '~/Applications')
-    applications_local = applications_local.split(':')
-
-    integration = '/usr/share' \
-        if options.systemwide else \
-        os.path.expanduser('~/.local/share')
-
-    applications = applications_global \
-        if options.systemwide else \
-        applications_local
-
-    for location in applications:
-        location = os.path.expanduser(location)
-        if location is None: continue
-
-        for appimage in glob.glob('{}/*.AppImage'.format(location)):
-            yield "Application: {}".format(appimage)
-            desktop, icon = appimagetool.integrate(appimage, integration)
-            yield "\tupdating desktop file: {}".format(desktop)
-            yield "\tupdating desktop icon file: {}".format(icon)
+@inject.params(appimagetool='appimagetool', logger='logger')
+def main(options=None, args=None, appimagetool=None, logger=None):
+    for appimage in appimagetool.list():
+        yield "Application: {}".format(appimage)
+        desktop, icon = appimagetool.integrate(appimage, options.systemwide)
+        yield "\tupdating desktop file: {}".format(desktop)
+        yield "\tupdating desktop icon file: {}".format(icon)
 
     return 0

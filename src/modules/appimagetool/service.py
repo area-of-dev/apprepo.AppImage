@@ -12,11 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import os
 import pty
+import glob
+import stat
+import shutil
 import pathlib
 import subprocess
 import configparser
 from multiprocessing.pool import ThreadPool
-import glob
 
 
 class EqualsSpaceRemover(object):
@@ -96,6 +98,25 @@ class AppImageIconFinder(object):
 class ServiceAppImage(object):
     pool = ThreadPool(processes=1)
 
+    def __init__(self, locations_local=[], locations_global=[]):
+        self.locations_global = locations_global
+        self.locations_local = locations_local
+
+    @property
+    def locations(self):
+        return self.locations_global + \
+               self.locations_local
+
+    def _permissions(self, systemwide=False):
+        if systemwide is None or not systemwide:
+            return stat.S_IRWXU
+        return stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IRWXO | stat.S_IROTH
+
+    def _destination(self, package, systemwide=False):
+        if systemwide is None or not systemwide:
+            return os.path.expanduser('~/Applications/{}'.format(package))
+        return '/Applications/{}'.format(package)
+
     def _integrate(self, appimage, prefix='/usr/share'):
         out_r, out_w = pty.openpty()
         process = subprocess.Popen([appimage, '--appimage-mount'], stdout=out_w, stderr=subprocess.PIPE)
@@ -146,14 +167,41 @@ class ServiceAppImage(object):
 
         return (desktop_wanted, icon_wanted)
 
-    def integrate(self, appimage, prefix='/usr/share'):
-        async_result = self.pool.apply_async(self._integrate, (appimage, prefix))
-        return async_result.get()
+    def integrate(self, appimage, systemwide=False):
 
-    def find(self, locations=[]):
-        for location in locations:
+        prefix = '/usr/share' if systemwide else \
+            os.path.expanduser('~/.local/share')
+
+        async_result = self.pool.apply_async(self._integrate, (appimage, prefix))
+        return list(async_result.get())
+
+    def list(self):
+        for location in self.locations:
             location = os.path.expanduser(location)
-            if location is None: continue
+            if location is None or not len(location):
+                continue
 
             for appimage in glob.glob('{}/*.AppImage'.format(location)):
                 yield appimage
+
+    def install(self, tempfile, package, force=False, systemwide=False):
+        destination = self._destination(package, systemwide)
+        if os.path.exists(destination) and not force:
+            raise Exception('{} already exists, use --force to override t'
+                            'he existing package'.format(destination))
+
+        if os.path.exists(destination):
+            os.remove(destination)
+
+        folder = os.path.dirname(destination)
+        if len(folder) and not os.path.exists(folder):
+            os.makedirs(folder, exist_ok=False)
+
+        shutil.move(tempfile, destination)
+        permissions = self._permissions(systemwide)
+        os.chmod(destination, permissions)
+
+        if os.path.exists(tempfile):
+            os.unlink(tempfile)
+
+        return [destination] + self.integrate(destination, systemwide)

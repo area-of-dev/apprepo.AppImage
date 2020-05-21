@@ -11,89 +11,31 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import os
-import stat
-import json
-import requests
-import os
-import sys
-import glob
-import optparse
+import inject
 
 
-class InstallPackageTask(object):
-    def __init__(self, url=None):
-        if url is None or not len(url):
-            raise Exception('Init url can not be empty')
+@inject.params(appimagetool='appimagetool', apprepo='apprepo', downloader='downloader')
+def main(options=None, args=None, appimagetool=None, apprepo=None, downloader=None):
+    string = ' '.join(args).strip('\'" ')
+    if string is None or not len(string):
+        raise Exception('search string can not be empty')
 
-        self.url = url
+    for entity in apprepo.package(string):
+        assert ('package' in entity.keys())
+        assert ('file' in entity.keys())
 
-    def _permissions(self, systemwide=False):
-        if systemwide is None or not systemwide:
-            return stat.S_IRWXU
-        return stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IRWXO | stat.S_IROTH
+        temp_file = downloader.download(entity['file'])
+        if temp_file is None or not len(temp_file):
+            yield 'Can not download: {}'.format(entity['file'])
 
-    def _destination(self, package, systemwide=False):
-        if systemwide is None or not systemwide:
-            return os.path.expanduser('~/Applications/{}'.format(package))
-        return '/Applications/{}'.format(package)
+        assert (os.path.exists(temp_file))
 
-    def process(self, string=None, replace=False, systemwide=False):
-        response = requests.get('{}/{}/'.format(self.url, string))
-        if response is None or not response:
-            raise Exception('Response object can not be empty')
+        appimage, desktop, icon = appimagetool.install(temp_file, entity['package'], options.force, options.systemwide)
+        if desktop is None or icon is None or not len(desktop) or not len(icon):
+            raise Exception('Can not install, desktop or icon file is empty')
 
-        if response.status_code not in [200]:
-            raise Exception('Please check your internet connection or try later')
+        yield "Installed: {}".format(appimage)
+        yield "\tdesktop file: {}".format(desktop)
+        yield "\tdesktop icon file: {}".format(icon)
 
-        result = json.loads(response.content)
-
-        if 'file' not in result.keys():
-            raise Exception('file url not found')
-
-        if 'package' not in result.keys():
-            raise Exception('package name not found')
-
-        response = requests.get(result['file'])
-        if response is None or not response:
-            raise Exception('package name not found')
-
-        if response.status_code not in [200]:
-            raise Exception('Please check your internet connection or try later')
-
-        destination = self._destination(result['package'], systemwide)
-        if destination is not None and os.path.exists(destination):
-            if replace is None or not replace:
-                raise Exception('{} already exists, use --force to override t'
-                                'he existing package'.format(destination))
-
-        if os.path.exists(destination):
-            os.remove(destination)
-
-        destination_folder = os.path.dirname(destination)
-        if not os.path.exists(destination_folder):
-            os.makedirs(destination_folder, exist_ok=False)
-
-        with open(destination, 'wb') as stream:
-            os.chmod(destination, self._permissions(systemwide))
-            stream.write(response.content)
-            stream.close()
-
-        return [result]
-
-
-def main(options=None, args=None):
-    yield "not implemented yeat: {}".format(' '.join(args).strip('\'" '))
     return 0
-
-
-if __name__ == "__main__":
-    parser = optparse.OptionParser()
-    (options, args) = parser.parse_args()
-
-    try:
-        for output in main(options, args):
-            print(output)
-        sys.exit(0)
-    except Exception as ex:
-        print(ex)
-        sys.exit(1)

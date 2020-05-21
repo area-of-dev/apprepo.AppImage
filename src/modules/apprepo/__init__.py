@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2020 Alex Woroschilow (alex.woroschilow@gmail.com)
+# Copyright 2015 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,6 +11,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import inject
+from .service import ServiceApprepo
 
 
 class Loader(object):
@@ -22,16 +23,15 @@ class Loader(object):
         pass
 
     @inject.params(config='config')
-    def __construct(self, config=None):
-        from .service import ServiceAppImage
-
-        applications_global = config.get('applications.global', '/Applications')
-        applications_global = applications_global.split(':')
-
-        applications_local = config.get('applications.local', '~/Applications')
-        applications_local = applications_local.split(':')
-
-        return ServiceAppImage(applications_local, applications_global)
+    def __constructor(self, config=None):
+        return ServiceApprepo(config.get('api.url', 'https://apprepo.de/rest/api'))
 
     def configure(self, binder, options, args):
-        binder.bind_to_constructor('appimagetool', self.__construct)
+        """
+        Configure service container for the dependency injections
+        :param binder:
+        :param options:
+        :param args:
+        :return:
+        """
+        binder.bind_to_constructor('apprepo', self.__constructor)
