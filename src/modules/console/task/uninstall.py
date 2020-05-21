@@ -11,61 +11,36 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import os
-import stat
-import json
-import requests
 import glob
 import sys
 import optparse
+import pathlib
+import inject
 
 
-class UninstallPackageTask(object):
-    def __init__(self, url=None):
-        if url is None or not len(url):
-            raise Exception('Init url can not be empty')
+@inject.params(config='config', logger='logger')
+def main(options=None, args=None, config=None, logger=None):
+    applications_global = config.get('applications.global', '/Applications')
+    applications_global = applications_global.split(':')
 
-        self.url = url
+    applications_local = config.get('applications.local', '~/Applications')
+    applications_local = applications_local.split(':')
 
-    def _destination(self, package, systemwide=False):
-        if systemwide is None or not systemwide:
-            return os.path.expanduser('~/Applications/{}'.format(package))
-        return '/Applications/{}'.format(package)
+    search = ' '.join(args).strip('\'" ')
+    for location in applications_global + applications_local:
+        location = os.path.expanduser(location)
+        if location is None: continue
 
-    def process(self, string=None, options=False):
-        response = requests.get('{}/{}/'.format(self.url, string))
-        if response is None or not response:
-            raise Exception('package "{}" not found'.format(string))
+        for appimage in glob.glob('{}/*.AppImage'.format(location)):
+            appimage = pathlib.Path(appimage)
+            if appimage is None: continue
 
-        if response.status_code not in [200]:
-            raise Exception('Please check your internet connection or try later')
+            if appimage.stem.lower() != search:
+                continue
 
-        result = json.loads(response.content)
+            yield "Removing: {}".format(appimage)
+            # os.remove(appimage)
 
-        if 'file' not in result.keys():
-            raise Exception('file url not found')
-
-        if 'package' not in result.keys():
-            raise Exception('package name not found')
-
-        response = requests.get(result['file'])
-        if response is None or not response:
-            raise Exception('package "{}" not found'.format(string))
-
-        if response.status_code not in [200]:
-            raise Exception('Please check your internet connection or try later')
-
-        destination = self._destination(result['package'], options.systemwide)
-        if not os.path.exists(destination):
-            raise Exception('{} not found'.format(destination))
-
-        if os.path.exists(destination):
-            os.remove(destination)
-
-        return [result]
-
-
-def main(options=None, args=None):
-    yield "not implemented yeat: {}".format(' '.join(args).strip('\'" '))
     return 0
 
 

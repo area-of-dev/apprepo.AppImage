@@ -11,30 +11,23 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import os
-import sys
 import glob
-import optparse
+import inject
 
 
-def main(options=None, args=None):
-    applications = '/Applications' if options.systemwide else \
-        os.path.expanduser('~/Applications')
+@inject.params(config='config', logger='logger')
+def main(options=None, args=None, config=None, logger=None):
+    applications_global = config.get('applications.global', '/Applications')
+    applications_global = applications_global.split(':')
 
-    for appimage in glob.glob('{}/*.AppImage'.format(applications)):
-        yield "Application: {}".format(appimage)
+    applications_local = config.get('applications.local', '~/Applications')
+    applications_local = applications_local.split(':')
+
+    for location in applications_global + applications_local:
+        location = os.path.expanduser(location)
+        if location is None: continue
+
+        for appimage in glob.glob('{}/*.AppImage'.format(location)):
+            yield "Application: {}".format(appimage)
 
     return 0
-
-
-if __name__ == "__main__":
-    parser = optparse.OptionParser()
-    parser.add_option("--global", dest="systemwide", help="Apply the changes for all users", action='store_true')
-    (options, args) = parser.parse_args()
-
-    try:
-        for output in main(options, args):
-            print(output)
-        sys.exit(0)
-    except Exception as ex:
-        print(ex)
-        sys.exit(1)

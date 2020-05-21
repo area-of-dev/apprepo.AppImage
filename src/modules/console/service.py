@@ -14,7 +14,7 @@ import os
 
 from .task.search import SearchTask
 from .task.install import InstallPackageTask
-from .task.uninstall import UninstallPackageTask
+# from .task.uninstall import UninstallPackageTask
 from .task.upload import VersionUploadTask
 
 
@@ -55,7 +55,7 @@ class Console(object):
         :return:
         """
         from .task import cleanup
-        for entity in cleanup.main(args, options):
+        for entity in cleanup.main(options, args):
             yield entity
 
     def search(self, options=None, args=None):
@@ -114,6 +114,9 @@ class Console(object):
         from .task import uninstall
         for entity in uninstall.main(options, args):
             yield entity
+
+        for output in self.cleanup(options, args):
+            yield output
 
     #     if string is None or not len(string):
     #         raise Exception('search string can not be empty')

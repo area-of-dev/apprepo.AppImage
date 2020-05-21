@@ -38,15 +38,22 @@ class Application(object):
 
         actionsmap = {
             'info': console.info,
-            'synchronize': console.synchronize,
             'cleanup': console.cleanup,
-            'search': console.search,
-            'find': console.search,
             'install': console.install,
-            'uninstall': console.uninstall,
-            'remove': console.uninstall,
             'update': console.update,
             'upload': console.upload,
+            # Commands to synchronize application with the system
+            # there are few keywords for the same commands for the usability reason
+            'synchronize': console.synchronize,
+            'sync': console.synchronize,
+            # Look for the application in the repository
+            # there are few keywords for the same commands for the usability reason
+            'search': console.search,
+            'find': console.search,
+            # Uninstall the applications from the system
+            # there are few keywords for the same commands for the usability reason
+            'uninstall': console.uninstall,
+            'remove': console.uninstall,
 
             # 'find-package': console.search_package,
             # 'search-package': console.search_package,

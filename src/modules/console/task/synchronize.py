@@ -7,6 +7,7 @@ import configparser
 from multiprocessing.pool import ThreadPool
 import glob
 import optparse
+import inject
 
 
 class EqualsSpaceRemover(object):
@@ -35,8 +36,8 @@ class AppImageDesktopFinder(object):
     def files(self, destination=None):
         desktop_origin = self._desktop_origin()
 
-        desktop_wanted = os.path.basename(self.appimage)
-        desktop_wanted = desktop_wanted.replace('.AppImage', '')
+        desktop_wanted = pathlib.Path(self.appimage)
+        desktop_wanted = desktop_wanted.stem
         desktop_wanted = "{}/{}.desktop".format(destination, desktop_wanted)
         return (desktop_origin, desktop_wanted)
 
@@ -66,16 +67,16 @@ class AppImageIconFinder(object):
         return None
 
     def _icon_wanted(self):
-        appimage = os.path.basename(self.appimage)
-        appimage = appimage.replace('.AppImage', '')
+        appimage = pathlib.Path(self.appimage)
+        appimage = appimage.stem
 
         icon_origin = self._icon_origin()
         icon_origin = pathlib.PurePosixPath(icon_origin)
         return ''.join([appimage, icon_origin.suffix])
 
     def property(self, origin=None):
-        origin = os.path.basename(self.appimage)
-        return origin.replace('.AppImage', '')
+        origin = pathlib.Path(self.appimage)
+        return origin.stem
 
     def files(self, destination=None):
         icon_origin = self._icon_origin()
@@ -135,34 +136,33 @@ def appimage_integration(appimage, prefix='/usr/share'):
     return (desktop_wanted, icon_wanted)
 
 
-def main(options=None, args=None):
+@inject.params(config='config', logger='logger')
+def main(options=None, args=None, config=None, logger=None):
     pool = ThreadPool(processes=1)
 
-    integration = '/usr/share' if options.systemwide else \
+    applications_global = config.get('applications.global', '/Applications')
+    applications_global = applications_global.split(':')
+
+    applications_local = config.get('applications.local', '~/Applications')
+    applications_local = applications_local.split(':')
+
+    integration = '/usr/share' \
+        if options.systemwide else \
         os.path.expanduser('~/.local/share')
 
-    applications = '/Applications' if options.systemwide else \
-        os.path.expanduser('~/Applications')
+    applications = applications_global \
+        if options.systemwide else \
+        applications_local
 
-    for appimage in glob.glob('{}/*.AppImage'.format(applications)):
-        yield "Application: {}".format(appimage)
-        async_result = pool.apply_async(appimage_integration, (appimage, integration))
-        desktop, icon = async_result.get()
-        yield "\tupdating desktop file: {}".format(desktop)
-        yield "\tupdating desktop icon file: {}".format(icon)
+    for location in applications:
+        location = os.path.expanduser(location)
+        if location is None: continue
+
+        for appimage in glob.glob('{}/*.AppImage'.format(location)):
+            yield "Application: {}".format(appimage)
+            async_result = pool.apply_async(appimage_integration, (appimage, integration))
+            desktop, icon = async_result.get()
+            yield "\tupdating desktop file: {}".format(desktop)
+            yield "\tupdating desktop icon file: {}".format(icon)
 
     return 0
-
-
-if __name__ == "__main__":
-    parser = optparse.OptionParser()
-    parser.add_option("--global", dest="systemwide", help="Apply the changes for all users", action='store_true')
-    (options, args) = parser.parse_args()
-
-    try:
-        for output in main(options, args):
-            print(output)
-        sys.exit(0)
-    except Exception as ex:
-        print(ex)
-        sys.exit(1)

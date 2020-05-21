@@ -27,8 +27,6 @@ def main(options=None, args=None):
 
     existed = []
     for desktop in glob.glob('{}/applications/*.desktop'.format(integration)):
-        yield "Processing: {}".format(desktop)
-
         config.read(desktop)
 
         property_exec = config.get('Desktop Entry', 'Exec')
@@ -38,17 +36,17 @@ def main(options=None, args=None):
             existed.append(config.get('Desktop Entry', 'Icon'))
             continue
 
+        yield "Processing: {}".format(desktop)
         yield "\tbinary not found, removing..."
         os.remove(desktop)
         continue
 
     for icon in glob.glob('{}/icons/*'.format(integration)):
-        yield "Processing: {}".format(icon)
-
         icon = pathlib.Path(icon)
         if icon.stem in existed:
             continue
 
+        yield "Processing: {}".format(icon)
         yield "\t{}.desktop not found, removing...".format(icon.stem)
         os.remove(icon)
         continue
