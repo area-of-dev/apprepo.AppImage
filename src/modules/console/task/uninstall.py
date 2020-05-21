@@ -11,15 +11,14 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import os
-import glob
 import sys
 import optparse
 import pathlib
 import inject
 
 
-@inject.params(config='config', logger='logger')
-def main(options=None, args=None, config=None, logger=None):
+@inject.params(config='config', appimagetool='appimagetool', logger='logger')
+def main(options=None, args=None, config=None, appimagetool=None, logger=None):
     applications_global = config.get('applications.global', '/Applications')
     applications_global = applications_global.split(':')
 
@@ -27,19 +26,17 @@ def main(options=None, args=None, config=None, logger=None):
     applications_local = applications_local.split(':')
 
     search = ' '.join(args).strip('\'" ')
-    for location in applications_global + applications_local:
-        location = os.path.expanduser(location)
-        if location is None: continue
+    for appimage in appimagetool.find(applications_global + applications_local):
+        appimage = pathlib.Path(appimage)
+        if appimage is None: continue
 
-        for appimage in glob.glob('{}/*.AppImage'.format(location)):
-            appimage = pathlib.Path(appimage)
-            if appimage is None: continue
+        appimage_name = appimage.stem
+        appimage_name = appimage_name.lower()
+        if appimage_name != search:
+            continue
 
-            if appimage.stem.lower() != search:
-                continue
-
-            yield "Removing: {}".format(appimage)
-            # os.remove(appimage)
+        yield "Removing: {}".format(appimage)
+        os.remove(appimage)
 
     return 0
 
