@@ -1,20 +1,9 @@
 import os
-import sys
 import pty
-import pathlib
 import subprocess
 import configparser
 from multiprocessing.pool import ThreadPool
 import glob
-import optparse
-
-
-class EqualsSpaceRemover(object):
-    def __init__(self, origin):
-        self.origin = origin
-
-    def write(self, what):
-        self.origin.write(what.replace(" = ", "=", 1))
 
 
 class AppImageDesktopFinder(object):
@@ -34,10 +23,8 @@ class AppImageDesktopFinder(object):
 
     def files(self, destination=None):
         desktop_origin = self._desktop_origin()
-
-        desktop_wanted = os.path.basename(self.appimage)
-        desktop_wanted = desktop_wanted.replace('.AppImage', '')
-        desktop_wanted = "{}/{}.desktop".format(destination, desktop_wanted)
+        desktop_wanted = os.path.basename(desktop_origin)
+        desktop_wanted = "{}/{}".format(destination, desktop_wanted)
         return (desktop_origin, desktop_wanted)
 
 
@@ -70,8 +57,11 @@ class AppImageIconFinder(object):
         appimage = appimage.replace('.AppImage', '')
 
         icon_origin = self._icon_origin()
-        icon_origin = pathlib.PurePosixPath(icon_origin)
-        return ''.join([appimage, icon_origin.suffix])
+        icon_origin = os.path.basename(icon_origin)
+        icon_origin = icon_origin.split('.')
+
+        icon_origin[0] = appimage
+        return '.'.join(icon_origin)
 
     def property(self, origin=None):
         origin = os.path.basename(self.appimage)
@@ -87,7 +77,7 @@ class AppImageIconFinder(object):
 def appimage_integration(appimage, prefix='/usr/share'):
     out_r, out_w = pty.openpty()
     process = subprocess.Popen([appimage, '--appimage-mount'], stdout=out_w, stderr=subprocess.PIPE)
-    path_mounted = str(os.read(out_r, 2048), 'utf-8', errors='ignore')
+    path_mounted = str(os.read(out_r, 1024), 'utf-8', errors='ignore')
     path_mounted = path_mounted.strip("\n\r")
 
     path_desktop = '{}/applications'.format(prefix)
@@ -106,63 +96,28 @@ def appimage_integration(appimage, prefix='/usr/share'):
     config.optionxform = str
     config.read(desktop_origin)
 
-    if not config.has_option('Desktop Entry', 'Version'):
-        config.set('Desktop Entry', 'Version', 1.0)
+    property_exec = config.get('Desktop Entry', 'Exec')
+    config.set('Desktop Entry', 'Exec', desktopfinder.property(property_exec))
 
     property_icon = config.get('Desktop Entry', 'Icon')
     config.set('Desktop Entry', 'Icon', iconfinder.property(property_icon))
 
-    for section in config.sections():
-        if config.has_option(section, 'Exec'):
-            property_exec = config.get(section, 'Exec')
-            config.set(section, 'Exec', desktopfinder.property(property_exec))
-
-        if config.has_option(section, 'TryExec'):
-            property_exec = config.get(section, 'TryExec')
-            config.set(section, 'TryExec', desktopfinder.property(property_exec))
-
     with open(desktop_wanted, 'w') as desktop_wanted_stream:
-        config.write(EqualsSpaceRemover(desktop_wanted_stream))
+        config.write(desktop_wanted_stream)
 
     with open(icon_origin, 'rb') as icon_origin_stream:
         with open(icon_wanted, 'wb') as icon_wanted_stream:
             icon_wanted_stream.write(icon_origin_stream.read())
-            icon_wanted_stream.close()
-        icon_origin_stream.close()
 
     process.terminate()
 
     return (desktop_wanted, icon_wanted)
 
 
-def main(options=None, args=None):
-    pool = ThreadPool(processes=1)
+pool = ThreadPool(processes=1)
 
-    integration = '/usr/share' if options.systemwide else \
-        os.path.expanduser('~/.local/share')
-
-    applications = '/Applications' if options.systemwide else \
-        os.path.expanduser('~/Applications')
-
-    for appimage in glob.glob('{}/*.AppImage'.format(applications)):
-        yield "Application: {}".format(appimage)
-        async_result = pool.apply_async(appimage_integration, (appimage, integration))
-        desktop, icon = async_result.get()
-        yield "\tupdating desktop file: {}".format(desktop)
-        yield "\tupdating desktop icon file: {}".format(icon)
-
-    return 0
-
-
-if __name__ == "__main__":
-    parser = optparse.OptionParser()
-    parser.add_option("--global", dest="systemwide", help="Apply the changes for all users", action='store_true')
-    (options, args) = parser.parse_args()
-
-    try:
-        for output in main(options, args):
-            print(output)
-        sys.exit(0)
-    except Exception as ex:
-        print(ex)
-        sys.exit(1)
+# appimage = '/home/sensey/Applications/Krita.AppImage'
+appimage = '/home/sensey/Applications/Audacity.AppImage'
+appimage = '/home/sensey/Applications/AOD-Notes.AppImage'
+async_result = pool.apply_async(appimage_integration, (appimage, '{}/.local/share'.format(os.path.expanduser('~'))))
+print(async_result.get())

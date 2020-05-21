@@ -15,6 +15,10 @@ import math
 import json
 import hashlib
 import requests
+import os
+import sys
+import glob
+import optparse
 
 
 class VersionUploadTask(object):
@@ -91,3 +95,21 @@ class VersionUploadTask(object):
             if 'package' not in details.keys():
                 raise Exception('package not found')
             return details['package']
+
+
+def main(options=None, args=None):
+    yield "not implemented yeat: {}".format(' '.join(args).strip('\'" '))
+    return 0
+
+
+if __name__ == "__main__":
+    parser = optparse.OptionParser()
+    (options, args) = parser.parse_args()
+
+    try:
+        for output in main(options, args):
+            print(output)
+        sys.exit(0)
+    except Exception as ex:
+        print(ex)
+        sys.exit(1)

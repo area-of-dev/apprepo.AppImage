@@ -33,42 +33,45 @@ class Application(object):
 
         self.kernel = module.Kernel(options, args)
 
-    @inject.params(console='console')
-    def exec_(self, options, args, console=None):
-        if not len(args): return None
+    @inject.params(console='console', logger='logger')
+    def exec_(self, options, args, console=None, logger=None):
 
         actionsmap = {
-            'find': console.search_package,
-            'find-package': console.search_package,
-            'search': console.search_package,
-            'search-package': console.search_package,
-            'find-group': console.search_group,
-            'upload': console.upload_version,
-            'upload-version': console.upload_version,
-            'upload-package': console.upload_version,
-            'push-version': console.upload_version,
-            'push-package': console.upload_version,
-            'install': console.install_package,
-            'synchronize': console.synchronize_package,
-            'update': console.synchronize_package,
-            'sync': console.synchronize_package,
-            'uninstall': console.uninstall_package,
-            'remove': console.uninstall_package,
+            'info': console.info,
+            'synchronize': console.synchronize,
+            'cleanup': console.cleanup,
+            'search': console.search,
+            'find': console.search,
+            'install': console.install,
+            'uninstall': console.uninstall,
+            'remove': console.uninstall,
+            'update': console.update,
+            'upload': console.upload,
+
+            # 'find-package': console.search_package,
+            # 'search-package': console.search_package,
+            # 'find-group': console.search_group,
+            # 'upload': console.upload_version,
+            # 'upload-version': console.upload_version,
+            # 'upload-package': console.upload_version,
+            # 'push-version': console.upload_version,
+            # 'push-package': console.upload_version,
         }
 
-        command = args[0] or None
+        command = args[0] if len(args) else 'cleanup'
+        logger.info('command: {}'.format(command))
         if not len(command) or command not in actionsmap.keys():
-            raise Exception('unknown command: {}'.format(command))
+            return logger.error('unknown command: {}'.format(command))
 
         action = actionsmap[command] or None
         if action is None or not callable(action):
-            raise Exception('command action not defined: {}'.format(command))
+            return logger.error('unknown command: {}'.format(command))
 
         try:
-            for output in action(' '.join(args[1:]).strip('\'" '), options):
+            for output in action(options, args[1:]):
                 print(output)
         except Exception as ex:
-            # print('Failed: {}'.format(ex))
+            print('Failed: {}'.format(ex))
             raise ex
 
 
