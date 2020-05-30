@@ -27,42 +27,46 @@ def main(options=None, args=None):
 
     existed = []
     for desktop in glob.glob('{}/applications/*.desktop'.format(integration)):
+        yield "[found]: {}".format(os.path.basename(desktop))
+
+        desktop_name = pathlib.Path(desktop)
+        desktop_name = desktop_name.stem
+
         config.read(desktop)
 
         property_exec = config.get('Desktop Entry', 'Exec')
         property_exec = property_exec.split(' ')
         property_exec = property_exec.pop(0)
-        if len(property_exec) and os.path.exists(property_exec):
-            existed.append(config.get('Desktop Entry', 'Icon'))
+
+        property_exec_name = pathlib.Path(property_exec)
+        property_exec_name = property_exec_name.stem
+
+        if property_exec_name != desktop_name:
+            yield "[removing]: {}, binary name is not the same as the .desktop file name...". \
+                format(os.path.basename(desktop))
+            os.remove(desktop)
             continue
 
-        yield "Processing: {}".format(desktop)
-        yield "\tbinary not found, removing..."
-        os.remove(desktop)
+        if not os.path.exists(property_exec):
+            yield "[removing]: {}, binary not found..." \
+                .format(os.path.basename(desktop))
+            os.remove(desktop)
+            continue
+
+        existed.append(config.get('Desktop Entry', 'Icon'))
         continue
 
     for icon in glob.glob('{}/icons/*'.format(integration)):
+        yield "[found]: {}".format(os.path.basename(icon))
+
         icon = pathlib.Path(icon)
         if icon.stem in existed:
             continue
 
-        yield "Processing: {}".format(icon)
-        yield "\t{}.desktop not found, removing...".format(icon.stem)
+        yield "[removing]: {}, .desktop file not found..." \
+            .format(os.path.basename(icon))
+
         os.remove(icon)
         continue
 
     return 0
-
-
-if __name__ == "__main__":
-    parser = optparse.OptionParser()
-    parser.add_option("--global", dest="systemwide", help="Apply the changes for all users", action='store_true')
-    (options, args) = parser.parse_args()
-
-    try:
-        for output in main(options, args):
-            print(output)
-        sys.exit(0)
-    except Exception as ex:
-        print(ex)
-        sys.exit(1)

@@ -39,8 +39,6 @@ class Application(object):
         actionsmap = {
             'status': console.status,
             'cleanup': console.cleanup,
-            'install': console.install,
-            'update': console.update,
             'upload': console.upload,
             # Commands to synchronize application with the system
             # there are few keywords for the same commands for the usability reason
@@ -49,15 +47,25 @@ class Application(object):
             # Look for the application in the repository
             # there are few keywords for the same commands for the usability reason
             'search': console.search,
+            'lookup': console.search,
             'find': console.search,
             # Uninstall the applications from the system
             # there are few keywords for the same commands for the usability reason
             'uninstall': console.uninstall,
             'remove': console.uninstall,
-
-            # 'find-package': console.search_package,
-            # 'search-package': console.search_package,
-            # 'find-group': console.search_group,
+            'delete': console.uninstall,
+            'rm': console.uninstall,
+            # Commands to install application from the apprepo
+            # there are few keywords for the same commands for the usability reason
+            'install': console.install,
+            'download': console.install,
+            'get': console.install,
+            'in': console.install,
+            # Commands to update current installed applications to the latest versions
+            # there are few keywords for the same commands for the usability reason
+            'update': console.update,
+            'upgrade': console.update,
+            'up': console.update,
             # 'upload': console.upload_version,
             # 'upload-version': console.upload_version,
             # 'upload-package': console.upload_version,
@@ -83,7 +91,16 @@ class Application(object):
 
 
 if __name__ == "__main__":
-    parser = optparse.OptionParser()
+    parser = optparse.OptionParser("""apprepo [options] [argument] <string>
+    status\t- display a list of the available AppImage files
+    cleanup\t- look for the .desktop files without binaries or icons without the desktop files and remove them
+    upload\t- upload a new version of the AppImage to the apprepo server
+    synchronize\t- go through all available AppImage files and integrate them into the system if necessary
+    update \t(upgrade|up) \t<string>\t- check for the latest version and install it 
+    search \t(find|lookup) \t<string>\t- look for an AppImage files at the apprepo server by the string
+    uninstall \t(remove|rm|delete) \t<string>\t- remove the AppImage from the system by the name
+    install \t(in|download|get) \t<string>\t- install an AppImage from the apprepo by the name
+    """)
 
     logfile = os.path.expanduser('~/.config/AOD-Store/default.log')
 

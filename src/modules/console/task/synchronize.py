@@ -18,9 +18,11 @@ import inject
 @inject.params(appimagetool='appimagetool', logger='logger')
 def main(options=None, args=None, appimagetool=None, logger=None):
     for appimage in appimagetool.list():
-        yield "Application: {}".format(appimage)
         desktop, icon = appimagetool.integrate(appimage, options.systemwide)
-        yield "\tupdating desktop file: {}".format(desktop)
-        yield "\tupdating desktop icon file: {}".format(icon)
+        yield "[done]: {}, {}, {}".format(
+            os.path.basename(appimage),
+            os.path.basename(desktop),
+            os.path.basename(icon)
+        )
 
     return 0

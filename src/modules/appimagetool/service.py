@@ -118,6 +118,10 @@ class ServiceAppImage(object):
         return '/Applications/{}'.format(package)
 
     def _integrate(self, appimage, prefix='/usr/share'):
+        if not os.path.exists(appimage) or os.path.isdir(appimage):
+            raise Exception('File does not exist')
+
+        os.chmod(appimage, stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH)
         out_r, out_w = pty.openpty()
         process = subprocess.Popen([appimage, '--appimage-mount'], stdout=out_w, stderr=subprocess.PIPE)
         path_mounted = str(os.read(out_r, 2048), 'utf-8', errors='ignore')

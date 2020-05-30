@@ -13,9 +13,7 @@
 import glob
 import hashlib
 import json
-import optparse
 import os
-import sys
 import pathlib
 
 import inject
@@ -145,16 +143,3 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, downloader=No
 
     # yield "not implemented yeat: {}".format(' '.join(args).strip('\'" '))
     return 0
-
-
-if __name__ == "__main__":
-    parser = optparse.OptionParser()
-    (options, args) = parser.parse_args()
-
-    try:
-        for output in main(options, args):
-            print(output)
-        sys.exit(0)
-    except Exception as ex:
-        print(ex)
-        sys.exit(1)
