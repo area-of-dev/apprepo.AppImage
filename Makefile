@@ -7,7 +7,7 @@ all: init appimage clean
 
 init:
 	rm -rf $(PWD)/venv
-	python3.6 -m venv --copies $(PWD)/venv
+	python3 -m venv --copies $(PWD)/venv
 	source $(PWD)/venv/bin/activate && python3 -m pip install --upgrade pip && python3 -m pip install -r $(PWD)/requirements.txt
 
 
