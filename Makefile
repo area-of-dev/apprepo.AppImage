@@ -13,9 +13,8 @@ init:
 
 appimage: clean
 	source $(PWD)/venv/bin/activate && python3 -O -m PyInstaller src/console.py --distpath $(APPDIR) --name application --noconfirm
-	cp -r ./src/icons $(APPDIR)/application
-	cp -r ./src/lib $(APPDIR)/application
 	cp -r ./src/modules $(APPDIR)/application
+	cp -r ./src/lib $(APPDIR)/application
 
 	bin/appimagetool.AppImage  ./AppDir apprepo.AppImage
 	@echo "done: bin/apprepo.AppImage"
