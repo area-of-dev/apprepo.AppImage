@@ -18,6 +18,13 @@ import inject
 
 @inject.params(appimagetool='appimagetool', logger='logger')
 def main(options=None, args=None, appimagetool=None, logger=None):
+    profile = os.path.expanduser('~/.profile')
+    if not os.path.exists(profile) or not os.path.isfile(profile):
+        yield "[notice] ~/.profile does not exist, creating..."
+        with open(profile, 'w+') as stream:
+            stream.write('PATH=~/.local/bin:$PATH')
+            stream.close()
+
     for appimage, desktop, icon, alias in appimagetool.collection():
 
         if not os.path.exists(desktop) or not glob.glob(icon) or not os.path.exists(alias):

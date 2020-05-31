@@ -27,6 +27,9 @@ def main(options=None, args=None):
 
     existed = []
     for desktop in glob.glob('{}/applications/*.desktop'.format(integration)):
+        if os.path.isdir(desktop):
+            continue
+
         yield "[found]: {}".format(os.path.basename(desktop))
 
         desktop_name = pathlib.Path(desktop)
@@ -57,6 +60,9 @@ def main(options=None, args=None):
         continue
 
     for icon in glob.glob('{}/icons/*'.format(integration)):
+        if os.path.isdir(icon):
+            continue
+
         yield "[found]: {}".format(os.path.basename(icon))
 
         icon = pathlib.Path(icon)
