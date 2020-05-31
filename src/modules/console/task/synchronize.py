@@ -31,10 +31,10 @@ def main(options=None, args=None, appimagetool=None, logger=None):
             desktop, icon, alias = appimagetool.integrate(appimage, options.systemwide)
 
         yield "[done]: {}, {}, {}, {}".format(
-            os.path.basename(appimage),
-            os.path.basename(desktop),
-            os.path.basename(icon),
-            os.path.basename(alias)
+            os.path.basename(appimage) if appimage is not None else '---',
+            os.path.basename(desktop) if desktop is not None else '---',
+            os.path.basename(icon) if icon is not None else '---',
+            os.path.basename(alias) if alias is not None else '---'
         )
 
     return 0

@@ -170,17 +170,20 @@ class ServiceAppImage(object):
         desktopfinder = AppImageDesktopFinder(appimage, path_mounted)
         desktop_origin, desktop_wanted = desktopfinder.files(path_desktop)
         if desktop_origin is None or desktop_wanted is None:
-            raise Exception('.desktop file not found for: {}'.format(appimage))
+            logger.error('.desktop file not found for: {}'.format(appimage))
+            return (None, None, None)
 
         iconfinder = AppImageIconFinder(appimage, path_mounted)
         icon_origin, icon_wanted = iconfinder.files(path_icon)
         if icon_origin is None or icon_wanted is None:
-            raise Exception('icon file not found for: {}'.format(appimage))
+            logger.error('icon file not found for: {}'.format(appimage))
+            return (None, None, None)
 
         aliasfinder = AppImageAliasFinder(appimage, path_mounted)
         alias_origin, alias_wanted = aliasfinder.files(path_alias)
         if alias_origin is None or alias_wanted is None:
-            raise Exception('alias file not found for: {}'.format(appimage))
+            logger.error('alias file not found for: {}'.format(appimage))
+            return (None, None, None)
 
         logger.debug('config: {}'.format(desktop_origin))
         config = configparser.RawConfigParser()
