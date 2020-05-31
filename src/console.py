@@ -10,13 +10,19 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import logging.handlers
+import optparse
 import os
 import sys
-import logging
-import optparse
-import inject
-
+import pty
+import json
+import requests
+import configparser
+import pathlib
+import multiprocessing
 from importlib import util
+
+import inject
 
 abspath = sys.argv[0] \
     if len(sys.argv) else \
@@ -91,35 +97,36 @@ class Application(object):
 
 
 if __name__ == "__main__":
+    configfile = '~/.config/apprepo/default.conf'
+
+    # update \t(upgrade|up) \t<string>\t- check for the latest version and install it
+    # search \t(find|lookup) \t<string>\t- look for an AppImage files at the apprepo server by the string
+    # install \t(in|download|get) \t<string>\t- install an AppImage from the apprepo by the name
+    # upload\t- upload a new version of the AppImage to the apprepo server
     parser = optparse.OptionParser("""apprepo [options] [argument] <string>
-    status\t- display a list of the available AppImage files
-    cleanup\t- look for the .desktop files without binaries or icons without the desktop files and remove them
-    upload\t- upload a new version of the AppImage to the apprepo server
-    synchronize\t- go through all available AppImage files and integrate them into the system if necessary
-    update \t(upgrade|up) \t<string>\t- check for the latest version and install it 
-    search \t(find|lookup) \t<string>\t- look for an AppImage files at the apprepo server by the string
-    uninstall \t(remove|rm|delete) \t<string>\t- remove the AppImage from the system by the name
-    install \t(in|download|get) \t<string>\t- install an AppImage from the apprepo by the name
+    status\t- display a list of all available AppImage files (/Applications | ~/Applications by default)
+    sync (synchronize)\t- go through all available AppImage files and integrate them into the system if necessary
+    remove (uninstall|rm|delete) <string>\t- remove the AppImage from the system by the name
+    cleanup\t- remove abandoned .desktop files and icons        
     """)
 
-    logfile = os.path.expanduser('~/.config/AOD-Store/default.log')
-
-    parser.add_option("--logfile", default=logfile, dest="logfile", help="Logfile location")
-    parser.add_option("--loglevel", default=logging.DEBUG, dest="loglevel", help="Logging level")
-    parser.add_option("--version-token", dest="version_token", help="Upload token", default=None)
-    parser.add_option("--version-description", dest="version_description", help="description", default=None)
-    parser.add_option("--version-name", dest="version_name", help="Upload name", default=None)
+    parser.add_option("--loglevel", default=logging.INFO, dest="loglevel", help="Logging level")
     parser.add_option("--force", dest="force", help="Force execution", action='store_true')
     parser.add_option("--global", dest="systemwide", help="Install the application for all users", action='store_true')
     parser.add_option("--cleanup", dest="cleanup", help="Remove unknown packages", action='store_true')
+    # parser.add_option("--version-token", dest="version_token", help="Upload token", default=None)
+    # parser.add_option("--version-description", dest="version_description", help="description", default=None)
+    # parser.add_option("--version-name", dest="version_name", help="Upload name", default=None)
 
-    configfile = os.path.expanduser('~/.config/AOD-Store/default.conf')
-    parser.add_option("--config", default=configfile, dest="config", help="Config file location")
+    parser.add_option("--config", default=os.path.expanduser(configfile), dest="config",
+                      help="Config file location, default: {}".format(configfile))
 
     (options, args) = parser.parse_args()
 
     log_format = '[%(relativeCreated)d][%(name)s] %(levelname)s - %(message)s'
-    logging.basicConfig(level=options.loglevel, format=log_format)
+    logging.basicConfig(level=options.loglevel, format=log_format, handlers=[
+        logging.handlers.SysLogHandler(address='/dev/log')
+    ])
 
     application = Application(options, args)
     sys.exit(application.exec_(options, args))

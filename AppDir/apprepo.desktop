@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=apprepo
+Exec=AppRun
+Icon=apprepo
+Type=Application
+Comment=Linux application repository client and AppImage manager
+Categories=Development;
+Terminal=true

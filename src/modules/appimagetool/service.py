@@ -10,14 +10,14 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import os
-import pty
-import glob
-import stat
-import shutil
-import pathlib
-import subprocess
 import configparser
+import glob
+import os
+import pathlib
+import pty
+import shutil
+import stat
+import subprocess
 from multiprocessing.pool import ThreadPool
 
 
@@ -29,15 +29,40 @@ class EqualsSpaceRemover(object):
         self.origin.write(what.replace(" = ", "=", 1))
 
 
-class AppImageDesktopFinder(object):
-    def __init__(self, appimage, mountpoint):
+class AppImageAliasFinder(object):
+    def __init__(self, appimage, mountpoint=None):
         self.mountpoint = mountpoint
         self.appimage = appimage
 
-    def _desktop_origin(self):
+    @property
+    def wanted(self):
+        alias_wanted = pathlib.Path(self.appimage)
+        return alias_wanted.stem.lower()
+
+    def files(self, destination=None):
+        return (self.appimage, "{}/{}".format(
+            destination, self.wanted
+        ))
+
+
+class AppImageDesktopFinder(object):
+    def __init__(self, appimage, mountpoint=None):
+        self.mountpoint = mountpoint
+        self.appimage = appimage
+
+    @property
+    def origin(self):
+        if self.mountpoint is None:
+            return None
+
         pattern = '{}/*.desktop'.format(self.mountpoint)
         for path in glob.glob(pattern):
             return path
+
+    @property
+    def wanted(self):
+        desktop_wanted = pathlib.Path(self.appimage)
+        return desktop_wanted.stem
 
     def property(self, origin=None):
         properties = origin.split(' ')
@@ -45,19 +70,21 @@ class AppImageDesktopFinder(object):
         return ' '.join(properties)
 
     def files(self, destination=None):
-        desktop_origin = self._desktop_origin()
-
-        desktop_wanted = pathlib.Path(self.appimage)
-        desktop_wanted = "{}/{}.desktop".format(destination, desktop_wanted.stem)
-        return (desktop_origin, desktop_wanted)
+        return (self.origin, "{}/{}.desktop".format(
+            destination, self.wanted
+        ))
 
 
 class AppImageIconFinder(object):
-    def __init__(self, appimage, mountpoint):
+    def __init__(self, appimage, mountpoint=None):
         self.mountpoint = mountpoint
         self.appimage = appimage
 
-    def _icon_origin(self):
+    @property
+    def origin(self):
+        if self.mountpoint is None:
+            return None
+
         pattern = '{}/*.svg'.format(self.mountpoint)
         for path_temp_icon in glob.glob(pattern):
             return path_temp_icon
@@ -76,23 +103,24 @@ class AppImageIconFinder(object):
 
         return None
 
-    def _icon_wanted(self):
-        appimage = pathlib.Path(self.appimage)
-        appimage = appimage.stem
+    @property
+    def wanted(self):
+        name = pathlib.Path(self.appimage)
+        name = name.stem
 
-        icon_origin = self._icon_origin()
-        icon_origin = pathlib.PurePosixPath(icon_origin)
-        return ''.join([appimage, icon_origin.suffix])
+        extension = self.origin
+        if extension is None:
+            return "{}.*".format(name)
+        extension = pathlib.PurePosixPath(extension)
+        extension = extension.suffix
+        return ''.join([name, extension])
 
     def property(self, origin=None):
         origin = pathlib.Path(self.appimage)
         return origin.stem
 
     def files(self, destination=None):
-        icon_origin = self._icon_origin()
-        icon_wanted = self._icon_wanted()
-        icon_wanted = "{}/{}".format(destination, icon_wanted)
-        return (icon_origin, icon_wanted)
+        return (self.origin, "{}/{}".format(destination, self.wanted))
 
 
 class ServiceAppImage(object):
@@ -117,27 +145,33 @@ class ServiceAppImage(object):
             return os.path.expanduser('~/Applications/{}'.format(package))
         return '/Applications/{}'.format(package)
 
-    def _integrate(self, appimage, prefix='/usr/share'):
+    def _integrate(self, appimage, systemwide=False):
         if not os.path.exists(appimage) or os.path.isdir(appimage):
             raise Exception('File does not exist')
 
-        os.chmod(appimage, stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH)
+        os.chmod(appimage, self._permissions(systemwide))
         out_r, out_w = pty.openpty()
         process = subprocess.Popen([appimage, '--appimage-mount'], stdout=out_w, stderr=subprocess.PIPE)
         path_mounted = str(os.read(out_r, 2048), 'utf-8', errors='ignore')
         path_mounted = path_mounted.strip("\n\r")
 
-        path_desktop = '{}/applications'.format(prefix)
+        path_desktop = self.get_path_desktop(systemwide)
         os.makedirs(path_desktop, exist_ok=True)
 
-        path_icon = '{}/icons'.format(prefix)
+        path_icon = self.get_path_icon(systemwide)
         os.makedirs(path_icon, exist_ok=True)
+
+        path_alias = self.get_path_alias(systemwide)
+        os.makedirs(path_alias, exist_ok=True)
 
         desktopfinder = AppImageDesktopFinder(appimage, path_mounted)
         desktop_origin, desktop_wanted = desktopfinder.files(path_desktop)
 
         iconfinder = AppImageIconFinder(appimage, path_mounted)
         icon_origin, icon_wanted = iconfinder.files(path_icon)
+
+        aliasfinder = AppImageAliasFinder(appimage, path_mounted)
+        alias_origin, alias_wanted = aliasfinder.files(path_alias)
 
         config = configparser.RawConfigParser()
         config.optionxform = str
@@ -167,26 +201,68 @@ class ServiceAppImage(object):
                 icon_wanted_stream.close()
             icon_origin_stream.close()
 
+        if os.path.exists(alias_origin):
+            if os.path.exists(alias_wanted):
+                os.unlink(alias_wanted)
+            os.symlink(alias_origin, alias_wanted)
+
         process.terminate()
 
-        return (desktop_wanted, icon_wanted)
+        return (desktop_wanted, icon_wanted, alias_wanted)
 
-    def integrate(self, appimage, systemwide=False):
+    def _collection(self, location, systemwide=False):
+        for appimage in glob.glob('{}/*.AppImage'.format(location)):
+            desktopfinder = AppImageDesktopFinder(appimage, None)
+            desktop_origin, desktop_wanted = desktopfinder.files(
+                self.get_path_desktop(systemwide)
+            )
 
-        prefix = '/usr/share' if systemwide else \
-            os.path.expanduser('~/.local/share')
+            iconfinder = AppImageIconFinder(appimage, None)
+            icon_origin, icon_wanted = iconfinder.files(
+                self.get_path_icon(systemwide)
+            )
 
-        async_result = self.pool.apply_async(self._integrate, (appimage, prefix))
-        return list(async_result.get())
+            aliasfinder = AppImageAliasFinder(appimage, None)
+            alias_origin, alias_wanted = aliasfinder.files(
+                self.get_path_alias(systemwide)
+            )
 
-    def list(self):
-        for location in self.locations:
+            yield (appimage, desktop_wanted, icon_wanted, alias_wanted)
+
+    def get_path_prefix(self, systemwide=False):
+        return '/usr' if systemwide else \
+            os.path.expanduser('~/.local')
+
+    def get_path_desktop(self, systemwide=False):
+        return '{}/share/applications'.format(
+            self.get_path_prefix(systemwide)
+        )
+
+    def get_path_icon(self, systemwide=False):
+        return '{}/share/icons'.format(
+            self.get_path_prefix(systemwide)
+        )
+
+    def get_path_alias(self, systemwide=False):
+        return '{}/bin'.format(
+            self.get_path_prefix(systemwide)
+        )
+
+    def collection(self):
+
+        for location in self.locations_global:
             location = os.path.expanduser(location)
-            if location is None or not len(location):
-                continue
+            if location is None: continue
 
-            for appimage in glob.glob('{}/*.AppImage'.format(location)):
-                yield appimage
+            for bunch in self._collection(location, True):
+                yield bunch
+
+        for location in self.locations_local:
+            location = os.path.expanduser(location)
+            if location is None: continue
+
+            for bunch in self._collection(location, False):
+                yield bunch
 
     def install(self, tempfile, package, force=False, systemwide=False):
         destination = self._destination(package, systemwide)
@@ -209,3 +285,10 @@ class ServiceAppImage(object):
             os.unlink(tempfile)
 
         return [destination] + self.integrate(destination, systemwide)
+
+    def integrate(self, appimage, systemwide=False):
+        async_result = self.pool.apply_async(self._integrate, (
+            appimage, systemwide
+        ))
+
+        return list(async_result.get())

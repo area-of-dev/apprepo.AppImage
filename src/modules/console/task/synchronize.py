@@ -10,19 +10,24 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import os
 import glob
+import os
+
 import inject
 
 
 @inject.params(appimagetool='appimagetool', logger='logger')
 def main(options=None, args=None, appimagetool=None, logger=None):
-    for appimage in appimagetool.list():
-        desktop, icon = appimagetool.integrate(appimage, options.systemwide)
-        yield "[done]: {}, {}, {}".format(
+    for appimage, desktop, icon, alias in appimagetool.collection():
+
+        if not os.path.exists(desktop) or not glob.glob(icon) or not os.path.exists(alias):
+            desktop, icon, alias = appimagetool.integrate(appimage, options.systemwide)
+
+        yield "[done]: {}, {}, {}, {}".format(
             os.path.basename(appimage),
             os.path.basename(desktop),
-            os.path.basename(icon)
+            os.path.basename(icon),
+            os.path.basename(alias)
         )
 
     return 0
