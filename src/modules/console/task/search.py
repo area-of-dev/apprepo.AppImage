@@ -15,14 +15,28 @@ import inject
 
 @inject.params(config='config', apprepo='apprepo', logger='logger')
 def main(options=None, args=None, config=None, apprepo=None, logger=None):
+    from bs4 import BeautifulSoup
+
+    def strip_tags(html=None):
+        if html is None:
+            return None
+
+        soup = BeautifulSoup(html, "html5lib")
+        [x.extract() for x in soup.find_all('script')]
+        [x.extract() for x in soup.find_all('style')]
+        [x.extract() for x in soup.find_all('meta')]
+        [x.extract() for x in soup.find_all('noscript')]
+        [x.extract() for x in soup.find_all('iframe')]
+        return soup.text
+
     string = ' '.join(args).strip('\'" ')
     if string is None or not len(string):
         raise Exception('search string can not be empty')
 
     for entity in apprepo.search(string):
-        yield ("{:>s} ({:>s}) - {:>s}".format(
+        yield ("[match] {:>s} ({:>s}) - {:>s}".format(
             entity['name'] or 'Unknown',
             entity['version'] or 'Unknown',
-            entity['description'] or 'Unknown'
+            strip_tags(entity['description']) or 'Unknown'
         ))
     return 0

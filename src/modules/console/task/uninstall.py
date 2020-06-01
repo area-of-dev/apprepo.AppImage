@@ -11,16 +11,15 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import os
-import sys
-import optparse
 import pathlib
+
 import inject
 
 
 @inject.params(appimagetool='appimagetool', logger='logger')
 def main(options=None, args=None, appimagetool=None, logger=None):
     search = ' '.join(args).strip('\'" ')
-    for appimage in appimagetool.list():
+    for appimage, desktop, icon, alias in appimagetool.collection():
         appimage = pathlib.Path(appimage)
         if appimage is None: continue
 
@@ -29,20 +28,15 @@ def main(options=None, args=None, appimagetool=None, logger=None):
         if appimage_name != search:
             continue
 
-        yield "Removing: {}".format(appimage)
+        yield "[removed]: {}, {}, {}, {}".format(
+            os.path.basename(appimage),
+            os.path.basename(desktop),
+            os.path.basename(icon),
+            os.path.basename(alias),
+        )
         os.remove(appimage)
+        os.remove(desktop)
+        os.remove(icon)
+        os.remove(alias)
 
     return 0
-
-
-if __name__ == "__main__":
-    parser = optparse.OptionParser()
-    (options, args) = parser.parse_args()
-
-    try:
-        for output in main(options, args):
-            print(output)
-        sys.exit(0)
-    except Exception as ex:
-        print(ex)
-        sys.exit(1)

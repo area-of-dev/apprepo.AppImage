@@ -14,12 +14,6 @@ import logging.handlers
 import optparse
 import os
 import sys
-import pty
-import json
-import requests
-import configparser
-import pathlib
-import multiprocessing
 from importlib import util
 
 import inject
@@ -102,21 +96,21 @@ if __name__ == "__main__":
     # update \t(upgrade|up) \t<string>\t- check for the latest version and install it
     # search \t(find|lookup) \t<string>\t- look for an AppImage files at the apprepo server by the string
     # install \t(in|download|get) \t<string>\t- install an AppImage from the apprepo by the name
-    # upload\t- upload a new version of the AppImage to the apprepo server
     parser = optparse.OptionParser("""apprepo [options] [argument] <string>
     status\t- display a list of all available AppImage files (/Applications | ~/Applications by default)
     sync (synchronize)\t- go through all available AppImage files and integrate them into the system if necessary
     remove (uninstall|rm|delete) <string>\t- remove the AppImage from the system by the name
-    cleanup\t- remove abandoned .desktop files and icons        
+    cleanup\t- remove abandoned .desktop files and icons
+    upload\t- upload a new version of the AppImage to the apprepo server            
     """)
 
     parser.add_option("--loglevel", default=logging.INFO, dest="loglevel", help="Logging level")
     parser.add_option("--force", dest="force", help="Force execution", action='store_true')
     parser.add_option("--global", dest="systemwide", help="Install the application for all users", action='store_true')
     parser.add_option("--cleanup", dest="cleanup", help="Remove unknown packages", action='store_true')
-    # parser.add_option("--version-token", dest="version_token", help="Upload token", default=None)
-    # parser.add_option("--version-description", dest="version_description", help="description", default=None)
-    # parser.add_option("--version-name", dest="version_name", help="Upload name", default=None)
+    parser.add_option("--version-token", dest="version_token", help="Upload token", default=None)
+    parser.add_option("--version-description", dest="version_description", help="description", default=None)
+    parser.add_option("--version-name", dest="version_name", help="Upload name", default=None)
 
     parser.add_option("--config", default=os.path.expanduser(configfile), dest="config",
                       help="Config file location, default: {}".format(configfile))

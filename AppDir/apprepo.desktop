@@ -6,3 +6,4 @@ Type=Application
 Comment=Linux application repository client and AppImage manager
 Categories=Development;
 Terminal=true
+X-KeepTerminal=true
