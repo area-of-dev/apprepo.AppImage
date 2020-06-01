@@ -146,13 +146,59 @@ class ServiceAppImage(object):
             return os.path.expanduser('~/Applications/{}'.format(package))
         return '/Applications/{}'.format(package)
 
+    def _check(self, appimage, systemwide=False):
+        logger = logging.getLogger('appimagetool')
+        if not os.path.exists(appimage) or os.path.isdir(appimage):
+            raise Exception('File does not exist')
+
+        logger.debug('processing: {}'.format(appimage))
+        if os.path.exists(appimage) and not os.access(appimage, os.X_OK):
+            os.chmod(appimage, self._permissions(systemwide))
+        out_r, out_w = pty.openpty()
+        process = subprocess.Popen([appimage, '--appimage-mount'], stdout=out_w, stderr=subprocess.PIPE)
+        path_mounted = str(os.read(out_r, 2048), 'utf-8', errors='ignore')
+        path_mounted = path_mounted.strip("\n\r")
+
+        path_desktop = self.get_path_desktop(systemwide)
+        os.makedirs(path_desktop, exist_ok=True)
+
+        path_icon = self.get_path_icon(systemwide)
+        os.makedirs(path_icon, exist_ok=True)
+
+        path_alias = self.get_path_alias(systemwide)
+        os.makedirs(path_alias, exist_ok=True)
+
+        desktopfinder = AppImageDesktopFinder(appimage, path_mounted)
+        desktop_origin, desktop_wanted = desktopfinder.files(path_desktop)
+        if not os.path.exists(desktop_origin):
+            process.terminate()
+            return False
+
+        iconfinder = AppImageIconFinder(appimage, path_mounted)
+        icon_origin, icon_wanted = iconfinder.files(path_icon)
+        if not os.path.exists(icon_origin):
+            process.terminate()
+            return False
+
+        aliasfinder = AppImageAliasFinder(appimage, path_mounted)
+        alias_origin, alias_wanted = aliasfinder.files(path_alias)
+        if not os.path.exists(alias_origin):
+            process.terminate()
+            return False
+
+        process.terminate()
+
+        return True
+
     def _integrate(self, appimage, systemwide=False):
         logger = logging.getLogger('appimagetool')
         if not os.path.exists(appimage) or os.path.isdir(appimage):
             raise Exception('File does not exist')
 
         logger.debug('processing: {}'.format(appimage))
-        os.chmod(appimage, self._permissions(systemwide))
+        if os.path.exists(appimage) and not os.access(appimage, os.X_OK):
+            os.chmod(appimage, self._permissions(systemwide))
+
         out_r, out_w = pty.openpty()
         process = subprocess.Popen([appimage, '--appimage-mount'], stdout=out_w, stderr=subprocess.PIPE)
         path_mounted = str(os.read(out_r, 2048), 'utf-8', errors='ignore')
@@ -298,6 +344,13 @@ class ServiceAppImage(object):
             os.unlink(tempfile)
 
         return [destination] + self.integrate(destination, systemwide)
+
+    def check(self, appimage, systemwide=False):
+        async_result = self.pool.apply_async(self._check, (
+            appimage, systemwide
+        ))
+
+        return async_result.get()
 
     def integrate(self, appimage, systemwide=False):
         async_result = self.pool.apply_async(self._integrate, (
