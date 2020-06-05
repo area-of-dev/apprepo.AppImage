@@ -14,6 +14,7 @@ import logging.handlers
 import optparse
 import os
 import sys
+import bs4
 import pty
 import json
 import requests

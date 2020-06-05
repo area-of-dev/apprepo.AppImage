@@ -8,8 +8,6 @@ idna==2.9
 Inject==3.5.4
 pydux==0.2.2
 PyInstaller==3.6
-PyQt5==5.14.1
-PyQt5-sip==12.7.1
 requests==2.23.0
 six==1.14.0
 soupsieve==2.0.1
