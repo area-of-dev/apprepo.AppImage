@@ -118,6 +118,7 @@ if __name__ == "__main__":
     parser.add_option("--version-token", dest="version_token", help="Upload token", default=None)
     parser.add_option("--version-description", dest="version_description", help="description", default=None)
     parser.add_option("--version-name", dest="version_name", help="Upload name", default=None)
+    parser.add_option("--version-check", dest="check", help="Check appimage structure", action='store_true')
 
     parser.add_option("--config", default=os.path.expanduser(configfile), dest="config",
                       help="Config file location, default: {}".format(configfile))

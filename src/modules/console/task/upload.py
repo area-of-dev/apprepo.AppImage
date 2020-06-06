@@ -28,7 +28,7 @@ def main(options=None, args=None, config=None, apprepo=None, appimagetool=None):
     if not os.path.exists(source) or not os.path.isfile(source):
         raise Exception('{} does not exist or is not a file'.format(source))
 
-    if not appimagetool.check(source):
+    if options.check and not appimagetool.check(source):
         raise Exception('{} is not an AppImage'.format(source))
 
     if options.version_token is None or not len(options.version_token):
