@@ -14,13 +14,6 @@ import logging.handlers
 import optparse
 import os
 import sys
-import bs4
-import pty
-import json
-import requests
-import configparser
-import pathlib
-import multiprocessing
 from importlib import util
 
 import inject
@@ -91,10 +84,18 @@ class Application(object):
 
         try:
             for output in action(options, args[1:]):
-                print(output)
+                sys.stdout.write("{}\n".format(output))
+                sys.stdout.flush()
         except Exception as ex:
-            print('Failed: {}'.format(ex))
-            raise ex
+            sys.stdout.write("Failed: {}\n".format(ex))
+            sys.stdout.flush()
+
+            loglevel = options.loglevel \
+                if isinstance(options.loglevel, int) else \
+                options.loglevel.upper()
+
+            if loglevel in [logging.DEBUG, 'DEBUG']:
+                raise ex
 
 
 if __name__ == "__main__":

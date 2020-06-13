@@ -11,9 +11,9 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import sys
-import os
-import requests
 import tempfile
+
+import requests
 
 
 class ServiceDownloader(object):
@@ -24,21 +24,37 @@ class ServiceDownloader(object):
     """
 
     def _download_stream(self, response):
-        with tempfile.NamedTemporaryFile(delete=False) as destination:
-            total_length = response.headers.get('content-length')
-            if total_length is None or not len(total_length):
-                raise Exception('Content-Length header is empty')
 
-            length_delta = 0
-            total_length = int(total_length)
-            for data in response.iter_content(chunk_size=4096):
-                length_delta += len(data)
-                destination.write(response.content)
-                done = int(50 * length_delta / total_length)
-                sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50 - done)))
+        filesize = response.headers.get('content-length')
+        if filesize is None or not len(filesize):
+            raise Exception('Content-Length header is empty')
+
+        progress = 0
+        total_length = int(filesize)
+
+        destination = tempfile.NamedTemporaryFile(delete=False)
+        with open(destination.name, "ab") as stream:
+            for chunk in response.iter_content(chunk_size=8192):
+                if not chunk: break
+                stream.write(chunk)
+
+                progress += len(chunk)
+                done = int(50 * progress / total_length)
+
+                progress_done = '=' * done
+                progress_pending = ' ' * (50 - done)
+                progress_percent = progress / total_length * 100
+
+                sys.stdout.write("\rdownloading: [{}{}] {:>.1f} %".format(
+                    progress_done, progress_pending, progress_percent
+                ))
+
                 sys.stdout.flush()
+            stream.close()
 
-            destination.close()
+            sys.stdout.write('\n')
+            sys.stdout.flush()
+
             return destination.name
 
     def _download_file(self, response):
