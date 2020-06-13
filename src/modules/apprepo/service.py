@@ -13,6 +13,7 @@
 import hashlib
 import json
 import os
+import sys
 
 import math
 import requests
@@ -36,35 +37,56 @@ class ServiceApprepo(object):
             raise Exception('Can not fetch package data: {}'.format(string))
         yield json.loads(response.content)
 
+    def _progressbar(self, progress=None, filesize=None):
+        if progress is None or filesize is None:
+            return progress
+
+        done = int(50 * progress / filesize)
+
+        progress_done = '=' * done
+        progress_pending = ' ' * (50 - done)
+        progress_percent = progress / filesize * 100
+        sys.stdout.write("\r[uploading] [{}{}] {:>.1f} %".format(
+            progress_done, progress_pending, progress_percent
+        ))
+
+        if progress_percent == 100:
+            sys.stdout.write('\n')
+
+        sys.stdout.flush()
+        return progress
+
     def upload(self, path=None, authentication=None, token=None, name=None, description=None):
         assert (path is not None and len(path))
         assert (os.path.exists(path) and not os.path.isdir(path))
 
         start = 0
-        size = os.path.getsize(path)
+        filesize = os.path.getsize(path)
 
         with open(path, "rb") as stream:
             unique = None
 
             maximum = 1024 * 1024
-            chunk_count = math.ceil(float(size) / maximum)
+            chunk_count = math.ceil(float(filesize) / maximum)
             chunk_count_sent = 0
             md5 = hashlib.md5()
             while True:
 
-                end = min(size, start + maximum)
+                end = min(filesize, start + maximum)
 
                 stream.seek(start)
                 chunk = stream.read(maximum)
                 md5.update(chunk)
 
                 response = requests.post('{}/package/upload/initialize/'.format(self.url), headers={
-                    'Content-Range': 'bytes {}-{}/{}'.format(start, end - 1, size),
+                    'Content-Range': 'bytes {}-{}/{}'.format(start, end - 1, filesize),
                     'Authorization': authentication or None
                 }, files={'file': chunk}, data={'upload_id': unique}, )
 
                 if response.status_code not in [200]:
                     raise Exception(response.content)
+
+                self._progressbar(start + len(chunk), filesize)
 
                 start = end
 
@@ -93,4 +115,5 @@ class ServiceApprepo(object):
                 raise Exception('success not found')
             if 'package' not in details.keys():
                 raise Exception('package not found')
+
             return details['package']

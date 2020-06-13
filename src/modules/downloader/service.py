@@ -30,7 +30,7 @@ class ServiceDownloader(object):
             raise Exception('Content-Length header is empty')
 
         progress = 0
-        total_length = int(filesize)
+        filesize = int(filesize)
 
         destination = tempfile.NamedTemporaryFile(delete=False)
         with open(destination.name, "ab") as stream:
@@ -39,13 +39,13 @@ class ServiceDownloader(object):
                 stream.write(chunk)
 
                 progress += len(chunk)
-                done = int(50 * progress / total_length)
+                done = int(50 * progress / filesize)
 
                 progress_done = '=' * done
                 progress_pending = ' ' * (50 - done)
-                progress_percent = progress / total_length * 100
+                progress_percent = progress / filesize * 100
 
-                sys.stdout.write("\rdownloading: [{}{}] {:>.1f} %".format(
+                sys.stdout.write("\r[downloading]: [{}{}] {:>.1f} %".format(
                     progress_done, progress_pending, progress_percent
                 ))
 
