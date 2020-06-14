@@ -34,7 +34,8 @@ def main(options=None, args=None, config=None, apprepo=None, logger=None):
         raise Exception('search string can not be empty')
 
     for entity in apprepo.search(string):
-        yield ("[match] {:>s} ({:>s}) - {:>s}".format(
+        yield ("[{}] {:>s} ({:>s}) - {:>s}".format(
+            entity['slug'] or 'Unknown',
             entity['name'] or 'Unknown',
             entity['version'] or 'Unknown',
             strip_tags(entity['description']) or 'Unknown'

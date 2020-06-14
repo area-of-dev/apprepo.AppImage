@@ -94,7 +94,7 @@ class Application(object):
                 sys.stdout.write("{}\n".format(output))
                 sys.stdout.flush()
         except Exception as ex:
-            sys.stdout.write("Failed: {}\n".format(ex))
+            sys.stdout.write("[failed] {}\n".format(ex))
             sys.stdout.flush()
 
             loglevel = options.loglevel \
