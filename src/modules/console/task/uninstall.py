@@ -10,6 +10,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import glob
 import os
 import pathlib
 
@@ -34,9 +35,17 @@ def main(options=None, args=None, appimagetool=None, logger=None):
             os.path.basename(icon),
             os.path.basename(alias),
         )
-        os.remove(appimage)
-        os.remove(desktop)
-        os.remove(icon)
-        os.remove(alias)
+
+        for path in glob.glob(str(appimage)):
+            os.remove(path)
+
+        for path in glob.glob(str(desktop)):
+            os.remove(path)
+
+        for path in glob.glob(str(alias)):
+            os.remove(path)
+
+        for path in glob.glob(str(icon)):
+            os.remove(path)
 
     return 0

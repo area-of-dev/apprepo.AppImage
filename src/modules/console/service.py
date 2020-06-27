@@ -44,9 +44,6 @@ class Console(object):
         for entity in uninstall.main(options, args):
             yield entity
 
-        for output in self.cleanup(options, args):
-            yield output
-
     def update(self, options=None, args=None):
         from .task import update
         for entity in update.main(options, args):
