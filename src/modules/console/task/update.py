@@ -42,7 +42,7 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, console=None)
         hash_remote = collection_remote[package]
         hash_local = get_hash(appimage)
 
-        if hash_remote != hash_local:
+        if hash_remote == hash_local:
             yield '[ignoring]: {}, up to date'.format(package)
             continue
 
