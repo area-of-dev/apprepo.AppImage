@@ -113,9 +113,12 @@ if __name__ == "__main__":
     # install \t(in|download|get) \t<string>\t- install an AppImage from the apprepo by the name
     parser = optparse.OptionParser("""apprepo [options] [argument] <string>
     status\t- display a list of all available AppImage files (/Applications | ~/Applications by default)
-    sync (synchronize)\t- go through all available AppImage files and integrate them into the system if necessary
-    remove (uninstall|rm|delete) <string>\t- remove the AppImage from the system by the name
     cleanup\t- remove abandoned .desktop files and icons
+    sync (synchronize)\t- go through all available AppImage files and integrate them into the system if necessary
+    search (find,lookup)\t- search for the application in the repository using the given string as an application name
+    remove (uninstall|rm|delete) <string>\t- remove the AppImage from the system by the name
+    install (get,in,download)\t- install the application and integrate it into the system            
+    update (up,upgrade)\t- compare the installed applications and the application in the repository and install the version from repository if the differences are present            
     upload\t- upload a new version of the AppImage to the apprepo server            
     """)
 
