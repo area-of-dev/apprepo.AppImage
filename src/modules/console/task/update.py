@@ -35,19 +35,15 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, console=None)
     for result in apprepo.search(''):
         collection_remote[result['package']] = result['hash']
 
-    collection_local = {}
     for appimage, desktop, icon, alias in appimagetool.collection():
         yield '[checking]: {}'.format(os.path.basename(appimage))
-        collection_local[os.path.basename(appimage)] = get_hash(appimage)
 
-    for package in collection_local.keys():
-        yield '[updating]: {}'.format(package)
-        if package not in collection_remote.keys():
-            continue
-
-        hash_local = collection_local[package]
+        package = os.path.basename(appimage)
         hash_remote = collection_remote[package]
-        if hash_remote == hash_local:
+        hash_local = get_hash(appimage)
+
+        if hash_remote != hash_local:
+            yield '[ignoring]: {}, up to date'.format(package)
             continue
 
         for entity in console.install(options, [Path(package).stem]):
