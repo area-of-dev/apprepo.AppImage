@@ -31,8 +31,7 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, downloader=No
 
         assert (os.path.exists(temp_file))
 
-        appimage, desktop, icon, alias = appimagetool.install(temp_file, entity['package'], options.force,
-                                                              options.systemwide)
+        appimage, desktop, icon, alias = appimagetool.install(temp_file, entity['package'], options.force, options.systemwide)
         if desktop is None or icon is None or not len(desktop) or not len(icon):
             raise Exception('Can not install, desktop or icon file is empty')
 
