@@ -36,9 +36,9 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, console=None)
         collection_remote[result['package']] = result['hash']
 
     for appimage, desktop, icon, alias in appimagetool.collection():
-        yield '[checking]: {}'.format(os.path.basename(appimage))
-
         package = os.path.basename(appimage)
+        yield '[checking]: {}'.format(package)
+
         hash_remote = collection_remote[package]
         hash_local = get_hash(appimage)
 
@@ -46,7 +46,7 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, console=None)
             yield '[ignoring]: {}, up to date'.format(package)
             continue
 
-        for entity in console.install(options, [Path(package).stem]):
+        for entity in console.install(options, [package]):
             yield entity
 
     return 0
