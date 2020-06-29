@@ -39,14 +39,22 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, console=None)
         package = os.path.basename(appimage)
         yield '[checking]: {}'.format(package)
 
-        hash_remote = collection_remote[package]
-        hash_local = get_hash(appimage)
-
-        if hash_remote == hash_local:
-            yield '[ignoring]: {}, up to date'.format(package)
-            continue
-
         try:
+
+            if package not in collection_remote.keys():
+                yield '[ignoring]: {}, unknown package'.format(package)
+                continue
+
+            hash_remote = collection_remote[package]
+            if not hash_remote: raise ValueError('{}: empty remote hash'.format(package))
+
+            hash_local = get_hash(appimage)
+            if not hash_remote: raise ValueError('{}: empty local hash'.format(package))
+
+            if hash_remote == hash_local:
+                yield '[ignoring]: {}, up to date'.format(package)
+                continue
+
             for entity in console.install(options, [package]):
                 yield entity
         except Exception as ex:
