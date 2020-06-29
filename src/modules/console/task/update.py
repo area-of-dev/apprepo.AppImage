@@ -12,13 +12,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import hashlib
 import os
-from pathlib import Path
+
 import inject
 
 
 @inject.params(appimagetool='appimagetool', apprepo='apprepo', console='console')
 def main(options=None, args=None, appimagetool=None, apprepo=None, console=None):
-    search = ' '.join(args).strip('\'" ')
+    """
+
+    :param options:
+    :param args:
+    :param appimagetool:
+    :param apprepo:
+    :param console:
+    :return:
+    """
 
     def get_hash(path, block_size=1024 * 1024):
         md5 = hashlib.md5()
@@ -33,7 +41,13 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, console=None)
 
     collection_remote = {}
     for result in apprepo.search(''):
-        collection_remote[result['package']] = result['hash']
+        package = result['package']
+        if not package: continue
+
+        hash = result['hash']
+        if not package: continue
+
+        collection_remote[package] = hash
 
     for appimage, desktop, icon, alias in appimagetool.collection():
         package = os.path.basename(appimage)
@@ -57,6 +71,7 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, console=None)
 
             for entity in console.install(options, [package]):
                 yield entity
+
         except Exception as ex:
             yield "[error]: {}".format(ex)
 
