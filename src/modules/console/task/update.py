@@ -46,7 +46,10 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, console=None)
             yield '[ignoring]: {}, up to date'.format(package)
             continue
 
-        for entity in console.install(options, [package]):
-            yield entity
+        try:
+            for entity in console.install(options, [package]):
+                yield entity
+        except Exception as ex:
+            yield "[error]: {}".format(ex)
 
     return 0
