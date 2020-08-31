@@ -35,6 +35,29 @@ BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
 
 
+def header(text=None):
+    return "{}{}{}".format(HEADER, text, ENDC)
+
+
+def comment(text=None):
+    return "{}{}{}".format(COMMENT, text, ENDC)
+
+
+def green(text=None):
+    return "{}{}{}".format(OKGREEN, text, ENDC)
+
+
+def blue(text=None):
+    return "{}{}{}".format(OKBLUE, text, ENDC)
+
+
+def warning(text=None):
+    return "{}{}{}".format(WARNING, text, ENDC)
+
+
+def error(text=None):
+    return "{}{}{}".format(FAIL, text, ENDC)
+
 
 @inject.params(console='console')
 def task(*args, **kwargs):
@@ -80,84 +103,3 @@ class ApplicationConsole(object):
         for name in self.commands.keys():
             (function, description) = self.commands[name]
             yield (name, description, function)
-
-
-# class Console(object):
-#
-#     def status(self, options=None, args=None):
-#         from .task import status
-#         for entity in status.main(options, args):
-#             yield entity
-#
-#     def synchronize(self, options=None, args=None):
-#         from .task import synchronize
-#         for entity in synchronize.main(options, args):
-#             yield entity
-#
-#     def cleanup(self, options=None, args=None):
-#         from .task import cleanup
-#         for entity in cleanup.main(options, args):
-#             yield entity
-#
-#     def search(self, options=None, args=None):
-#         from .task import search
-#         for entity in search.main(options, args):
-#             yield entity
-#
-#     def install(self, options=None, args=None):
-#         from .task import install
-#         for entity in install.main(options, args):
-#             yield entity
-#
-#     def uninstall(self, options=None, args=None):
-#         from .task import uninstall
-#         for entity in uninstall.main(options, args):
-#             yield entity
-#
-#     def update(self, options=None, args=None):
-#         from .task import update
-#         for entity in update.main(options, args):
-#             yield entity
-#
-#     def upload(self, options=None, args=None):
-#         from .task import upload
-#         for entity in upload.main(options, args):
-#             yield entity
-
-    #     if path is None or not len(path):
-    #         raise Exception('File path can not be empty')
-    #
-    #     if not os.path.exists(path) or os.path.isdir(path):
-    #         raise Exception('File does not exist: {}'.format(path))
-    #
-    #     if options is None or not options:
-    #         raise Exception('Please setup version options')
-    #
-    #     if options.version_token is None or not len(options.version_token):
-    #         raise Exception('token not found')
-    #
-    #     if options.version_description is None or not len(options.version_description):
-    #         raise Exception('description not found')
-    #
-    #     if options.version_name is None or not len(options.version_name):
-    #         raise Exception('name not found')
-    #
-    #     url_initialize = "{}/package/upload/initialize/".format(self.api)
-    #     url_finalize = '{}/package/upload/complete/finalize/'.format(self.api)
-    #     task = VersionUploadTask(url_initialize, url_finalize)
-    #
-    #     result = task.upload(path, {
-    #         'token': options.version_token,
-    #         'description': options.version_description,
-    #         'name': options.version_name,
-    #     })
-    #
-    #     if result is None or not result:
-    #         raise Exception('Result can not be empty')
-    #
-    #     yield 'Uploaded: {} {} - {}, {}'.format(
-    #         result['package'] or 'Unknown',
-    #         result['version'] or 'Unknown',
-    #         result['description'] or 'Unknown',
-    #         path or 'Unknown'
-    #     )

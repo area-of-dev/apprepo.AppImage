@@ -31,7 +31,7 @@ def main(options=None, args=None):
         if os.path.isdir(desktop):
             continue
 
-        yield "[{}found{}]: {}".format(console.OKGREEN, console.ENDC, os.path.basename(desktop))
+        yield "[{}]: {}".format(console.green('found'), console.comment(os.path.basename(desktop)))
 
         desktop_name = pathlib.Path(desktop)
         desktop_name = desktop_name.stem
@@ -46,14 +46,15 @@ def main(options=None, args=None):
         property_exec_name = property_exec_name.stem
 
         if property_exec_name != desktop_name:
-            yield "[{}removing{}]: {}, binary name is not the same as the .desktop file name...". \
-                format(console.OKBLUE, console.ENDC, os.path.basename(desktop))
+            yield "[{}]: {}, binary name is not the same as the .desktop file name...". \
+                format(console.blue('removing'), os.path.basename(desktop))
             os.remove(desktop)
             continue
 
         if not os.path.exists(property_exec):
-            yield "[{}removing{}]: {}, binary not found..." \
-                .format(console.OKBLUE, console.ENDC, os.path.basename(desktop))
+            yield "[{}]: {}, binary not found...".format(
+                console.blue('removing'), os.path.basename(desktop)
+            )
             os.remove(desktop)
             continue
 
@@ -64,14 +65,15 @@ def main(options=None, args=None):
         if os.path.isdir(icon):
             continue
 
-        yield "[{}found{}]: {}".format(console.OKGREEN, console.ENDC, os.path.basename(icon))
+        yield "[{}]: {}".format(console.green('found'), console.comment(os.path.basename(icon)))
 
         icon = pathlib.Path(icon)
         if icon.stem in existed:
             continue
 
-        yield "[{}removing{}]: {}, .desktop file not found..." \
-            .format(console.WARNING, console.ENDC, os.path.basename(icon))
+        yield "[{}]: {}, .desktop file not found...".format(
+            console.warning('removing'), os.path.basename(icon)
+        )
 
         os.remove(icon)
         continue

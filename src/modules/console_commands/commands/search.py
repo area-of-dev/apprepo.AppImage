@@ -37,14 +37,10 @@ def main(options=None, args=None, config=None, apprepo=None, logger=None):
         raise Exception('search string can not be empty')
 
     for entity in apprepo.search(string):
-        yield ("[{}{}{}] {} ({}) - {}{}{}".format(
-            console.OKGREEN,
-            entity['slug'] or 'Unknown',
-            console.ENDC,
+        yield ("[{}] {} ({}) - {}".format(
+            console.green(entity['slug']) or console.warning('Unknown'),
             entity['name'] or 'Unknown',
             entity['version'] or 'Unknown',
-            console.COMMENT,
-            strip_tags(entity['description']) or 'Unknown',
-            console.ENDC
+            console.comment(strip_tags(entity['description']) or 'Unknown')
         ))
     return 0

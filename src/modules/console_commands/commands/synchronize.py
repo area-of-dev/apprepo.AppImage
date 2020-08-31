@@ -23,7 +23,7 @@ from modules.console import console
 def main(options=None, args=None, appimagetool=None, logger=None):
     profile = os.path.expanduser('~/.profile')
     if not os.path.exists(profile) or not os.path.isfile(profile):
-        yield "[{}notice{}] ~/.profile does not exist, creating...".format(console.OKBLUE, console.ENDC,)
+        yield "[{}] ~/.profile does not exist, creating...".format(console.blue('notice'))
         with open(profile, 'w+') as stream:
             stream.write('PATH=~/.local/bin:$PATH')
             stream.close()
@@ -33,8 +33,8 @@ def main(options=None, args=None, appimagetool=None, logger=None):
         if not os.path.exists(desktop) or not glob.glob(icon) or not os.path.exists(alias):
             desktop, icon, alias = appimagetool.integrate(appimage, options.systemwide)
 
-        yield "[{}done{}]: {}, {}, {}, {}".format(
-            console.OKGREEN, console.ENDC,
+        yield "[{}]: {}, {}, {}, {}".format(
+            console.green('done'),
             os.path.basename(appimage)
             if appimage is not None and os.path.exists(appimage)
             else '---',

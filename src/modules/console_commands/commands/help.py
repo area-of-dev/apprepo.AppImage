@@ -17,6 +17,6 @@ from modules.console import console
 @console.task(name=['help'], description='Display help text')
 @inject.params(application='console', logger='logger')
 def help(options=None, arguments=None, application=None, logger=None):
-    print("{}Usage: console.py [options] [arguments]{}".format(console.HEADER, console.ENDC))
+    yield console.header('Usage: console.py [options] [arguments]')
     for (name, description, command) in application.get_commands():
-        yield "{}{:<15}{}{}{}{}".format(console.OKGREEN, name, console.ENDC, console.COMMENT, description, console.ENDC)
+        yield "{:<23} {}".format(console.green(name), console.comment(description))

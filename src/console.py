@@ -50,7 +50,8 @@ class Application(object):
                 sys.stdout.write("{}\n".format(output))
                 sys.stdout.flush()
         except Exception as ex:
-            sys.stdout.write("[failed] {}\n".format(ex))
+            from modules.console import console
+            sys.stdout.write("[{}] {}\n".format(console.error('failed'), console.error(ex)))
             sys.stdout.flush()
 
             loglevel = options.loglevel \
@@ -60,6 +61,10 @@ class Application(object):
             if loglevel in [logging.DEBUG, 'DEBUG']:
                 raise ex
 
+        except KeyboardInterrupt as ex:
+            from modules.console import console
+            sys.stdout.write("\n[{}] {}\n".format(console.error('cancelled'), console.error(ex)))
+            sys.stdout.flush()
 
 
 if __name__ == "__main__":

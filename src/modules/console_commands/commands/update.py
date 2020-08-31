@@ -54,12 +54,12 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, application=N
 
     for appimage, desktop, icon, alias in appimagetool.collection():
         package = os.path.basename(appimage)
-        yield '[{}checking{}]: {}'.format(console.OKBLUE, console.ENDC, package)
+        yield '[{}]: {}'.format(console.blue('checking'), package)
 
         try:
 
             if package not in collection_remote.keys():
-                yield '[{}ignoring{}]: {}, unknown package'.format(console.WARNING, console.ENDC, package)
+                yield '[{}]: {}, unknown package'.format(console.warning('ignoring'), package)
                 continue
 
             hash_remote = collection_remote[package]
@@ -69,7 +69,7 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, application=N
             if not hash_remote: raise ValueError('{}: empty local hash'.format(package))
 
             if hash_remote == hash_local:
-                yield '[{}ignoring{}]: {}, up to date'.format(console.WARNING, console.ENDC, package)
+                yield '[{}]: {}, up to date'.format(console.warning('ignoring'), package)
                 continue
 
             command = application.get_command('install')
@@ -77,6 +77,6 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, application=N
                 yield entity
 
         except Exception as ex:
-            yield "[{}error{}]: {}".format(console.FAIL, console.ENDC, ex)
+            yield "[{}]: {}".format(console.error('error'), console.error(ex))
 
     return 0

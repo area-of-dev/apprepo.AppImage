@@ -22,8 +22,8 @@ from modules.console import console
 @inject.params(appimagetool='appimagetool', logger='logger')
 def main(options=None, args=None, appimagetool=None, logger=None):
     for appimage, desktop, icon, alias in appimagetool.collection():
-        yield "[{}found{}]: {}, {}, {}, {}".format(
-            console.OKGREEN, console.ENDC,
+        yield "[{}]: {}, {}, {}, {}".format(
+            console.green('found'),
             os.path.basename(appimage) if os.path.exists(appimage) else "---",
             os.path.basename(desktop) if os.path.exists(desktop) else "---",
             os.path.basename(icon) if glob.glob(icon) else "---",

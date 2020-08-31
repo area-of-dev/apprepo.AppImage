@@ -19,8 +19,7 @@ import inject
 from modules.console import console
 
 
-@console.task(name=['uninstall', 'remove', 'delete'],
-              description="<string>\t- remove the AppImage from the system by the name")
+@console.task(name=['uninstall', 'remove', 'delete'], description="<string>\t- remove the AppImage from the system by the name")
 @inject.params(appimagetool='appimagetool', logger='logger')
 def main(options=None, args=None, appimagetool=None, logger=None):
     search = ' '.join(args).strip('\'" ')
@@ -33,8 +32,8 @@ def main(options=None, args=None, appimagetool=None, logger=None):
         if appimage_name != search:
             continue
 
-        yield "[{}removed{}]: {}, {}, {}, {}".format(
-            console.OKGREEN, console.ENDC,
+        yield "[{}]: {}, {}, {}, {}".format(
+            console.green('removed'),
             os.path.basename(appimage),
             os.path.basename(desktop),
             os.path.basename(icon),
