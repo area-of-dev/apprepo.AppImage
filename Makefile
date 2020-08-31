@@ -16,7 +16,7 @@ appimage: clean
 	cp -r ./src/modules $(APPDIR)/application
 	cp -r ./src/lib $(APPDIR)/application
 
-	bin/appimagetool.AppImage  ./AppDir Apprepo.AppImage
+	bin/appimagetool.AppImage  ./AppDir apprepo.AppImage
 	@echo "done: Apprepo.AppImage"
 
 clean:

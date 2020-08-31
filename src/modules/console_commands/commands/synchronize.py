@@ -15,12 +15,15 @@ import os
 
 import inject
 
+from modules.console import console
 
+
+@console.task(name=['synchronize', 'sync'], description="go through all available AppImage files and integrate them into the system if necessary")
 @inject.params(appimagetool='appimagetool', logger='logger')
 def main(options=None, args=None, appimagetool=None, logger=None):
     profile = os.path.expanduser('~/.profile')
     if not os.path.exists(profile) or not os.path.isfile(profile):
-        yield "[notice] ~/.profile does not exist, creating..."
+        yield "[{}notice{}] ~/.profile does not exist, creating...".format(console.OKBLUE, console.ENDC,)
         with open(profile, 'w+') as stream:
             stream.write('PATH=~/.local/bin:$PATH')
             stream.close()
@@ -30,7 +33,8 @@ def main(options=None, args=None, appimagetool=None, logger=None):
         if not os.path.exists(desktop) or not glob.glob(icon) or not os.path.exists(alias):
             desktop, icon, alias = appimagetool.integrate(appimage, options.systemwide)
 
-        yield "[done]: {}, {}, {}, {}".format(
+        yield "[{}done{}]: {}, {}, {}, {}".format(
+            console.OKGREEN, console.ENDC,
             os.path.basename(appimage)
             if appimage is not None and os.path.exists(appimage)
             else '---',

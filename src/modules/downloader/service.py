@@ -15,6 +15,7 @@ import tempfile
 
 import requests
 
+from modules.console import console
 
 class ServiceDownloader(object):
     """
@@ -45,8 +46,12 @@ class ServiceDownloader(object):
                 progress_pending = ' ' * (50 - done)
                 progress_percent = progress / filesize * 100
 
-                sys.stdout.write("\r[downloading]: [{}{}] {:>.1f} %".format(
-                    progress_done, progress_pending, progress_percent
+                sys.stdout.write("\r[{}downloading{}]: [{}{}] {:>.1f} %".format(
+                    console.OKGREEN,
+                    console.ENDC,
+                    progress_done,
+                    progress_pending,
+                    progress_percent
                 ))
 
                 sys.stdout.flush()

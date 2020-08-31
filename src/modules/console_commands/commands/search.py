@@ -12,7 +12,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import inject
 
+from modules.console import console
 
+
+@console.task(name=['search', 'find', 'lookup'], description="<string>\tFind an application in the repository using the given string as an application name")
 @inject.params(config='config', apprepo='apprepo', logger='logger')
 def main(options=None, args=None, config=None, apprepo=None, logger=None):
     from bs4 import BeautifulSoup
@@ -34,10 +37,14 @@ def main(options=None, args=None, config=None, apprepo=None, logger=None):
         raise Exception('search string can not be empty')
 
     for entity in apprepo.search(string):
-        yield ("[{}] {:>s} ({:>s}) - {:>s}".format(
+        yield ("[{}{}{}] {} ({}) - {}{}{}".format(
+            console.OKGREEN,
             entity['slug'] or 'Unknown',
+            console.ENDC,
             entity['name'] or 'Unknown',
             entity['version'] or 'Unknown',
-            strip_tags(entity['description']) or 'Unknown'
+            console.COMMENT,
+            strip_tags(entity['description']) or 'Unknown',
+            console.ENDC
         ))
     return 0

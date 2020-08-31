@@ -40,57 +40,13 @@ class Application(object):
 
         self.kernel = module.Kernel(options, args)
 
-    @inject.params(console='console', logger='logger')
-    def exec_(self, options, args, console=None, logger=None):
-
-        actionsmap = {
-            'status': console.status,
-            'cleanup': console.cleanup,
-            'upload': console.upload,
-            # Commands to synchronize application with the system
-            # there are few keywords for the same commands for the usability reason
-            'synchronize': console.synchronize,
-            'sync': console.synchronize,
-            # Look for the application in the repository
-            # there are few keywords for the same commands for the usability reason
-            'search': console.search,
-            'lookup': console.search,
-            'find': console.search,
-            # Uninstall the applications from the system
-            # there are few keywords for the same commands for the usability reason
-            'uninstall': console.uninstall,
-            'remove': console.uninstall,
-            'delete': console.uninstall,
-            'rm': console.uninstall,
-            # Commands to install application from the apprepo
-            # there are few keywords for the same commands for the usability reason
-            'install': console.install,
-            'download': console.install,
-            'get': console.install,
-            'in': console.install,
-            # Commands to update current installed applications to the latest versions
-            # there are few keywords for the same commands for the usability reason
-            'update': console.update,
-            'upgrade': console.update,
-            'up': console.update,
-            # 'upload': console.upload_version,
-            # 'upload-version': console.upload_version,
-            # 'upload-package': console.upload_version,
-            # 'push-version': console.upload_version,
-            # 'push-package': console.upload_version,
-        }
-
-        command = args[0] if len(args) else 'status'
-        logger.info('command: {}'.format(command))
-        if not len(command) or command not in actionsmap.keys():
-            return logger.error('unknown command: {}'.format(command))
-
-        action = actionsmap[command] or None
-        if action is None or not callable(action):
-            return logger.error('unknown command: {}'.format(command))
+    @inject.params(application='console', logger='logger')
+    def run(self, options, args, application, logger=None):
+        logger.info('Console mode, config: {}'.format(options.config))
 
         try:
-            for output in action(options, args[1:]):
+            command = application.get_command(args[0] if len(args) else 'help')
+            for output in command(options, args[1:]):
                 sys.stdout.write("{}\n".format(output))
                 sys.stdout.flush()
         except Exception as ex:
@@ -105,23 +61,11 @@ class Application(object):
                 raise ex
 
 
+
 if __name__ == "__main__":
     configfile = '~/.config/apprepo/default.conf'
 
-    # update \t(upgrade|up) \t<string>\t- check for the latest version and install it
-    # search \t(find|lookup) \t<string>\t- look for an AppImage files at the apprepo server by the string
-    # install \t(in|download|get) \t<string>\t- install an AppImage from the apprepo by the name
-    parser = optparse.OptionParser("""apprepo [options] [argument] <string>
-    status\t- display a list of all available AppImage files (/Applications | ~/Applications by default)
-    cleanup\t- remove abandoned .desktop files and icons
-    sync (synchronize)\t- go through all available AppImage files and integrate them into the system if necessary
-    search (find,lookup)\t- search for the application in the repository using the given string as an application name
-    remove (uninstall|rm|delete) <string>\t- remove the AppImage from the system by the name
-    install (get,in,download)\t- install the application and integrate it into the system            
-    update (up,upgrade)\t- compare the installed applications and the application in the repository and install the version from repository if the differences are present            
-    upload\t- upload a new version of the AppImage to the apprepo server            
-    """)
-
+    parser = optparse.OptionParser()
     parser.add_option("--loglevel", default=logging.INFO, dest="loglevel", help="Logging level")
     parser.add_option("--force", dest="force", help="Force execution", action='store_true')
     parser.add_option("--global", dest="systemwide", help="Install the application for all users", action='store_true')
@@ -142,4 +86,4 @@ if __name__ == "__main__":
     ])
 
     application = Application(options, args)
-    sys.exit(application.exec_(options, args))
+    sys.exit(application.run(options, args))

@@ -15,16 +15,19 @@ import os
 
 import inject
 
+from modules.console import console
 
-@inject.params(appimagetool='appimagetool', apprepo='apprepo', console='console')
-def main(options=None, args=None, appimagetool=None, apprepo=None, console=None):
+
+@console.task(name=['update', 'upgrade', 'up'], description="Compare the installed applications and the application in the repository and install the version from repository if the differences are present")
+@inject.params(appimagetool='appimagetool', apprepo='apprepo', application='console')
+def main(options=None, args=None, appimagetool=None, apprepo=None, application=None):
     """
 
     :param options:
     :param args:
     :param appimagetool:
     :param apprepo:
-    :param console:
+    :param application:
     :return:
     """
 
@@ -51,12 +54,12 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, console=None)
 
     for appimage, desktop, icon, alias in appimagetool.collection():
         package = os.path.basename(appimage)
-        yield '[checking]: {}'.format(package)
+        yield '[{}checking{}]: {}'.format(console.OKBLUE, console.ENDC, package)
 
         try:
 
             if package not in collection_remote.keys():
-                yield '[ignoring]: {}, unknown package'.format(package)
+                yield '[{}ignoring{}]: {}, unknown package'.format(console.WARNING, console.ENDC, package)
                 continue
 
             hash_remote = collection_remote[package]
@@ -66,13 +69,14 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, console=None)
             if not hash_remote: raise ValueError('{}: empty local hash'.format(package))
 
             if hash_remote == hash_local:
-                yield '[ignoring]: {}, up to date'.format(package)
+                yield '[{}ignoring{}]: {}, up to date'.format(console.WARNING, console.ENDC, package)
                 continue
 
-            for entity in console.install(options, [package]):
+            command = application.get_command('install')
+            for entity in command(options, [package]):
                 yield entity
 
         except Exception as ex:
-            yield "[error]: {}".format(ex)
+            yield "[{}error{}]: {}".format(console.FAIL, console.ENDC, ex)
 
     return 0

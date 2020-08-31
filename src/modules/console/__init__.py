@@ -12,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import inject
 
-from .service import Console
-
 
 class Loader(object):
 
@@ -31,4 +29,5 @@ class Loader(object):
         :param args:
         :return:
         """
-        binder.bind('console', Console())
+        from .console import ApplicationConsole
+        binder.bind('console', ApplicationConsole())

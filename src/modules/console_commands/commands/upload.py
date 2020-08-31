@@ -14,7 +14,10 @@ import os
 
 import inject
 
+from modules.console import console
 
+
+@console.task(name=['upload'], description="upload a new version of the AppImage to the apprepo server")
 @inject.params(config='config', apprepo='apprepo', appimagetool='appimagetool')
 def main(options=None, args=None, config=None, apprepo=None, appimagetool=None):
     assert (hasattr(options, 'version_token'))
@@ -40,7 +43,7 @@ def main(options=None, args=None, config=None, apprepo=None, appimagetool=None):
     if args is None or not len(args):
         raise Exception('AppImage path is empty')
 
-    yield "[uploading] {}...".format(source)
+    yield "[{}uploading{}] {}...".format(console.OKGREEN, console.ENDC, source)
 
     authentication = config.get('user.token', None)
     if authentication is None or not len(authentication):
@@ -53,6 +56,6 @@ def main(options=None, args=None, config=None, apprepo=None, appimagetool=None):
         options.version_description
     )
 
-    yield "[done] {}...".format(source)
+    yield "[{}done{}] {}...".format(console.OKGREEN, console.ENDC, source)
 
     return 0
