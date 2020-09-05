@@ -44,10 +44,10 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, application=N
 
     collection_remote = {}
     for result in apprepo.search(''):
-        package = result['package']
+        package = result.get('package')
         if not package: continue
 
-        hash = result['hash']
+        hash = result.get('hash')
         if not package: continue
 
         collection_remote[package] = hash

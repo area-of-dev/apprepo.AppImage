@@ -21,24 +21,24 @@ from modules.console import console
 @inject.params(appimagetool='appimagetool', apprepo='apprepo', downloader='downloader')
 def main(options=None, args=None, appimagetool=None, apprepo=None, downloader=None):
     string = ' '.join(args).strip('\'" ')
-    if string is None or not len(string):
-        raise Exception('search string can not be empty')
+    if not string: raise Exception('search string can not be empty')
 
     for entity in apprepo.package(string):
         assert ('package' in entity.keys())
         assert ('file' in entity.keys())
 
-        temp_file = downloader.download(entity['file'])
-        if temp_file is None or not len(temp_file):
-            yield 'Can not download: {}'.format(entity['file'])
+        download = downloader.download(entity.get('file'))
+        if not download: yield 'Can not download: {}'.format(entity.get('file'))
 
-        assert (os.path.exists(temp_file))
+        assert (os.path.exists(download))
 
         appimage, desktop, icon, alias = appimagetool.install(
-            temp_file, entity['package'], options.force, options.systemwide)
+            download, entity.get('package'),
+            options.force, options.systemwide
+        )
 
-        if desktop is None or icon is None or not len(desktop) or not len(icon):
-            raise Exception('Can not install, desktop or icon file is empty')
+        if not desktop: raise Exception('Desktop file is empty')
+        if not icon: raise Exception('Icon file is empty')
 
         yield "[{}]: {}, {}, {}, {}".format(
             console.green('done'),

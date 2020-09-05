@@ -46,8 +46,9 @@ def main(options=None, args=None):
         property_exec_name = property_exec_name.stem
 
         if property_exec_name != desktop_name:
-            yield "[{}]: {}, binary name is not the same as the .desktop file name...". \
-                format(console.blue('removing'), os.path.basename(desktop))
+            yield "[{}]: {}, binary name is not the same as the .desktop file name...".format(
+                console.blue('removing'), os.path.basename(desktop)
+            )
             os.remove(desktop)
             continue
 

@@ -12,10 +12,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import hashlib
 import json
+import math
 import os
 import sys
 
-import math
 import requests
 
 
@@ -23,23 +23,9 @@ class ServiceApprepo(object):
     def __init__(self, url=None):
         self.url = url
 
-    def search(self, string=None):
-        response = requests.get('{}/package?search={}'.format(self.url, string))
-        if response is None or response.status_code not in [200]:
-            raise Exception('something went wrong, please try later')
-
-        for package in json.loads(response.content):
-            yield package
-
-    def package(self, string=None):
-        response = requests.get('{}/package/{}/'.format(self.url, string))
-        if response is None or response.status_code not in [200]:
-            raise Exception('Can not fetch package data: {}'.format(string))
-        yield json.loads(response.content)
-
     def _progressbar(self, progress=None, filesize=None):
-        if progress is None or filesize is None:
-            return progress
+        if progress is None: return progress
+        if filesize is None: return progress
 
         done = int(50 * progress / filesize)
 
@@ -55,6 +41,31 @@ class ServiceApprepo(object):
 
         sys.stdout.flush()
         return progress
+
+    def search(self, string=None):
+
+        try:
+            response = requests.get('{}/package?search={}'.format(self.url, string))
+        except Exception as ex:
+            return
+
+        if not response: raise Exception('something went wrong, please try later')
+        if response.status_code not in [200]: raise Exception('something went wrong, please try later')
+
+        for package in json.loads(response.content):
+            yield package
+
+    def package(self, string=None):
+
+        try:
+            response = requests.get('{}/package/{}/'.format(self.url, string))
+        except Exception as ex:
+            return
+
+        if not response: raise Exception('Can not fetch package data: {}'.format(string))
+        if response.status_code not in [200]: raise Exception('Can not fetch package data: {}'.format(string))
+
+        yield json.loads(response.content)
 
     def upload(self, path=None, authentication=None, token=None, name=None, description=None):
         assert (path is not None and len(path))
@@ -78,13 +89,16 @@ class ServiceApprepo(object):
                 chunk = stream.read(maximum)
                 md5.update(chunk)
 
-                response = requests.post('{}/package/upload/initialize/'.format(self.url), headers={
-                    'Content-Range': 'bytes {}-{}/{}'.format(start, end - 1, filesize),
-                    'Authorization': authentication or None
-                }, files={'file': chunk}, data={'upload_id': unique}, )
+                try:
+                    response = requests.post('{}/package/upload/initialize/'.format(self.url), headers={
+                        'Content-Range': 'bytes {}-{}/{}'.format(start, end - 1, filesize),
+                        'Authorization': authentication or None
+                    }, files={'file': chunk}, data={'upload_id': unique}, )
+                except Exception as ex:
+                    return
 
-                if response.status_code not in [200]:
-                    raise Exception(response.content)
+                if not response: raise Exception(response.content)
+                if response.status_code not in [200]: raise Exception(response.content)
 
                 self._progressbar(start + len(chunk), filesize)
 
@@ -93,27 +107,27 @@ class ServiceApprepo(object):
                 chunk_count_sent += 1
                 details = json.loads(response.content)
 
-                if 'upload_id' not in details.keys():
-                    raise Exception('upload_id not found')
+                if 'upload_id' not in details.keys(): raise Exception('upload_id not found')
 
-                unique = details['upload_id']
+                unique = details.get('upload_id')
                 if chunk_count > chunk_count_sent:
                     continue
                 break
 
-            response = requests.post('{}/package/upload/complete/finalize/'.format(self.url), data={
-                'token': token or None,
-                'file': os.path.basename(path),
-                'description': description or '',
-                'name': name or '',
-                'upload_id': unique,
-                'md5': md5.hexdigest()
-            }, headers={'Authorization': authentication})
+            try:
+                response = requests.post('{}/package/upload/complete/finalize/'.format(self.url), data={
+                    'token': token or None,
+                    'file': os.path.basename(path),
+                    'description': description or '',
+                    'name': name or '',
+                    'upload_id': unique,
+                    'md5': md5.hexdigest()
+                }, headers={'Authorization': authentication})
+            except Exception as ex:
+                return
 
             details = json.loads(response.content)
-            if 'success' not in details.keys():
-                raise Exception('success not found')
-            if 'package' not in details.keys():
-                raise Exception('package not found')
+            if 'success' not in details.keys(): raise Exception('success not found')
+            if 'package' not in details.keys(): raise Exception('package not found')
 
-            return details['package']
+            return details.get('package')
