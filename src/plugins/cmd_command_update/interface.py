@@ -17,7 +17,7 @@ import hexdi
 @hexdi.inject('appimagetool', 'apprepo', 'console.application', 'apprepo.hasher')
 def _update_action(search=None, options=None, appimagetool=None, apprepo=None, application=None, hasher=None):
     version_remote = {}
-    for result in apprepo.search(search):
+    for result in apprepo.search('' if not search else search):
         package = result.get('package', None)
         if not package: continue
 
