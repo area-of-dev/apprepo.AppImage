@@ -54,8 +54,12 @@ def _test_search_request_element(search=None, options=None, apprepo=None, downlo
         if not download_file: raise Exception('File is empty')
         yield console.comment("[processing]: file {}...".format(download_file))
 
-        download = downloader.download(download_file)
-        if not download: yield 'Can not download: {}'.format(download_file)
+        try:
+            download = downloader.download(download_file)
+            if not download: yield 'Can not download: {}'.format(download_file)
+        except Exception as ex:
+            yield console.error("[error]: exception {}".format(ex))
+            break
 
         assert (os.path.exists(download))
 
