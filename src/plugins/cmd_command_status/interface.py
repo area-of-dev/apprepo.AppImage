@@ -16,18 +16,18 @@ import hexdi
 
 console = hexdi.resolve('console')
 if not console: raise Exception('Console service not found')
+description = "display a list of all available AppImage files (/Applications | ~/Applications by default)"
 
 
-@console.task(name=['status', 'stat'], description="display a list of all available AppImage files (/Applications | ~/Applications by default)")
+@console.task(name=['status', 'stat'], description=description)
 @hexdi.inject('appimagetool')
 def main(options=None, args=None, appimagetool=None):
     for appimage, desktop, icon, alias in appimagetool.collection():
-        yield "[{}]: {}, {}, {}, {}".format(
-            console.green('found'),
+        yield console.green("[found]: {}, {}, {}, {}".format(
             os.path.basename(appimage) if os.path.exists(appimage) else "---",
             os.path.basename(desktop) if os.path.exists(desktop) else "---",
             os.path.basename(icon) if glob.glob(icon) else "---",
             os.path.basename(alias) if os.path.exists(alias) else "---",
-        )
+        ))
 
     return 0

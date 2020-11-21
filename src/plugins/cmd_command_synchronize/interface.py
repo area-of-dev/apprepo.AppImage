@@ -16,8 +16,10 @@ import hexdi
 
 console = hexdi.resolve('console')
 if not console: raise Exception('Console service not found')
+description = "go through all available AppImage files and integrate them into the system if necessary"
 
-@console.task(name=['synchronize', 'sync'], description="go through all available AppImage files and integrate them into the system if necessary")
+
+@console.task(name=['synchronize', 'sync'], description=description)
 @hexdi.inject('appimagetool', 'console.application')
 def main(options=None, args=None, appimagetool=None, console=None):
     profile = os.path.expanduser('~/.profile')
@@ -32,8 +34,7 @@ def main(options=None, args=None, appimagetool=None, console=None):
         if not os.path.exists(desktop) or not glob.glob(icon) or not os.path.exists(alias):
             desktop, icon, alias = appimagetool.integrate(appimage, options.systemwide)
 
-        yield "[{}]: {}, {}, {}, {}".format(
-            console.green('done'),
+        yield console.green("[done]: {}, {}, {}, {}".format(
             os.path.basename(appimage)
             if appimage is not None and os.path.exists(appimage)
             else '---',
@@ -46,6 +47,6 @@ def main(options=None, args=None, appimagetool=None, console=None):
             os.path.basename(alias) if
             alias is not None and os.path.exists(alias)
             else '---'
-        )
+        ))
 
     return 0

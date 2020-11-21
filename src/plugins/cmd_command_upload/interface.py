@@ -37,7 +37,7 @@ def main(options=None, args=None, config=None, apprepo=None, appimagetool=None, 
     if not options.skip_check and not appimagetool.check(source):
         raise Exception('{} is not an AppImage'.format(source))
 
-    yield "[{}] {}...".format(console.blue('uploading'), source)
+    yield console.comment("[uploading] {}...".format(source))
 
     authentication = config.get('user.token', None)
     if not authentication: raise Exception('Authentication token is empty')
@@ -49,4 +49,4 @@ def main(options=None, args=None, config=None, apprepo=None, appimagetool=None, 
         options.version_description
     )
 
-    yield "[{}] {}...".format(console.green('done'), source)
+    yield console.green("[done] {}...".format(source))

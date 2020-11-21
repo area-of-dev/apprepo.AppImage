@@ -21,15 +21,13 @@ def _update_action(search=None, options=None, appimagetool=None, apprepo=None, a
         package = result.get('package', None)
         if not package: continue
 
-        yield '[{}]: {}...'.format(console.blue('fetching'), package)
-
         hash = result.get('hash', None)
         if not hash: continue
 
         version_remote[package] = hash
 
     for appimage, desktop, icon, alias in appimagetool.collection(version_remote.keys()):
-        yield '[{}]: {}...'.format(console.blue('checking'), os.path.basename(appimage))
+        yield console.comment('[checking]: {}...'.format(os.path.basename(appimage)))
 
         try:
 
@@ -37,7 +35,7 @@ def _update_action(search=None, options=None, appimagetool=None, apprepo=None, a
             if not package: continue
 
             if package not in version_remote.keys():
-                yield '[{}]: {}, unknown package'.format(console.warning('ignoring'), package)
+                yield console.warning('[ignoring]: {}, unknown package'.format(package))
                 continue
 
             hash_remote = version_remote[package]
@@ -55,7 +53,7 @@ def _update_action(search=None, options=None, appimagetool=None, apprepo=None, a
                 yield entity
 
         except Exception as ex:
-            yield "[{}]: {}".format(console.error('error'), console.error(ex))
+            yield console.error("[error]: {}".format(console.error(ex)))
 
 
 console = hexdi.resolve('console')

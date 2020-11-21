@@ -15,7 +15,8 @@ console = hexdi.resolve('console')
 if not console: raise Exception('Console service not found')
 
 
-@console.task(name=['search', 'find', 'lookup'], description="<string>\tFind an application in the repository using the given string as an application name")
+@console.task(name=['search', 'find', 'lookup'],
+              description="<string>\tFind an application in the repository using the given string as an application name")
 @hexdi.inject('config', 'apprepo')
 def main(options=None, args=None, config=None, apprepo=None):
     from bs4 import BeautifulSoup
@@ -35,10 +36,19 @@ def main(options=None, args=None, config=None, apprepo=None):
     if not string: raise Exception('search string can not be empty')
 
     for entity in apprepo.search(string):
-        yield ("[{}] {} ({}) - {}".format(
-            console.green(entity['slug']) or console.warning('Unknown'),
+        lines = []
+        lines.append(console.green("[found] "))
+
+        lines.append(console.blue("{}: {} ({})".format(
+            entity['slug'] or 'Unknown',
             entity['name'] or 'Unknown',
-            entity['version'] or 'Unknown',
-            console.comment(strip_tags(entity['description']) or 'Unknown')
-        ))
+            entity['version'] or 'Unknown'
+        )))
+
+        lines.append(console.comment(" - {}".format(
+            strip_tags(entity['description']) or 'Unknown'
+        )))
+
+        yield "".join(lines)
+
     return 0

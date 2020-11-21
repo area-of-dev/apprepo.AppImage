@@ -47,12 +47,11 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, downloader=No
         if not desktop: raise Exception('Desktop file is empty')
         if not icon: raise Exception('Icon file is empty')
 
-        yield "[{}]: {}, {}, {}, {}".format(
-            console.green('done'),
+        yield console.green("[done]: {}, {}, {}, {}".format(
             os.path.basename(appimage) if os.path.exists(appimage) else "---",
             os.path.basename(desktop) if os.path.exists(desktop) else "---",
             os.path.basename(icon) if os.path.exists(icon) else "---",
             os.path.basename(alias) if os.path.exists(alias) else "---",
-        )
+        ))
 
     return 0

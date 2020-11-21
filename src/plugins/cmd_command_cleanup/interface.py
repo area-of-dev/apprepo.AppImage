@@ -18,8 +18,10 @@ import hexdi
 
 console = hexdi.resolve('console')
 if not console: raise Exception('Console service not found')
+description = "Remove abandoned .desktop files and icons"
 
-@console.task(name=['cleanup', 'clear'], description="Remove abandoned .desktop files and icons")
+
+@console.task(name=['cleanup', 'clear'], description=description)
 def main(options=None, args=None):
     integration = '/usr/share' if options.systemwide else \
         os.path.expanduser('~/.local/share')
@@ -32,7 +34,7 @@ def main(options=None, args=None):
         if os.path.isdir(desktop):
             continue
 
-        yield "[{}]: {}".format(console.green('found'), console.comment(os.path.basename(desktop)))
+        yield console.green("[found]: {}".format(console.comment(os.path.basename(desktop))))
 
         desktop_name = pathlib.Path(desktop)
         desktop_name = desktop_name.stem
@@ -47,16 +49,13 @@ def main(options=None, args=None):
         property_exec_name = property_exec_name.stem
 
         if property_exec_name != desktop_name:
-            yield "[{}]: {}, binary name is not the same as the .desktop file name...".format(
-                console.blue('removing'), os.path.basename(desktop)
-            )
+            yield console.warning("[removing]: {}, binary name is not the same as the .desktop file name...".
+                                  format(os.path.basename(desktop)))
             os.remove(desktop)
             continue
 
         if not os.path.exists(property_exec):
-            yield "[{}]: {}, binary not found...".format(
-                console.blue('removing'), os.path.basename(desktop)
-            )
+            yield console.warning("[removing]: {}, binary not found...".format(os.path.basename(desktop)))
             os.remove(desktop)
             continue
 
@@ -67,15 +66,14 @@ def main(options=None, args=None):
         if os.path.isdir(icon):
             continue
 
-        yield "[{}]: {}".format(console.green('found'), console.comment(os.path.basename(icon)))
+        yield console.green("[found]: {}".format(console.comment(os.path.basename(icon))))
 
         icon = pathlib.Path(icon)
         if icon.stem in existed:
             continue
 
-        yield "[{}]: {}, .desktop file not found...".format(
-            console.warning('removing'), os.path.basename(icon)
-        )
+        yield console.warning("[removing]: {}, .desktop file not found...".
+                              format(os.path.basename(icon)))
 
         os.remove(icon)
         continue

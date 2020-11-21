@@ -19,26 +19,21 @@ import time
 import hexdi
 import psutil
 
+console = hexdi.resolve('console')
+if not console: raise Exception('Console service not found')
+description = "Test compatibility of the selected package with the current host"
 
-@hexdi.inject('console')
-def _test_appimage(appimage, console):
-    with tempfile.TemporaryFile() as stderr:
-        process = subprocess.Popen(appimage, stderr=stderr, stdout=stderr, preexec_fn=os.setsid)
-        yield console.comment("[testing]: starting subprocess {}...".format(appimage))
 
-        time.sleep(5)
+@console.task(name=['test', 'check', 'validate'], description=description)
+def test_search_request(options=None, args=None):
+    if args is None or not len(args):
+        args = [None]
 
-        yield console.comment("[testing]: stopping subprocess {}...".format(appimage))
-        if psutil.pid_exists(process.pid):
-            os.killpg(process.pid, signal.SIGTERM)
-
-        stderr.seek(0)
-
-        output = str(stderr.read(), 'utf-8', errors='ignore')
-        yield console.warning("[testing]: status {}, stderr: {}...".format(process.returncode, output))
-
-        os.remove(appimage)
-        stderr.close()
+    for package in args:
+        package = package.strip('\'"') if package else None
+        for output in _test_search_request_element(package, options):
+            yield output
+    return 0
 
 
 @hexdi.inject('apprepo', 'downloader', 'console')
@@ -69,18 +64,22 @@ def _test_search_request_element(search=None, options=None, apprepo=None, downlo
             yield line
 
 
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
-description = "Test compatibility of the selected package with the current host"
+@hexdi.inject('console')
+def _test_appimage(appimage, console):
+    with tempfile.TemporaryFile() as stderr:
+        process = subprocess.Popen(appimage, stderr=stderr, stdout=stderr, preexec_fn=os.setsid)
+        yield console.comment("[testing]: starting subprocess {}...".format(appimage))
 
+        time.sleep(5)
 
-@console.task(name=['test', 'check', 'validate'], description=description)
-def test_search_request(options=None, args=None):
-    if args is None or not len(args):
-        args = [None]
+        yield console.comment("[testing]: stopping subprocess {}...".format(appimage))
+        if psutil.pid_exists(process.pid):
+            os.killpg(process.pid, signal.SIGTERM)
 
-    for package in args:
-        package = package.strip('\'"') if package else None
-        for output in _test_search_request_element(package, options):
-            yield output
-    return 0
+        stderr.seek(0)
+
+        output = str(stderr.read(), 'utf-8', errors='ignore')
+        yield console.warning("[testing]: status {}, stderr: {}...".format(process.returncode, output))
+
+        os.remove(appimage)
+        stderr.close()

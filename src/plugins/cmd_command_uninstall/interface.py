@@ -17,9 +17,10 @@ import hexdi
 
 console = hexdi.resolve('console')
 if not console: raise Exception('Console service not found')
+description = "<string>\t- remove the AppImage from the system by the name"
 
 
-@console.task(name=['uninstall', 'remove', 'delete'], description="<string>\t- remove the AppImage from the system by the name")
+@console.task(name=['uninstall', 'remove', 'delete'], description=description)
 @hexdi.inject('appimagetool', 'console.application')
 def main(options=None, args=None, appimagetool=None, console=None):
     search = ' '.join(args).strip('\'" ')
@@ -32,13 +33,12 @@ def main(options=None, args=None, appimagetool=None, console=None):
         if appimage_name != search:
             continue
 
-        yield "[{}]: {}, {}, {}, {}".format(
-            console.green('removed'),
+        yield console.green("[removed]: {}, {}, {}, {}".format(
             os.path.basename(appimage),
             os.path.basename(desktop),
             os.path.basename(icon),
             os.path.basename(alias),
-        )
+        ))
 
         for path in glob.glob(str(appimage)):
             os.remove(path)
