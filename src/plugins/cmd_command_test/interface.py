@@ -67,19 +67,25 @@ def _test_search_request_element(search=None, options=None, apprepo=None, downlo
 @hexdi.inject('console')
 def _test_appimage(appimage, console):
     with tempfile.TemporaryFile() as stderr:
-        process = subprocess.Popen(appimage, stderr=stderr, stdout=stderr, preexec_fn=os.setsid)
-        yield console.comment("[testing]: starting subprocess {}...".format(appimage))
 
-        time.sleep(5)
+        try:
+            process = subprocess.Popen(appimage, stderr=stderr, stdout=stderr, preexec_fn=os.setsid)
+            yield console.comment("[testing]: starting subprocess {}...".format(appimage))
 
-        yield console.comment("[testing]: stopping subprocess {}...".format(appimage))
-        if psutil.pid_exists(process.pid):
-            os.killpg(process.pid, signal.SIGTERM)
+            time.sleep(5)
 
-        stderr.seek(0)
+            yield console.comment("[testing]: stopping subprocess {}...".format(appimage))
+            if psutil.pid_exists(process.pid):
+                os.killpg(process.pid, signal.SIGTERM)
 
-        output = str(stderr.read(), 'utf-8', errors='ignore')
-        yield console.warning("[testing]: status {}, stderr: {}...".format(process.returncode, output))
+            stderr.seek(0)
 
-        os.remove(appimage)
-        stderr.close()
+            output = str(stderr.read(), 'utf-8', errors='ignore')
+            yield console.warning("[testing]: status {}, stderr: {}...".format(process.returncode, output))
+
+            os.remove(appimage)
+            stderr.close()
+        except Exception as ex:
+            print(ex)
+            yield console.error("[error]: exception {}".format(ex))
+            pass
