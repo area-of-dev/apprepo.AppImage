@@ -39,6 +39,7 @@ def _check(appimage, console):
 
     output = str(os.read(err_r, 1024 * 1024), 'utf-8', errors='ignore')
     yield console.warning("[testing]: status {}, stderr: {}...".format(process.returncode, output))
+    os.remove(appimage)
 
 
 @hexdi.inject('appimagetool', 'apprepo', 'downloader', 'console')
