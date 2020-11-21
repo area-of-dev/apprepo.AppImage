@@ -80,14 +80,16 @@ class ServiceApprepo(object):
             maximum = 1024 * 1024
             chunk_count = math.ceil(float(filesize) / maximum)
             chunk_count_sent = 0
-            hash = hashlib.sha1()
+            hash_md5 = hashlib.md5()
+            hash_sha1 = hashlib.sha1()
             while True:
 
                 end = min(filesize, start + maximum)
 
                 stream.seek(start)
                 chunk = stream.read(maximum)
-                hash.update(chunk)
+                hash_sha1.update(chunk)
+                hash_md5.update(chunk)
 
                 try:
                     response = requests.post('{}/package/upload/initialize/'.format(self.url), headers={
@@ -116,12 +118,13 @@ class ServiceApprepo(object):
 
             try:
                 response = requests.post('{}/package/upload/complete/finalize/'.format(self.url), data={
+                    'sha1': hash_sha1.hexdigest(),
+                    'md5': hash_md5.hexdigest(),
                     'token': token or None,
                     'file': os.path.basename(path),
                     'description': description or '',
                     'name': name or '',
-                    'upload_id': unique,
-                    'hash': hash.hexdigest()
+                    'upload_id': unique
                 }, headers={'Authorization': authentication})
             except Exception as ex:
                 return
