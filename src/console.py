@@ -10,20 +10,11 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import logging.handlers
-import optparse
 import os
 import sys
-import bs4
-import pty
-import json
-import requests
-import configparser
-import pathlib
-import multiprocessing
-from importlib import util
-
-import inject
+import logging.handlers
+import optparse
+import hexdi
 
 abspath = sys.argv[0] \
     if len(sys.argv) else \
@@ -31,58 +22,35 @@ abspath = sys.argv[0] \
 os.chdir(os.path.dirname(abspath))
 
 
-class Application(object):
+from modules.cmd_application import application
 
-    def __init__(self, options, args):
-        spec = util.find_spec('lib.kernel')
-        module = spec.loader.load_module()
-        if module is None: return None
 
-        self.kernel = module.Kernel(options, args)
+@hexdi.permanent('optparse')
+class OptionParser(optparse.OptionParser):
+    def __init__(self):
+        super(OptionParser, self).__init__()
 
-    @inject.params(application='console', logger='logger')
-    def run(self, options, args, application, logger=None):
-        logger.info('Console mode, config: {}'.format(options.config))
+        self.add_option("--loglevel", default=logging.INFO, dest="loglevel", help="Logging level")
+        self.add_option("--force", dest="force", help="Force execution", action='store_true')
+        self.add_option("--global", dest="systemwide", help="Install the application for all users", action='store_true')
+        self.add_option("--cleanup", dest="cleanup", help="Remove unknown packages", action='store_true')
+        self.add_option("--version-token", dest="version_token", help="Upload token", default=None)
+        self.add_option("--version-description", dest="version_description", help="description", default=None)
+        self.add_option("--version-name", dest="version_name", help="Upload name", default=None)
+        self.add_option("--version-skip-check", dest="skip_check", help="Check appimage structure", action='store_true')
 
-        try:
-            command = application.get_command(args[0] if len(args) else 'help')
-            for output in command(options, args[1:]):
-                sys.stdout.write("{}\n".format(output))
-                sys.stdout.flush()
-        except Exception as ex:
-            from modules.console import console
-            sys.stdout.write("[{}] {}\n".format(console.error('failed'), console.error(ex)))
-            sys.stdout.flush()
+        configfile = '~/.config/apprepo/default.conf'
+        self.add_option("--config", default=os.path.expanduser(configfile), dest="config",
+                          help="Config file location, default: {}".format(configfile))
 
-            loglevel = options.loglevel \
-                if isinstance(options.loglevel, int) else \
-                options.loglevel.upper()
 
-            if loglevel in [logging.DEBUG, 'DEBUG']:
-                raise ex
 
-        except KeyboardInterrupt as ex:
-            from modules.console import console
-            sys.stdout.write("\n[{}] {}\n".format(console.error('cancelled'), console.error(ex)))
-            sys.stdout.flush()
 
 
 if __name__ == "__main__":
     configfile = '~/.config/apprepo/default.conf'
 
-    parser = optparse.OptionParser()
-    parser.add_option("--loglevel", default=logging.INFO, dest="loglevel", help="Logging level")
-    parser.add_option("--force", dest="force", help="Force execution", action='store_true')
-    parser.add_option("--global", dest="systemwide", help="Install the application for all users", action='store_true')
-    parser.add_option("--cleanup", dest="cleanup", help="Remove unknown packages", action='store_true')
-    parser.add_option("--version-token", dest="version_token", help="Upload token", default=None)
-    parser.add_option("--version-description", dest="version_description", help="description", default=None)
-    parser.add_option("--version-name", dest="version_name", help="Upload name", default=None)
-    parser.add_option("--version-skip-check", dest="skip_check", help="Check appimage structure", action='store_true')
-
-    parser.add_option("--config", default=os.path.expanduser(configfile), dest="config",
-                      help="Config file location, default: {}".format(configfile))
-
+    parser = OptionParser()
     (options, args) = parser.parse_args()
 
     log_format = '[%(relativeCreated)d][%(name)s] %(levelname)s - %(message)s'
@@ -90,5 +58,5 @@ if __name__ == "__main__":
         logging.handlers.SysLogHandler(address='/dev/log')
     ])
 
-    application = Application(options, args)
+    application = application.Application(options, args)
     sys.exit(application.run(options, args))

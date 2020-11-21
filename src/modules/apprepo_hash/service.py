@@ -9,14 +9,20 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import hashlib
+
 import hexdi
 
-from .file.parser import ConfigFileParser
 
+@hexdi.permanent('apprepo.hasher')
+def hash_provider():
+    def get_hash(path, block_size=1024 * 1024):
+        hash = hashlib.sha1()
+        with open(path, 'rb') as stream:
+            while True:
+                data = stream.read(block_size)
+                if not data: break
+                hash.update(data)
+        return hash.hexdigest()
 
-@hexdi.permanent('config')
-class ServiceConfigInstance(ConfigFileParser):
-    @hexdi.inject('optparse')
-    def __init__(self, parser):
-        (options, args) = parser.parse_args()
-        super(ServiceConfigInstance, self).__init__(file=options.config)
+    return get_hash

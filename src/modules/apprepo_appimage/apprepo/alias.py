@@ -9,14 +9,20 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import hexdi
-
-from .file.parser import ConfigFileParser
+import pathlib
 
 
-@hexdi.permanent('config')
-class ServiceConfigInstance(ConfigFileParser):
-    @hexdi.inject('optparse')
-    def __init__(self, parser):
-        (options, args) = parser.parse_args()
-        super(ServiceConfigInstance, self).__init__(file=options.config)
+class AppImageAliasFinder(object):
+    def __init__(self, appimage, mountpoint=None):
+        self.mountpoint = mountpoint
+        self.appimage = appimage
+
+    @property
+    def wanted(self):
+        alias_wanted = pathlib.Path(self.appimage)
+        return alias_wanted.stem.lower()
+
+    def files(self, destination=None):
+        return (self.appimage, "{}/{}".format(
+            destination, self.wanted
+        ))

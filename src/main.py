@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Copyright 2015 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
@@ -25,8 +26,14 @@ import html
 import importlib
 import bs4
 import html5lib
-
 import whoosh
+
+
+os.chdir(os.path.dirname(
+    os.path.abspath(sys.argv[0]) \
+        if len(sys.argv) else \
+        os.path.abspath(__file__)))
+
 
 from importlib import util
 from whoosh import fields
@@ -37,10 +44,6 @@ from PyQt5 import QtPrintSupport
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
 
-abspath = sys.argv[0] \
-    if len(sys.argv) else \
-    os.path.abspath(__file__)
-os.chdir(os.path.dirname(abspath))
 
 
 class Application(QtWidgets.QApplication):
@@ -60,24 +63,26 @@ class Application(QtWidgets.QApplication):
         container = inject.get_injector()
         if container is None: return None
 
-        if options.console: return None
+        print(options)
 
-        window = container.get_instance('window')
-        if window is None: return None
+        # if options.console: return None
 
-        config = container.get_instance('config')
-        if config is None: return None
+        # window = container.get_instance('window')
+        # if window is None: return None
 
-        window.show()
+        # config = container.get_instance('config')
+        # if config is None: return None
 
-        width = int(config.get('window.width'))
-        height = int(config.get('window.height'))
+        # window.show()
 
-        animation = QtCore.QPropertyAnimation(window, b'size')
-        animation.setEndValue(QtCore.QSize(width, height))
-        animation.setStartValue(QtCore.QSize(800, 600))
-        animation.setDuration(200)
-        animation.start()
+        # width = int(config.get('window.width'))
+        # height = int(config.get('window.height'))
+
+        # animation = QtCore.QPropertyAnimation(window, b'size')
+        # animation.setEndValue(QtCore.QSize(width, height))
+        # animation.setStartValue(QtCore.QSize(800, 600))
+        # animation.setDuration(200)
+        # animation.start()
 
         return super(Application, self).exec_()
 

@@ -11,12 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import hexdi
 
-from .file.parser import ConfigFileParser
+console = hexdi.resolve('console')
+if not console: raise Exception('Console service not found')
 
-
-@hexdi.permanent('config')
-class ServiceConfigInstance(ConfigFileParser):
-    @hexdi.inject('optparse')
-    def __init__(self, parser):
-        (options, args) = parser.parse_args()
-        super(ServiceConfigInstance, self).__init__(file=options.config)
+@console.task(name=['help'], description='Display help text')
+@hexdi.inject('console.application')
+def help(options=None, arguments=None, application=None):
+    yield console.header('Usage: console.py [options] [arguments]')
+    for (name, description, command) in application.get_commands():
+        yield "{:<23} {}".format(console.green(name), console.comment(description))
