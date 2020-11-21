@@ -33,6 +33,7 @@ def test_search_request(options=None, args=None):
         package = package.strip('\'"') if package else None
         for output in _test_search_request_element(package, options):
             yield output
+
     return 0
 
 
@@ -46,50 +47,44 @@ def _test_search_request_element(search=None, options=None, apprepo=None, downlo
 
     for index, entity in enumerate(collection, start=1):
 
-        package = entity.get('package', None)
-        if not package: raise Exception('Package is empty')
-        yield console.comment("[processing]: package {}...".format(package))
-
-        download_file = entity.get('file', None)
-        if not download_file: raise Exception('File is empty')
-        yield console.comment("[processing]: file {}...".format(download_file))
-
         try:
+            package = entity.get('package', None)
+            if not package: raise Exception('Package is empty')
+            yield console.comment("[processing]: package {}...".format(package))
+
+            download_file = entity.get('file', None)
+            if not download_file: raise Exception('File is empty')
+            yield console.comment("[processing]: file {}...".format(download_file))
+
             download = downloader.download(download_file)
             if not download: yield 'Can not download: {}'.format(download_file)
+
+            assert (os.path.exists(download))
+
+            os.chmod(download, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IRWXO | stat.S_IROTH)
+            for line in _test_appimage(download):
+                yield line
         except Exception as ex:
             yield console.error("[error]: exception {}".format(ex))
-            break
-
-        assert (os.path.exists(download))
-
-        os.chmod(download, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IRWXO | stat.S_IROTH)
-        for line in _test_appimage(download):
-            yield line
+            continue
 
 
 @hexdi.inject('console')
 def _test_appimage(appimage, console):
     with tempfile.TemporaryFile() as stderr:
+        process = subprocess.Popen(appimage, stderr=stderr, stdout=stderr, preexec_fn=os.setsid)
+        yield console.comment("[testing]: starting subprocess {}...".format(appimage))
 
-        try:
-            process = subprocess.Popen(appimage, stderr=stderr, stdout=stderr, preexec_fn=os.setsid)
-            yield console.comment("[testing]: starting subprocess {}...".format(appimage))
+        time.sleep(5)
 
-            time.sleep(5)
+        yield console.comment("[testing]: stopping subprocess {}...".format(appimage))
+        if psutil.pid_exists(process.pid):
+            os.killpg(process.pid, signal.SIGTERM)
 
-            yield console.comment("[testing]: stopping subprocess {}...".format(appimage))
-            if psutil.pid_exists(process.pid):
-                os.killpg(process.pid, signal.SIGTERM)
+        stderr.seek(0)
 
-            stderr.seek(0)
+        output = str(stderr.read(), 'utf-8', errors='ignore')
+        yield console.warning("[testing]: status {}, stderr: {}...".format(process.returncode, output))
 
-            output = str(stderr.read(), 'utf-8', errors='ignore')
-            yield console.warning("[testing]: status {}, stderr: {}...".format(process.returncode, output))
-
-            os.remove(appimage)
-            stderr.close()
-        except Exception as ex:
-            print(ex)
-            yield console.error("[error]: exception {}".format(ex))
-            pass
+        os.remove(appimage)
+        stderr.close()
