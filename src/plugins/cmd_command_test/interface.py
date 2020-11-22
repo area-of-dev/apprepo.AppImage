@@ -62,15 +62,15 @@ def _test_search_request_element(search=None, options=None, apprepo=None, downlo
             assert (os.path.exists(download))
 
             os.chmod(download, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IRWXO | stat.S_IROTH)
-            for line in _test_appimage(download):
+            for line in _test_appimage(package, download):
                 yield line
         except Exception as ex:
-            yield console.error("[error]: exception {}".format(ex))
+            yield console.error("[error]: {} - exception {}".format(package, ex))
             continue
 
 
 @hexdi.inject('console')
-def _test_appimage(appimage, console):
+def _test_appimage(package, appimage, console):
     with tempfile.TemporaryFile() as stderr:
         process = subprocess.Popen(appimage, stderr=stderr, stdout=stderr, preexec_fn=os.setsid)
         yield console.comment("[testing]: starting subprocess {}...".format(appimage))
@@ -84,7 +84,7 @@ def _test_appimage(appimage, console):
         stderr.seek(0)
 
         output = str(stderr.read(), 'utf-8', errors='ignore')
-        yield console.warning("[testing]: status {}, stderr: {}...".format(process.returncode, output))
+        yield console.warning("[result]: {} - exit code: {}, stderr: {}...".format(package, process.returncode, output))
 
         os.remove(appimage)
         stderr.close()
