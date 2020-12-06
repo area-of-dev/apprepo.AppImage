@@ -34,7 +34,7 @@ class PackageManager(object):
     @hexdi.inject('config')
     def is_excluded(self, package, config):
         excludes = [
-            'X11','x11','xorg',
+            'X11', 'x11', 'xorg',
             'glibc',
             'centos',
             'setup',
@@ -68,9 +68,17 @@ class PackageManager(object):
             'desktop-file-utils',
             'adduser',
             'apparmor',
-
+            'automake','autoconf','autotools-dev'
+            'file',
+            'dpkg',
+            'gcc', 'gcc-10-base', 'gcc-9', 'gcc-8', 'gcc-7', 'gcc-10',
+            'linux','linux-libc-dev'
         ]
-        return package.name in excludes
+        for pattern in excludes:
+            if package.name.find(pattern) == 0:
+                return True
+            continue
+        return False
 
     def get_packages(self, packages=[], arch='amd64,x86_64,noarch'):
         package_manager = self._get_package_manager()

@@ -117,7 +117,7 @@ def simplify(appdir_root, appdir_build):
                     stream.write(content)
                     stream.close()
 
-    shutil.rmtree(appdir_build, ignore_errors=True)
+    # shutil.rmtree(appdir_build, ignore_errors=True)
 
 
 def _get_folders(enterpoint):
@@ -212,10 +212,10 @@ def apprun(appdir_root):
         content.append("export PERL5LIB=${PERL5LIB}\n")
 
     content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3/site-packages')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3/site-packages/PIL')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3/lib-dynload')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.6')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.6/site-packages')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.6/site-packages/PIL')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.6/lib-dynload')
     content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8')
     content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8/site-packages')
     content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8/site-packages/PIL')

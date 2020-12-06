@@ -6,7 +6,6 @@ chardet==3.0.4
 html5lib==1.0.1
 idna==2.9
 pydux==0.2.2
-PyInstaller==3.6
 requests==2.23.0
 six==1.14.0
 soupsieve==2.0.1
