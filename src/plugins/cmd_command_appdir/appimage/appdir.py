@@ -117,7 +117,7 @@ def simplify(appdir_root, appdir_build):
                     stream.write(content)
                     stream.close()
 
-    # shutil.rmtree(appdir_build, ignore_errors=True)
+    shutil.rmtree(appdir_build, ignore_errors=True)
 
 
 def _get_folders(enterpoint):

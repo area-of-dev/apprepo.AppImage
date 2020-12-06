@@ -17,7 +17,7 @@ all: clean
 	echo "  '--desktop') \$${APPDIR}/bin/python3.8 \$${APPDIR}/apprepo/main.py \$${*:2} ;;" >> $(PWD)/build/Apprepo.AppDir/AppRun
 	echo "  *)   \$${APPDIR}/bin/python3.8 \$${APPDIR}/apprepo/console.py \$${@} ;;" >> $(PWD)/build/Apprepo.AppDir/AppRun
 	echo "esac" >> $(PWD)/build/Apprepo.AppDir/AppRun
-	sed -i 's/#APPDIR=`pwd`/APPDIR=`dirname ${0}`/' $(PWD)/build/Apprepo.AppDir/AppRun
+	sed -i 's/#APPDIR=`pwd`/APPDIR=`dirname \$${0}`/' $(PWD)/build/Apprepo.AppDir/AppRun
 
 	mkdir -p $(PWD)/build/Apprepo.AppDir/apprepo
 	mkdir -p $(PWD)/build/Apprepo.AppDir/vendor
@@ -25,6 +25,8 @@ all: clean
 	cp --recursive --force $(PWD)/src/* $(PWD)/build/Apprepo.AppDir/apprepo
 	cd $(PWD)/build/Apprepo.AppDir/ && ./AppRun --python -m pip install  -r $(PWD)/requirements.txt --target=./vendor --upgrade
 	cd $(PWD)/build/Apprepo.AppDir/ && ./AppRun --python -m pip uninstall typing -y || true
+
+	sed -i 's/APPDIR=`dirname \$${0}`/#APPDIR=`dirname \$${0}`/' $(PWD)/build/Apprepo.AppDir/AppRun
 
 	rm -f $(PWD)/build/Apprepo.AppDir/*.desktop
 
