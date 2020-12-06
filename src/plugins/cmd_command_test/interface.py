@@ -15,7 +15,7 @@ import stat
 import subprocess
 import tempfile
 import time
-
+import distro
 import hexdi
 import psutil
 
@@ -84,6 +84,7 @@ def _test_appimage(package, appimage, console):
         stderr.seek(0)
 
         output = str(stderr.read(), 'utf-8', errors='ignore')
+        # distro.linux_distribution()
         yield console.warning("[result]: {} - exit code: {}, stderr: {}...".format(package, process.returncode, output))
 
         os.remove(appimage)

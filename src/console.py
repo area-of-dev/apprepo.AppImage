@@ -34,6 +34,10 @@ class OptionParser(optparse.OptionParser):
         self.add_option("--force", dest="force", help="Force execution", action='store_true')
         self.add_option("--global", dest="systemwide", help="Install the application for all users", action='store_true')
         self.add_option("--cleanup", dest="cleanup", help="Remove unknown packages", action='store_true')
+        self.add_option("--destination", default='.', dest="destination", help="*.AppDir destination")
+        self.add_option("--arch", default='all,noarch,amd64,x86_64', dest="arch", help="Package architecture")
+
+
         self.add_option("--version-token", dest="version_token", help="Upload token", default=None)
         self.add_option("--version-description", dest="version_description", help="description", default=None)
         self.add_option("--version-name", dest="version_name", help="Upload name", default=None)

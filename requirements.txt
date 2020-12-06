@@ -14,3 +14,4 @@ urllib3==1.25.9
 webencodings==0.5.1
 hexdi
 psutil
+distro
