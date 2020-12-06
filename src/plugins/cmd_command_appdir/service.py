@@ -72,7 +72,16 @@ class PackageManager(object):
             'file',
             'dpkg',
             'gcc', 'gcc-10-base', 'gcc-9', 'gcc-8', 'gcc-7', 'gcc-10',
-            'linux','linux-libc-dev'
+            'linux','linux-libc-dev',
+            'nvidia-graphics-drivers',
+            'avahi',
+            'cups',
+            'login',
+            'passwd',
+            'patch',
+            'clang',
+            'acpid',
+            'dkms'
         ]
         for pattern in excludes:
             if package.name.find(pattern) == 0:
