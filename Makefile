@@ -4,7 +4,7 @@ GLIBC_VERSION := $(shell getconf GNU_LIBC_VERSION | sed 's/ /-/g' )
 PWD := $(shell pwd)
 
 
-all: clean
+all: init clean
 
 
 	mkdir -p $(PWD)/build
