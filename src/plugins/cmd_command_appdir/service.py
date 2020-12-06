@@ -81,7 +81,9 @@ class PackageManager(object):
             'patch',
             'clang',
             'acpid',
-            'dkms'
+            'dkms',
+            'make',
+            'dconf', 'dconf-service'
         ]
         for pattern in excludes:
             if package.name.find(pattern) == 0:

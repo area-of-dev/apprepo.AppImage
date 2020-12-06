@@ -70,8 +70,10 @@ def simplify(appdir_root, appdir_build):
     command = []
     command.append("export XDG_DATA_DIRS=${{XDG_DATA_DIRS}}:{}".format(apprepo_share))
     command.append("export LD_LIBRARY_PATH=${{LD_LIBRARY_PATH}}:{}".format(apprepo_lib))
-    command.append("{}/glib-compile-schemas {}/glib-2.0/schemas/".format(apprepo_bin, apprepo_share))
+    command.append("{}/glib-2.0/glib-compile-schemas {}/glib-2.0/schemas/ > /dev/null 2>&1".format(apprepo_lib, apprepo_share))
+    command.append("{}/glib-compile-schemas {}/glib-2.0/schemas/ > /dev/null 2>&1".format(apprepo_bin, apprepo_share))
     os.system(" && ".join(command))
+
 
     command = []
     command.append("export XDG_DATA_DIRS=${{XDG_DATA_DIRS}}:{}".format(apprepo_share))
