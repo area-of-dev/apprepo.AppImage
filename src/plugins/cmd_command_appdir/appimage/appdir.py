@@ -140,7 +140,6 @@ def apprun(appdir_root):
     apprepo_lib = '{}/lib'.format(appdir_root)
     apprepo_libqt5 = '{}/lib/qt5'.format(appdir_root)
     apprepo_libgi = '{}/lib/python'.format(appdir_root)
-    apprepo_libperl = '{}/lib/perl5'.format(appdir_root)
 
     content = ["""#! /bin/bash    
 # Copyright 2020 Alex Woroschilow (alex.woroschilow@gmail.com)
@@ -205,21 +204,28 @@ def apprun(appdir_root):
             content.append('QT_PLUGIN_PATH=${{QT_PLUGIN_PATH}}:${{APPDIR}}{}'.format(path_local))
         content.append("export QT_PLUGIN_PATH=${QT_PLUGIN_PATH}\n")
 
+    apprepo_libperl = '{}/lib/perl5'.format(appdir_root)
     if os.path.exists(apprepo_libperl) and os.path.isdir(apprepo_libperl):
         for path in _get_folders(apprepo_libperl):
             path_local = path.replace(appdir_root, '')
             content.append('PERL5LIB=${{PERL5LIB}}:${{APPDIR}}{}'.format(path_local))
         content.append("export PERL5LIB=${PERL5LIB}\n")
 
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8/site-packages')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8/site-packages/PIL')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8/lib-dynload')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/vendor')
+    content.append("export PYTHONPATH=${PYTHONPATH}\n")
+
     if os.path.exists(apprepo_share) and os.path.isdir(apprepo_share):
         path_local = apprepo_share.replace(appdir_root, '')
         content.append('XDG_DATA_DIRS=${{XDG_DATA_DIRS}}:${{APPDIR}}{}'.format(path_local))
         content.append("export XDG_DATA_DIRS=${XDG_DATA_DIRS}\n")
 
-    content.append(
-        "ls /etc/ssl/certs/ca-certificates.crt > /dev/null 2>&1 && REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt\n")
-    content.append(
-        "ls /etc/pki/tls/certs/ca-bundle.crt  > /dev/null 2>&1 && REQUESTS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt\n")
+    content.append("ls /etc/ssl/certs/ca-certificates.crt > /dev/null 2>&1 && REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt\n")
+    content.append("ls /etc/pki/tls/certs/ca-bundle.crt  > /dev/null 2>&1 && REQUESTS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt\n")
     content.append("export REQUESTS_CA_BUNDLE=${REQUESTS_CA_BUNDLE}\n")
 
     content.append("#exec ${APPDIR}/bin/....\n")

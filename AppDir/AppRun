@@ -23,6 +23,7 @@ LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${APPDIR}/python/lib64
 LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${APPDIR}/python/lib
 export LD_LIBRARY_PATH
 
+
 PYTHONPATH=${PYTHONPATH}:${APPDIR}/python/usr/lib
 PYTHONPATH=${PYTHONPATH}:${APPDIR}/python/usr/lib/python3.8
 PYTHONPATH=${PYTHONPATH}:${APPDIR}/python/usr/lib/python3.8/site-packages
@@ -37,6 +38,7 @@ PYTHONPATH=${PYTHONPATH}:${APPDIR}/python/usr/lib64/python3.8/_import_failed
 PYTHONPATH=${PYTHONPATH}:${APPDIR}/python/usr/lib64/python3.8/lib-dynload
 PYTHONPATH=${PYTHONPATH}:${APPDIR}/vendor
 export PYTHONPATH=${PYTHONPATH}
+
 
 GI_TYPELIB_PATH=${GI_TYPELIB_PATH}:${APPDIR}/python/lib
 GI_TYPELIB_PATH=${GI_TYPELIB_PATH}:${APPDIR}/python/lib/girepository-1.0

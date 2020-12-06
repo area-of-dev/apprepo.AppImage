@@ -32,7 +32,7 @@ class PackageCandidate(object):
 
 def get_packages(packages=[], architecture='amd64,x86_64,noarch'):
     cache = apt.Cache()
-    cache.open(None)
+
     try:
         cache.update()
     except Exception as ex:

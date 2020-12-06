@@ -6,55 +6,35 @@ PWD := $(shell pwd)
 
 all: clean
 
+
 	mkdir -p $(PWD)/build
-	mkdir -p $(PWD)/build/AppDir
-	mkdir -p $(PWD)/build/AppDir/python
-	mkdir -p $(PWD)/build/AppDir/apprepo
-	mkdir -p $(PWD)/build/AppDir/vendor
 
+	source $(PWD)/venv/bin/activate && python3 $(PWD)/src/console.py appdir apprepo python3 python3-dev python3-psutil python3-pip python3-setuptools python3-apt openssl libffi7 intltool libgudev-1.0-0 --destination=$(PWD)/build
 
-	wget --output-document=$(PWD)/build/build.rpm  http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/python38-3.8.0-6.module_el8.2.0+317+61fa6e7d.x86_64.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
+	echo "#cd \$${OWD}" >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo "case "\$${1}" in" >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo "  '--python') exec \$${APPDIR}/bin/python3 \$${*:2} ;;" >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo "  '--desktop') \$${APPDIR}/bin/python3 \$${APPDIR}/apprepo/main.py \$${*:2} ;;" >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo "  *)   \$${APPDIR}/bin/python3 \$${APPDIR}/apprepo/console.py \$${@} ;;" >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo "esac" >> $(PWD)/build/Apprepo.AppDir/AppRun
+	sed -i 's/#APPDIR=`pwd`/APPDIR=`dirname \$${0}`/' $(PWD)/build/Apprepo.AppDir/AppRun
 
-	wget --output-document=$(PWD)/build/build.rpm  http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/python38-devel-3.8.0-6.module_el8.2.0+317+61fa6e7d.x86_64.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
+	mkdir -p $(PWD)/build/Apprepo.AppDir/apprepo
+	mkdir -p $(PWD)/build/Apprepo.AppDir/vendor
 
-	wget --output-document=$(PWD)/build/build.rpm  http://mirror.centos.org/centos/8/AppStream/aarch64/os/Packages/python38-pip-19.2.3-5.module_el8.2.0+317+61fa6e7d.noarch.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
+	cp --recursive --force $(PWD)/src/* $(PWD)/build/Apprepo.AppDir/apprepo
+	cd $(PWD)/build/Apprepo.AppDir && ./AppRun --python -m pip install  -r $(PWD)/requirements.txt --target=./vendor --upgrade
+	cd $(PWD)/build/Apprepo.AppDir && ./AppRun --python -m pip uninstall typing -y || true
 
-	wget --output-document=$(PWD)/build/build.rpm  http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/python38-setuptools-41.6.0-4.module_el8.2.0+317+61fa6e7d.noarch.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
+	rm -f $(PWD)/build/Apprepo.AppDir/*.desktop
 
-	wget --output-document=$(PWD)/build/build.rpm  http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/python38-libs-3.8.0-6.module_el8.2.0+317+61fa6e7d.x86_64.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
+	cp --force $(PWD)/AppDir/*.desktop $(PWD)/build/Apprepo.AppDir/
+	cp --force $(PWD)/AppDir/*.png $(PWD)/build/Apprepo.AppDir/ || true
+	cp --force $(PWD)/AppDir/*.svg $(PWD)/build/Apprepo.AppDir/ || true
 
-	wget --output-document=$(PWD)/build/build.rpm  http://mirror.centos.org/centos/8/BaseOS/x86_64/os/Packages/openssl-libs-1.1.1c-15.el8.x86_64.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
-
-	wget --output-document=$(PWD)/build/build.rpm  http://mirror.centos.org/centos/8/BaseOS/x86_64/os/Packages/libffi-3.1-21.el8.x86_64.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
-
-	wget --output-document=$(PWD)/build/build.rpm  http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/intltool-0.51.0-11.el8.noarch.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
-
-	wget --output-document=$(PWD)/build/build.rpm  http://mirror.centos.org/centos/8/BaseOS/x86_64/os/Packages/libgudev-232-4.el8.x86_64.rpm
-	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
-
-
-	cp --recursive --force $(PWD)/src/* $(PWD)/build/AppDir/apprepo
-	cp --recursive --force $(PWD)/build/usr/* $(PWD)/build/AppDir/python
-	cp --recursive --force $(PWD)/AppDir/AppRun $(PWD)/build/AppDir/AppRun
-	chmod +x $(PWD)/build/AppDir/AppRun
-
-	$(PWD)/build/AppDir/AppRun --python -m pip install  -r $(PWD)/requirements.txt --target=$(PWD)/build/AppDir/vendor --upgrade
-	$(PWD)/build/AppDir/AppRun --python -m pip uninstall typing -y || true
-
-	cp --force $(PWD)/AppDir/*.desktop $(PWD)/build/AppDir/
-	cp --force $(PWD)/AppDir/*.png $(PWD)/build/AppDir/ || true
-	cp --force $(PWD)/AppDir/*.svg $(PWD)/build/AppDir/ || true
-
-	export ARCH=x86_64 && $(PWD)/bin/appimagetool.AppImage  $(PWD)/build/AppDir $(PWD)/apprepo.AppImage
+	export ARCH=x86_64 && $(PWD)/bin/appimagetool.AppImage $(PWD)/build/Apprepo.AppDir $(PWD)/apprepo.AppImage
 	chmod +x $(PWD)/apprepo.AppImage
+
 
 init:
 	rm -rf $(PWD)/venv
