@@ -43,12 +43,12 @@ class PackageManager(object):
             'basesystem',
             'systemd',
             'filesystem',
-            'dbus', 'dbus-daemon', 'dbus-tools', 'dbus-common',
+            'dbus',
             'coreutils',
             'shadow-utils',
             'systemd-pam', 'systemd-udev',
             'fuse',
-            'pkgconf', 'pkgconf-pkg-config',
+            'pkgconf',
             'xorg-x11-server-utils',
             'adwaita-cursor-theme',
             'xkeyboard-config',
@@ -57,7 +57,6 @@ class PackageManager(object):
             'iso-codes',
             'zenity',
             'udisks2',
-            'parted',
             'device-mapper',
             'mdadm',
             'util-linux',
@@ -68,27 +67,32 @@ class PackageManager(object):
             'desktop-file-utils',
             'adduser',
             'apparmor',
-            'automake','autoconf','autotools-dev'
+            'automake',
+            'autoconf',
+            'autotools',
             'file',
             'dpkg',
-            'gcc', 'gcc-10-base', 'gcc-9', 'gcc-8', 'gcc-7', 'gcc-10',
-            'linux','linux-libc-dev',
-            'nvidia-graphics-drivers',
+            'gcc',
+            'linux',
+            'nvidia',
             'avahi',
             'cups',
             'login',
-            'passwd',
+            'shadow',
             'patch',
             'clang',
             'acpid',
             'dkms',
             'make',
-            'dconf', 'dconf-service',
+            'dconf',
+            'debconf',
+            'init-system-helpers',
         ]
+
         for pattern in excludes:
             if package.name.find(pattern) == 0:
+                print(package.name, pattern)
                 return True
-            continue
         return False
 
     def get_packages(self, packages=[], arch='amd64,x86_64,noarch'):
