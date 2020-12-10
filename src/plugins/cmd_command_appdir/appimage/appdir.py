@@ -36,7 +36,7 @@ def simplify(appdir_root, appdir_build):
     apprepo_bin = '{}/bin'.format(appdir_root)
     apprepo_share = '{}/share'.format(appdir_root)
     apprepo_libexec = '{}/libexec'.format(appdir_root)
-    apprepo_lib = '{}/lib'.format(appdir_root)
+    apprepo_lib = '{}/lib64'.format(appdir_root)
 
     copypool = []
 
@@ -49,6 +49,7 @@ def simplify(appdir_root, appdir_build):
     copypool.append(('{}/lib64/*'.format(appdir_build), apprepo_lib))
     copypool.append(('{}/lib/*'.format(appdir_build), apprepo_lib))
 
+    copypool.append(('{}/lib64/libexec/*'.format(appdir_build), apprepo_libexec))
     copypool.append(('{}/lib/libexec/*'.format(appdir_build), apprepo_libexec))
 
     copypool.append(('{}/usr/share/*'.format(appdir_build), apprepo_share))
@@ -63,7 +64,7 @@ def simplify(appdir_root, appdir_build):
             os.makedirs(destination, exist_ok=True)
 
         os.system("cp --recursive --force {} {}".format(source, destination))
-        os.system("rm -rf {}".format(source.strip('/*')))
+        os.system("rm -rf {}".format(source.replace('/*', '')))
 
         yield source, destination
 
@@ -74,16 +75,54 @@ def simplify(appdir_root, appdir_build):
     command.append("{}/glib-compile-schemas {}/glib-2.0/schemas/ > /dev/null 2>&1".format(apprepo_bin, apprepo_share))
     os.system(" && ".join(command))
 
-
     command = []
     command.append("export XDG_DATA_DIRS=${{XDG_DATA_DIRS}}:{}".format(apprepo_share))
     command.append("export LD_LIBRARY_PATH=${{LD_LIBRARY_PATH}}:{}".format(apprepo_lib))
     command.append("{}/update-mime-database {}/mime".format(apprepo_bin, apprepo_share))
     os.system(" && ".join(command))
 
+    GTK_IM_MODULEDIR = "{}/gtk-3.0/3.0.0/immodules".format(apprepo_lib)
+    GTK_IM_MODULE_FILE = "{}/gtk-3.0/3.0.0/immodules.cache".format(apprepo_lib)
+    if os.path.exists(GTK_IM_MODULEDIR) and os.path.isdir(GTK_IM_MODULEDIR):
+        command = []
+        command.append("export GTK_IM_MODULE_FILE={}".format(GTK_IM_MODULE_FILE))
+
+        modules = []
+        for path in glob.glob("{}/*.so".format(GTK_IM_MODULEDIR)):
+            modules.append(path)
+
+        modules = " ".join(modules)
+        GTK_IM_MODULE_BINARY = "{}/gtk-query-immodules".format(apprepo_bin)
+        if os.path.exists(GTK_IM_MODULE_BINARY) and os.path.isfile(GTK_IM_MODULE_BINARY):
+            command.append("{} --update-cache {}".format(GTK_IM_MODULE_BINARY, modules))
+
+        GTK_IM_MODULE_BINARY = "{}/gtk-query-immodules-3.0".format(apprepo_bin)
+        if os.path.exists(GTK_IM_MODULE_BINARY) and os.path.isfile(GTK_IM_MODULE_BINARY):
+            command.append("{} --update-cache {}".format(GTK_IM_MODULE_BINARY, modules))
+
+        GTK_IM_MODULE_BINARY = "{}/libgtk-3-0/gtk-query-immodules".format(apprepo_lib)
+        if os.path.exists(GTK_IM_MODULE_BINARY) and os.path.isfile(GTK_IM_MODULE_BINARY):
+            command.append("{} --update-cache {}".format(GTK_IM_MODULE_BINARY, modules))
+
+        GTK_IM_MODULE_BINARY = "{}/libgtk-3-0/gtk-query-immodules-3.0".format(apprepo_lib)
+        if os.path.exists(GTK_IM_MODULE_BINARY) and os.path.isfile(GTK_IM_MODULE_BINARY):
+            command.append("{} --update-cache {}".format(GTK_IM_MODULE_BINARY, modules))
+
+        os.system(" && ".join(command))
+
+        if os.path.exists(GTK_IM_MODULE_FILE):
+            with open(GTK_IM_MODULE_FILE, 'r+') as stream:
+                content = stream.read()
+                content = content.replace("{}/".format(GTK_IM_MODULEDIR), '')
+                content = content.replace(GTK_IM_MODULEDIR, '')
+                stream.close()
+
+                with open(GTK_IM_MODULE_FILE, 'w') as stream:
+                    stream.write(content)
+                    stream.close()
+
     GDK_PIXBUF_MODULEDIR = "{}/gdk-pixbuf-2.0/2.10.0/loaders".format(apprepo_lib)
     GDK_PIXBUF_MODULE_FILE = "{}/gdk-pixbuf-2.0/2.10.0/loaders.cache".format(apprepo_lib)
-
     if os.path.exists(GDK_PIXBUF_MODULEDIR) and os.path.isdir(GDK_PIXBUF_MODULEDIR):
         command = []
         command.append("export XDG_DATA_DIRS=${{XDG_DATA_DIRS}}:{}".format(apprepo_share))
@@ -139,9 +178,9 @@ def apprun(appdir_root):
     apprepo_bin = '{}/bin'.format(appdir_root)
     apprepo_share = '{}/share'.format(appdir_root)
     apprepo_libexec = '{}/libexec'.format(appdir_root)
-    apprepo_lib = '{}/lib'.format(appdir_root)
-    apprepo_libqt5 = '{}/lib/qt5'.format(appdir_root)
-    apprepo_libgi = '{}/lib/python'.format(appdir_root)
+    apprepo_lib = '{}/lib64'.format(appdir_root)
+    apprepo_libqt5 = '{}/lib64/qt5'.format(appdir_root)
+    apprepo_libgi = '{}/lib64/python'.format(appdir_root)
 
     content = ["""#! /bin/bash    
 # Copyright 2020 Alex Woroschilow (alex.woroschilow@gmail.com)
@@ -179,10 +218,11 @@ def apprun(appdir_root):
         content.append('GDK_PIXBUF_MODULE_FILE=${{APPDIR}}{}/gdk-pixbuf-2.0/2.10.0/loaders.cache'.format(path_local))
         content.append("export GDK_PIXBUF_MODULE_FILE=${GDK_PIXBUF_MODULE_FILE}\n")
 
-        content.append('GTK_PATH=${{APPDIR}}{}/gtk-2.0'.format(path_local))
+        content.append('GTK_PATH=${{GTK_PATH}}:${{APPDIR}}{}/gtk-2.0'.format(path_local))
+        content.append('GTK_PATH=${{GTK_PATH}}:${{APPDIR}}{}/gtk-3.0'.format(path_local))
         content.append("export GTK_PATH=${GTK_PATH}\n")
 
-        content.append('GTK_IM_MODULE_FILE=${{APPDIR}}{}/gtk-2.0'.format(path_local))
+        content.append('GTK_IM_MODULE_FILE=${{APPDIR}}{}/gtk-3.0/3.0.0/immodules.cache'.format(path_local))
         content.append("export GTK_IM_MODULE_FILE=${GTK_IM_MODULE_FILE}\n")
 
         content.append('PANGO_LIBDIR=${{APPDIR}}{}'.format(path_local))
@@ -206,26 +246,26 @@ def apprun(appdir_root):
             content.append('QT_PLUGIN_PATH=${{QT_PLUGIN_PATH}}:${{APPDIR}}{}'.format(path_local))
         content.append("export QT_PLUGIN_PATH=${QT_PLUGIN_PATH}\n")
 
-    apprepo_libperl = '{}/lib/perl5'.format(appdir_root)
+    apprepo_libperl = '{}/lib64/perl5'.format(appdir_root)
     if os.path.exists(apprepo_libperl) and os.path.isdir(apprepo_libperl):
         for path in _get_folders(apprepo_libperl):
             path_local = path.replace(appdir_root, '')
             content.append('PERL5LIB=${{PERL5LIB}}:${{APPDIR}}{}'.format(path_local))
         content.append("export PERL5LIB=${PERL5LIB}\n")
 
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.6')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.6/site-packages')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.6/site-packages/PIL')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.6/lib-dynload')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8/site-packages')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8/site-packages/PIL')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.8/lib-dynload')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.9')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.9/site-packages')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.9/site-packages/PIL')
-    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib/python3.9/lib-dynload')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.6')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.6/site-packages')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.6/site-packages/PIL')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.6/lib-dynload')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.8')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.8/site-packages')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.8/site-packages/PIL')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.8/lib-dynload')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.9')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.9/site-packages')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.9/site-packages/PIL')
+    content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/lib64/python3.9/lib-dynload')
 
     content.append('PYTHONPATH=${PYTHONPATH}:${APPDIR}/vendor')
     content.append("export PYTHONPATH=${PYTHONPATH}\n")

@@ -10,9 +10,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-FILE=`which "$0"`
-APPDIR=`dirname "${FILE}"`
-#APPDIR=`pwd`
+APPDIR=`dirname "${0}"`
 
 set -e
 
@@ -38,7 +36,6 @@ PYTHONPATH=${PYTHONPATH}:${APPDIR}/python/usr/lib64/python3.8/_import_failed
 PYTHONPATH=${PYTHONPATH}:${APPDIR}/python/usr/lib64/python3.8/lib-dynload
 PYTHONPATH=${PYTHONPATH}:${APPDIR}/vendor
 export PYTHONPATH=${PYTHONPATH}
-
 
 GI_TYPELIB_PATH=${GI_TYPELIB_PATH}:${APPDIR}/python/lib
 GI_TYPELIB_PATH=${GI_TYPELIB_PATH}:${APPDIR}/python/lib/girepository-1.0

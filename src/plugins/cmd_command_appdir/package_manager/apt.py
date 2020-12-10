@@ -30,6 +30,14 @@ class PackageCandidate(object):
         return self.url == other.url
 
 
+def _get_version(collection, architecture):
+    for version in collection:
+        for arch in architecture.split(','):
+            if version.architecture == arch:
+                yield version
+                break
+
+
 def get_packages(packages=[], architecture='amd64,x86_64,noarch'):
     cache = apt.Cache()
 
@@ -39,7 +47,7 @@ def get_packages(packages=[], architecture='amd64,x86_64,noarch'):
         print(ex)
 
     pool = []
-    queued = []
+    queued = {}
 
     for name in packages:
         if not cache.has_key(name):
@@ -48,41 +56,26 @@ def get_packages(packages=[], architecture='amd64,x86_64,noarch'):
         package: Package = cache.get(name)
         if not package: continue
 
-        for arch in architecture.split(','):
-            version: Version = package.candidate
-            if not version or version.architecture != arch:
-                continue
-
-            if version in pool:
-                continue
-
-            pool.append(version)
+        for version in _get_version([package.candidate], architecture):
+            if version not in pool:
+                pool.append(version)
 
     while len(pool):
         version: Version = pool.pop()
-        if not version.uri:
+        if not version.downloadable:
             continue
 
-        candidate = PackageCandidate(version.source_name, version.uri)
-        if candidate in queued: continue
+        if version.__str__() in queued.keys():
+            continue
 
-        queued.append(candidate)
+        queued[version.__str__()] = PackageCandidate(version.__str__(), version.uri)
 
-        for dependency in version.dependencies:
-            for dependency_version in dependency.target_versions:
-                if dependency_version in pool:
-                    continue
+        for dependency in version.get_dependencies('Depends'):
+            for dependency_version in _get_version(dependency.target_versions, architecture):
+                if dependency_version.__str__() not in queued.keys():
+                    pool.append(dependency_version)
 
-                for arch in architecture.split(','):
-                    if dependency_version.architecture == arch:
-
-                        candidate = PackageCandidate(dependency_version.source_name, dependency_version.uri)
-                        if candidate in queued: continue
-
-                        pool.append(dependency_version)
-                        continue
-
-    return queued
+    return queued.values()
 
 
 def download(package=None, destination=None):

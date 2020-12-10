@@ -34,8 +34,8 @@ class PackageManager(object):
     @hexdi.inject('config')
     def is_excluded(self, package, config):
         excludes = [
-            'X11', 'x11', 'xorg',
-            'glibc',
+            'X11', 'x11', 'xorg','xserver-xorg-core','xserver-common','xserver-xorg-legacy',
+            'glibc', 'libc', 'clib', 'libgcc',
             'centos',
             'setup',
             'bash',
@@ -87,11 +87,19 @@ class PackageManager(object):
             'dconf',
             'debconf',
             'init-system-helpers',
+            'sensible-utils',
+            'passwd',
+            'usermod',
+            'userdel',
+            'mount',
+            'ucf',
+            'cpp','g++',
+            'udev',
+            'glib-networking','glib-networking-common','glib-networking-services',
         ]
 
         for pattern in excludes:
             if package.name.find(pattern) == 0:
-                print(package.name, pattern)
                 return True
         return False
 
