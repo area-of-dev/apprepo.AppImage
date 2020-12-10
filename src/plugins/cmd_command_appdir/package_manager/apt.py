@@ -62,7 +62,7 @@ def get_packages(packages=[], architecture='amd64,x86_64,noarch'):
 
     while len(pool):
         version: Version = pool.pop()
-        if not version.downloadable:
+        if not version.uri:
             continue
 
         if version.__str__() in queued.keys():
@@ -72,6 +72,9 @@ def get_packages(packages=[], architecture='amd64,x86_64,noarch'):
 
         for dependency in version.get_dependencies('Depends'):
             for dependency_version in _get_version(dependency.target_versions, architecture):
+                if not dependency_version.uri:
+                    continue
+
                 if dependency_version.__str__() not in queued.keys():
                     pool.append(dependency_version)
 

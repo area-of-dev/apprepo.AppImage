@@ -12,8 +12,6 @@ all: clean
 	source $(PWD)/venv/bin/activate && python3 $(PWD)/src/console.py --destination=$(PWD)/build appdir apprepo python3.8 \
 													python3.8-dev python3.8-psutil python3.8-setuptools python3-pip python3-dnf python3-apt \
 													openssl libffi7 intltool libgudev-1.0-0 libffi libgudev \
-													
-													
 
 	echo '#cd $${OWD}' >> $(PWD)/build/Apprepo.AppDir/AppRun
 	echo 'case "$${1}" in' >> $(PWD)/build/Apprepo.AppDir/AppRun
@@ -27,8 +25,8 @@ all: clean
 	mkdir -p $(PWD)/build/Apprepo.AppDir/vendor
 
 	cp --recursive --force $(PWD)/src/* $(PWD)/build/Apprepo.AppDir/apprepo
-	cd $(PWD)/build/Apprepo.AppDir/ && ./AppRun --python -m pip install  -r $(PWD)/requirements.txt --target=./vendor --upgrade
-	cd $(PWD)/build/Apprepo.AppDir/ && ./AppRun --python -m pip uninstall typing -y || true
+	cd $(PWD)/build/Apprepo.AppDir && ./AppRun --python -m pip install  -r $(PWD)/requirements.txt --target=./vendor --upgrade
+	cd $(PWD)/build/Apprepo.AppDir && ./AppRun --python -m pip uninstall typing -y || true
 
 	sed -i 's/APPDIR=`dirname \$${0}`/#APPDIR=`dirname \$${0}`/' $(PWD)/build/Apprepo.AppDir/AppRun
 
