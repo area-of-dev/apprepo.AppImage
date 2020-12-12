@@ -81,8 +81,10 @@ def get_packages(packages=[], architecture='amd64,x86_64,noarch'):
     return queued.values()
 
 
-def download(package=None, destination=None):
+def download(package=None, destination=None, override=False):
     filename = "{}/{}".format(destination, os.path.basename(package.url))
+    if os.path.exists(filename): return filename
+
     with requests.get(package.url, stream=True) as stream:
         stream.raise_for_status()
         with open(filename, 'wb') as file:

@@ -35,7 +35,8 @@ class PackageManager(object):
     def is_excluded(self, package, config):
         excludes = [
             'X11', 'x11', 'xorg','xserver-xorg-core','xserver-common','xserver-xorg-legacy',
-            'glibc', 'clib', 'libgcc',
+            'glibc', 'clib', 'libgcc', 'libc6',
+            'debianutils',
             'centos',
             'setup',
             'bash',

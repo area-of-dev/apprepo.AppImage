@@ -39,6 +39,11 @@ def appdir_action(options=None, arguments=None, application=None):
     if not os.path.exists(appdir_build):
         os.makedirs(appdir_build, exist_ok=True)
 
+    apprepo_tmp = "/tmp/apprepo".format(options.destination, name.capitalize())
+    if not os.path.exists(apprepo_tmp):
+        os.makedirs(apprepo_tmp, exist_ok=True)
+
+
     queued = appdir.get_packages([name] + arguments, options.arch)
     if not queued: raise ValueError('No packages were found')
 
@@ -46,7 +51,7 @@ def appdir_action(options=None, arguments=None, application=None):
     total = len(queued)
     for index, package in enumerate(queued, start=1):
         yield "downloading: {} from {}, {}".format(index, total, package.__str__())
-        filename_rpm = appdir.download(package, appdir_build)
+        filename_rpm = appdir.download(package, apprepo_tmp)
         if not filename_rpm: raise ValueError(package.__str__())
 
         downloaded.append(filename_rpm)
