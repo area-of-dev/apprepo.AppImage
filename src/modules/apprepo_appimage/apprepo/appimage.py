@@ -19,10 +19,70 @@ import stat
 import subprocess
 from multiprocessing.pool import ThreadPool
 
+import hexdi
+
 from .alias import AppImageAliasFinder
 from .desktop import AppImageDesktopFinder
 from .icon import AppImageIconFinder
 from .utils import EqualsSpaceRemover
+
+
+def get_folder_bin(appdir_root):
+    return '{}/bin'.format(appdir_root)
+
+
+def get_folder_lib(appdir_root):
+    return '{}/lib64'.format(appdir_root)
+
+
+def get_folder_share(appdir_root):
+    return '{}/share'.format(appdir_root)
+
+
+def get_folder_libexec(appdir_root):
+    return '{}/libexec'.format(appdir_root)
+
+
+def get_folder_libpython(appdir_root):
+    return '{}/lib64/python'.format(appdir_root)
+
+
+def get_folder_libqt5(appdir_root):
+    return '{}/lib64/qt5'.format(appdir_root)
+
+
+def get_folder_libperl5(appdir_root):
+    return '{}/lib64/perl5'.format(appdir_root)
+
+
+def shaper(*args, **kwargs):
+    priority = kwargs.get('priority', 0)
+
+    @hexdi.inject('appimagetool')
+    def wrapper1(*args, **kwargs):
+        assert (len(args) > 1)
+        factory: AppImage = args[1]
+
+        factory.add_shaper((args[0], priority))
+
+        return args[0]
+
+    return wrapper1
+
+
+def apprun(*args, **kwargs):
+    priority = kwargs.get('priority', 0)
+
+    @hexdi.inject('appimagetool')
+    def wrapper1(*args, **kwargs):
+        assert (len(args) > 1)
+        factory: AppImage = args[1]
+
+        factory.add_apprun((args[0], priority))
+
+        return args[0]
+
+    return wrapper1
 
 
 class AppImage(object):
@@ -31,6 +91,24 @@ class AppImage(object):
     def __init__(self, locations_local=[], locations_global=[]):
         self.locations_global = locations_global
         self.locations_local = locations_local
+        self.shapers = []
+        self.apprun = []
+
+    def add_shaper(self, callback):
+        self.shapers.append(callback)
+        return self
+
+    def add_apprun(self, callback):
+        self.apprun.append(callback)
+        return self
+
+    def get_shapers(self):
+        for bunch in sorted(self.shapers, key=lambda tup: tup[1]):
+            yield bunch[0]
+
+    def get_appruns(self):
+        for bunch in sorted(self.apprun, key=lambda tup: tup[1]):
+            yield bunch[0]
 
     @property
     def locations(self):

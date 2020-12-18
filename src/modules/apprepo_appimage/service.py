@@ -12,11 +12,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import hexdi
 
-from .apprepo.appimage import AppImage
+from .apprepo import appimage
+
+
+@hexdi.permanent('appimage')
+def appimage_provider():
+    from .apprepo import appimage
+    return appimage
 
 
 @hexdi.permanent('appimagetool')
-class ServiceAppImageInstance(AppImage):
+class ServiceAppImageInstance(appimage.AppImage):
     @hexdi.inject('config')
     def __init__(self, config):
         applications_global = config.get('applications.global', '/Applications')
