@@ -25,6 +25,7 @@ all: clean
 	mkdir -p $(PWD)/build/Apprepo.AppDir/vendor
 
 	cp --recursive --force $(PWD)/src/* $(PWD)/build/Apprepo.AppDir/apprepo
+	chmod +x $(PWD)/build/Apprepo.AppDir/AppRun
 	cd $(PWD)/build/Apprepo.AppDir && ./AppRun --python -m pip install  -r $(PWD)/requirements.txt --target=./vendor --upgrade
 	cd $(PWD)/build/Apprepo.AppDir && ./AppRun --python -m pip uninstall typing -y || true
 

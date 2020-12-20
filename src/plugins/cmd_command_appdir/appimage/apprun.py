@@ -36,7 +36,7 @@ def _get_folders(enterpoint):
 
 @factory.apprun(priority=0)
 @hexdi.inject('appimage')
-def apprun_header(appdir_root):
+def apprun_header(appdir_root, appimage):
     return ["""#! /bin/bash    
 # Copyright 2020 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
