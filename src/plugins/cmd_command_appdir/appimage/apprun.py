@@ -238,3 +238,47 @@ def apprun_path_requests_ca_bundle(appdir_root, appimage):
     content.append("export REQUESTS_CA_BUNDLE=${REQUESTS_CA_BUNDLE}\n")
 
     return content
+
+
+@factory.apprun(priority=110)
+@hexdi.inject('appimage')
+def apprun_path_gtk2_rc_files(appdir_root, appimage):
+    content = []
+
+    apprepo_share = appimage.get_folder_share(appdir_root)
+    if not os.path.exists(apprepo_share) or not os.path.isdir(apprepo_share):
+        return content
+
+    apprepo_adwaita_gtkrc = "{}/themes/Breeze/gtk-2.0/gtkrc".format(apprepo_share)
+    if not os.path.exists(apprepo_adwaita_gtkrc) or not os.path.isfile(apprepo_adwaita_gtkrc):
+        return content
+
+    path_local = apprepo_adwaita_gtkrc.replace(appdir_root, '')
+    content.append("GTK2_RC_FILES=${{APPDIR}}{}".format(path_local))
+    content.append("export GTK2_RC_FILES=${GTK2_RC_FILES}\n")
+
+    return content
+
+
+@factory.apprun(priority=110)
+@hexdi.inject('appimage')
+def apprun_path_gst_plugin_path(appdir_root, appimage):
+    content = []
+
+    apprepo_lib = appimage.get_folder_lib(appdir_root)
+    if not os.path.exists(apprepo_lib) or not os.path.isdir(apprepo_lib):
+        return content
+
+    gst_plugin_path = "{}/gstreamer-1.0".format(apprepo_lib)
+    if os.path.exists(gst_plugin_path) and os.path.isdir(gst_plugin_path):
+        path_local = gst_plugin_path.replace(appdir_root, '')
+        content.append("GST_PLUGIN_PATH=${{GST_PLUGIN_PATH}}:${{APPDIR}}{}".format(path_local))
+
+    gst_plugin_path = "{}/gstreamer1.0".format(apprepo_lib)
+    if os.path.exists(gst_plugin_path) and os.path.isdir(gst_plugin_path):
+        path_local = gst_plugin_path.replace(appdir_root, '')
+        content.append("GST_PLUGIN_PATH=${{GST_PLUGIN_PATH}}:${{APPDIR}}{}".format(path_local))
+
+    content.append("export GST_PLUGIN_PATH=${GST_PLUGIN_PATH}\n")
+
+    return content
