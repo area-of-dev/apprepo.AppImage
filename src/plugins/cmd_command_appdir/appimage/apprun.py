@@ -166,13 +166,13 @@ def apprun_path_qt_plugin_path(appdir_root, appimage):
 def apprun_path_perl5lib(appdir_root, appimage):
     content = []
 
-    apprepo_libperl = factory.get_folder_libperl5(appdir_root)
-    if not os.path.exists(apprepo_libperl) or not os.path.isdir(apprepo_libperl):
-        return content
+    for apprepo_libperl in appimage.get_folder_libperl5(appdir_root):
+        if not os.path.exists(apprepo_libperl) or not os.path.isdir(apprepo_libperl):
+            continue
 
-    for path in _get_folders(apprepo_libperl):
-        path_local = path.replace(appdir_root, '')
-        content.append('PERL5LIB=${{PERL5LIB}}:${{APPDIR}}{}'.format(path_local))
+        for path in _get_folders(apprepo_libperl):
+            path_local = path.replace(appdir_root, '')
+            content.append('PERL5LIB=${{PERL5LIB}}:${{APPDIR}}{}'.format(path_local))
 
     content.append("export PERL5LIB=${PERL5LIB}\n")
 

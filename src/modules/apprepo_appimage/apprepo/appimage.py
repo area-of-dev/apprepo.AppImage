@@ -52,7 +52,12 @@ def get_folder_libqt5(appdir_root):
 
 
 def get_folder_libperl5(appdir_root):
-    return '{}/lib64/perl5'.format(appdir_root)
+    yield '{}/lib64/perl'.format(appdir_root)
+    yield '{}/lib64/perl-base'.format(appdir_root)
+    yield '{}/lib64/perl5'.format(appdir_root)
+    yield '{}/share/perl'.format(appdir_root)
+    yield '{}/share/perl-base'.format(appdir_root)
+    yield '{}/share/perl5'.format(appdir_root)
 
 
 def shaper(*args, **kwargs):
