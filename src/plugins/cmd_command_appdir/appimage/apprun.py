@@ -57,7 +57,7 @@ def apprun_header(appdir_root, appimage):
 def apprun_path_bin(appdir_root, appimage):
     content = []
 
-    apprepo_bin = factory.get_folder_bin(appdir_root)
+    apprepo_bin = appimage.get_folder_bin(appdir_root)
     if not os.path.exists(apprepo_bin) or not os.path.isdir(apprepo_bin):
         return content
 
@@ -130,7 +130,7 @@ def apprun_path_ld_library_path(appdir_root, appimage):
 def apprun_path_gi_typelib_path(appdir_root, appimage):
     content = []
 
-    apprepo_libgi = factory.get_folder_libpython(appdir_root)
+    apprepo_libgi = appimage.get_folder_libpython(appdir_root)
     if not os.path.exists(apprepo_libgi) or not os.path.isdir(apprepo_libgi):
         return content
 
@@ -148,7 +148,7 @@ def apprun_path_gi_typelib_path(appdir_root, appimage):
 def apprun_path_qt_plugin_path(appdir_root, appimage):
     content = []
 
-    apprepo_libqt5 = factory.get_folder_libqt5(appdir_root)
+    apprepo_libqt5 = appimage.get_folder_libqt5(appdir_root)
     if not os.path.exists(apprepo_libqt5) or not os.path.isdir(apprepo_libqt5):
         return content
 
@@ -157,6 +157,22 @@ def apprun_path_qt_plugin_path(appdir_root, appimage):
         content.append('QT_PLUGIN_PATH=${{QT_PLUGIN_PATH}}:${{APPDIR}}{}'.format(path_local))
 
     content.append("export QT_PLUGIN_PATH=${QT_PLUGIN_PATH}\n")
+
+    return content
+
+
+@factory.apprun(priority=61)
+@hexdi.inject('appimage')
+def apprun_path_qt_webengineprocess_path(appdir_root, appimage):
+    content = []
+
+    QtWebEngineProcess = "{}/libexec/QtWebEngineProcess".format(appimage.get_folder_libqt5(appdir_root))
+    if not os.path.exists(QtWebEngineProcess) or os.path.isdir(QtWebEngineProcess):
+        return content
+
+    QtWebEngineProcess = QtWebEngineProcess.replace(appdir_root, '')
+    content.append('QTWEBENGINEPROCESS_PATH=${{APPDIR}}{}'.format(QtWebEngineProcess))
+    content.append("export QTWEBENGINEPROCESS_PATH=${QTWEBENGINEPROCESS_PATH}\n")
 
     return content
 
@@ -224,6 +240,22 @@ def apprun_path_xdg_data_dirs(appdir_root, appimage):
     return content
 
 
+@factory.apprun(priority=91)
+@hexdi.inject('appimage')
+def apprun_path_proj_lib(appdir_root, appimage):
+    content = []
+
+    proj_path = "{}/proj".format(appimage.get_folder_share(appdir_root))
+    if not os.path.exists(proj_path) or not os.path.isdir(proj_path):
+        return content
+
+    proj_path = proj_path.replace(appdir_root, '')
+    content.append('PROJ_LIB=${{APPDIR}}{}'.format(proj_path))
+    content.append("export PROJ_LIB=${PROJ_LIB}\n")
+
+    return content
+
+
 @factory.apprun(priority=100)
 @hexdi.inject('appimage')
 def apprun_path_requests_ca_bundle(appdir_root, appimage):
@@ -278,6 +310,9 @@ def apprun_path_gst_plugin_path(appdir_root, appimage):
     if os.path.exists(gst_plugin_path) and os.path.isdir(gst_plugin_path):
         path_local = gst_plugin_path.replace(appdir_root, '')
         content.append("GST_PLUGIN_PATH=${{GST_PLUGIN_PATH}}:${{APPDIR}}{}".format(path_local))
+
+    if not len(content):
+        return content
 
     content.append("export GST_PLUGIN_PATH=${GST_PLUGIN_PATH}\n")
 
