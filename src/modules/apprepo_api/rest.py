@@ -67,6 +67,21 @@ class ServiceApprepo(object):
 
         yield json.loads(response.content)
 
+
+    def package_by_token(self, string=None):
+
+        try:
+            response = requests.get('{}/private/package/{}/'.format(self.url, string))
+        except Exception as ex:
+            return
+
+        if not response: raise Exception('Can not fetch package data: {}'.format(string))
+        if response.status_code not in [200]: raise Exception('Can not fetch package data: {}'.format(string))
+
+        return json.loads(response.content)
+
+
+
     def upload(self, path=None, authentication=None, token=None, name=None, description=None):
         assert (path is not None and len(path))
         assert (os.path.exists(path) and not os.path.isdir(path))
@@ -92,7 +107,7 @@ class ServiceApprepo(object):
                 hash_md5.update(chunk)
 
                 try:
-                    response = requests.post('{}/package/upload/initialize/'.format(self.url), headers={
+                    response = requests.post('{}/private/package/upload/initialize/'.format(self.url), headers={
                         'Content-Range': 'bytes {}-{}/{}'.format(start, end - 1, filesize),
                         'Authorization': authentication or None
                     }, files={'file': chunk}, data={'upload_id': unique}, )
@@ -117,7 +132,7 @@ class ServiceApprepo(object):
                 break
 
             try:
-                response = requests.post('{}/package/upload/complete/finalize/'.format(self.url), data={
+                response = requests.post('{}/private/package/upload/complete/finalize/'.format(self.url), data={
                     'sha1': hash_sha1.hexdigest(),
                     'md5': hash_md5.hexdigest(),
                     'token': token or None,

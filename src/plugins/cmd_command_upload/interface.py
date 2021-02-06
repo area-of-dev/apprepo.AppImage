@@ -18,8 +18,11 @@ if not console: raise Exception('Console service not found')
 
 
 @console.task(name=['upload'], description="upload a new version of the AppImage to the apprepo server")
-@hexdi.inject('config', 'apprepo', 'appimagetool', 'console.application')
-def main(options=None, args=None, config=None, apprepo=None, appimagetool=None, console=None):
+@hexdi.inject('config', 'apprepo', 'appimagetool', 'console.application', 'apprepo.hasher')
+def main(options=None, args=None, config=None, apprepo=None, appimagetool=None, console=None, hasher=None):
+    authentication = config.get('user.token', None)
+    if not authentication: raise Exception('Authentication token is empty')
+
     assert (hasattr(options, 'version_token'))
     assert (hasattr(options, 'version_description'))
     assert (hasattr(options, 'version_name'))
@@ -28,25 +31,31 @@ def main(options=None, args=None, config=None, apprepo=None, appimagetool=None, 
     if not source: raise Exception('Please provide a file to upload')
     if not args: raise Exception('AppImage path is empty')
 
-    if not options.version_token: raise Exception('Version token is empty')
-    if not options.version_name: raise Exception('Version name token is empty')
+    token = options.version_token,
+    if not token: raise Exception('Version token is empty')
+
+    name = options.version_name,
+    if not name: raise Exception('Version name is empty')
 
     if not os.path.exists(source): raise Exception('{} does not exist or is not a file'.format(source))
     if not os.path.isfile(source): raise Exception('{} does not exist or is not a file'.format(source))
 
+    latest = apprepo.package_by_token(options.version_token)
+    if not latest: raise Exception('{} package version not found'.format(options.version_token))
+
+    latest_hash = latest.get('hash', None)
+    latest_package = latest.get('package', None)
+
+    if latest_hash and len(latest_hash):
+        if latest_hash == hasher(source):
+            yield console.blue("[skipped] {} this version was already uploaded...".format(latest_package))
+            return
+
     if not options.skip_check and not appimagetool.check(source):
-        raise Exception('{} is not an AppImage'.format(source))
+        raise Exception('{} unknown AppImage format'.format(source))
 
     yield console.comment("[uploading] {}...".format(source))
 
-    authentication = config.get('user.token', None)
-    if not authentication: raise Exception('Authentication token is empty')
-
-    apprepo.upload(
-        source, authentication,
-        options.version_token,
-        options.version_name,
-        options.version_description
-    )
+    apprepo.upload(source, authentication, token, name, options.version_description)
 
     yield console.green("[done] {}...".format(source))
