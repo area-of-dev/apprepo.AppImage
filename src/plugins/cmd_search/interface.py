@@ -11,12 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import hexdi
 
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
+from modules.cmd import console
 
 
 @console.task(name=['search', 'find', 'lookup'],
-              description="<string>\tFind an application in the repository using the given string as an application name")
+              description="<string>\tFind an application in the repository "
+                          "using the given string as an application name")
 @hexdi.inject('config', 'apprepo')
 def main(options=None, args=None, config=None, apprepo=None):
     from bs4 import BeautifulSoup

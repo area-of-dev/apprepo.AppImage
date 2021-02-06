@@ -13,8 +13,7 @@ import os
 
 import hexdi
 
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
+from modules.cmd import console
 
 
 @console.task(name=['upload'], description="upload a new version of the AppImage to the apprepo server")

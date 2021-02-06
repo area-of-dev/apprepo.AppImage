@@ -14,14 +14,10 @@ import glob
 import os
 import pathlib
 
-import hexdi
-
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
-description = "Remove abandoned .desktop files and icons"
+from modules.cmd import console
 
 
-@console.task(name=['cleanup', 'clear'], description=description)
+@console.task(name=['cleanup', 'clear'], description="Remove abandoned .desktop files and icons")
 def main(options=None, args=None):
     integration = '/usr/share' if options.systemwide else \
         os.path.expanduser('~/.local/share')

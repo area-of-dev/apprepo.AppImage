@@ -13,6 +13,8 @@ import os
 
 import hexdi
 
+from modules.cmd import console
+
 
 @hexdi.inject('appimagetool', 'apprepo', 'console.application', 'apprepo.hasher')
 def _update_action(search=None, options=None, appimagetool=None, apprepo=None, application=None, hasher=None):
@@ -56,12 +58,10 @@ def _update_action(search=None, options=None, appimagetool=None, apprepo=None, a
             yield console.error("[error]: {}".format(console.error(ex)))
 
 
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
-description = "Compare the installed applications and the application in the repository and install the version from repository if the differences are present"
-
-
-@console.task(name=['update', 'upgrade', 'up'], description=description)
+@console.task(name=['update', 'upgrade', 'up'],
+              description="Compare the installed applications and the application "
+                          "in the repository and install the version from repository "
+                          "if the differences are present")
 def update_action(options=None, args=None):
     if args is None or not len(args):
         args = [None]

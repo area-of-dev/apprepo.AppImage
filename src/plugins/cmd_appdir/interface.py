@@ -13,10 +13,8 @@ import os
 
 import hexdi
 
+from modules.cmd import console
 from .appimage import appdir
-
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
 
 
 @console.task(name=['appdir'], description='Build an AppDir by the given package name (names)')
@@ -42,7 +40,6 @@ def appdir_action(options=None, arguments=None, application=None):
     apprepo_tmp = "/tmp/apprepo".format(options.destination, name.capitalize())
     if not os.path.exists(apprepo_tmp):
         os.makedirs(apprepo_tmp, exist_ok=True)
-
 
     queued = appdir.get_packages([name] + arguments, options.arch)
     if not queued: raise ValueError('No packages were found')

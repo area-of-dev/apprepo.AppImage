@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import hexdi
 
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
+from modules.cmd import console
+
 
 @console.task(name=['help'], description='Display help text')
 @hexdi.inject('console.application')

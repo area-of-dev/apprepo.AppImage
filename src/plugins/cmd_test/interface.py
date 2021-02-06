@@ -15,16 +15,16 @@ import stat
 import subprocess
 import tempfile
 import time
-import distro
+
 import hexdi
 import psutil
 
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
-description = "Test compatibility of the selected package with the current host"
+from modules.cmd import console
 
 
-@console.task(name=['test', 'check', 'validate'], description=description)
+@console.task(name=['test', 'check', 'validate'],
+              description="Test compatibility of the selected "
+                          "package with the current host")
 def test_search_request(options=None, args=None):
     if args is None or not len(args):
         args = [None]

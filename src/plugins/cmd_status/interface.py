@@ -14,12 +14,12 @@ import os
 
 import hexdi
 
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
-description = "display a list of all available AppImage files (/Applications | ~/Applications by default)"
+from modules.cmd import console
 
 
-@console.task(name=['status', 'stat'], description=description)
+@console.task(name=['status', 'stat'],
+              description="display a list of all available "
+                          "AppImage files (/Applications | ~/Applications by default)")
 @hexdi.inject('appimagetool')
 def main(options=None, args=None, appimagetool=None):
     for appimage, desktop, icon, alias in appimagetool.collection():

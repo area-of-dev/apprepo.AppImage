@@ -22,7 +22,7 @@ abspath = sys.argv[0] \
 os.chdir(os.path.dirname(abspath))
 
 
-from modules.cmd_application import application
+from modules.cmd import application
 
 
 @hexdi.permanent('optparse')

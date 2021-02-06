@@ -13,12 +13,12 @@ import os
 
 import hexdi
 
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
-description = "<string>\tinstall the application and integrate it into the system"
+from modules.cmd import console
 
 
-@console.task(name=['install', 'get', 'in'], description=description)
+@console.task(name=['install', 'get', 'in'],
+              description="<string>\tinstall the application "
+                          "and integrate it into the system")
 @hexdi.inject('appimagetool', 'apprepo', 'downloader', 'console')
 def main(options=None, args=None, appimagetool=None, apprepo=None, downloader=None, console=None):
     string = ' '.join(args).strip('\'" ')

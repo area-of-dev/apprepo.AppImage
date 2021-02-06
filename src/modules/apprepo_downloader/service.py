@@ -16,7 +16,7 @@ import tempfile
 import hexdi
 import requests
 
-from modules.cmd_application import console
+from modules.cmd import console
 
 
 @hexdi.permanent('downloader')

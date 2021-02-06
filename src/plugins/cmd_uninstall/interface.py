@@ -15,12 +15,12 @@ import pathlib
 
 import hexdi
 
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
-description = "<string>\t- remove the AppImage from the system by the name"
+from modules.cmd import console
 
 
-@console.task(name=['uninstall', 'remove', 'delete'], description=description)
+@console.task(name=['uninstall', 'remove', 'delete'],
+              description="<string>\t- remove the AppImage "
+                          "from the system by the name")
 @hexdi.inject('appimagetool', 'console.application')
 def main(options=None, args=None, appimagetool=None, console=None):
     search = ' '.join(args).strip('\'" ')

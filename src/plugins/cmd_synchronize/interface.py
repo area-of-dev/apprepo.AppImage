@@ -14,12 +14,12 @@ import os
 
 import hexdi
 
-console = hexdi.resolve('console')
-if not console: raise Exception('Console service not found')
-description = "go through all available AppImage files and integrate them into the system if necessary"
+from modules.cmd import console
 
 
-@console.task(name=['synchronize', 'sync'], description=description)
+@console.task(name=['synchronize', 'sync'],
+              description="go through all available AppImage files "
+                          "and integrate them into the system if necessary")
 @hexdi.inject('appimagetool', 'console.application')
 def main(options=None, args=None, appimagetool=None, console=None):
     profile = os.path.expanduser('~/.profile')
