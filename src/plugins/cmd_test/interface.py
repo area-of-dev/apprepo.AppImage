@@ -37,7 +37,7 @@ def test_search_request(options=None, args=None):
     return 0
 
 
-@hexdi.inject('apprepo', 'downloader', 'console')
+@hexdi.inject('apprepo', 'apprepo.downloader', 'console')
 def _test_search_request_element(search=None, options=None, apprepo=None, downloader=None, console=None):
     yield console.comment("[processing]: search request {}...".format(search))
 

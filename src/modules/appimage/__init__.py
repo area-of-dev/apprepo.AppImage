@@ -10,10 +10,9 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
+def appimage_provider():
+    from .apprepo import appimage
+    return appimage
 
-class EqualsSpaceRemover(object):
-    def __init__(self, origin):
-        self.origin = origin
 
-    def write(self, what):
-        self.origin.write(what.replace(" = ", "=", 1))
+appimage = appimage_provider()

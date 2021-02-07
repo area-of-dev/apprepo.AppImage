@@ -14,7 +14,7 @@ import os
 
 import hexdi
 
-factory = hexdi.resolve('appimage')
+from modules.appimage import appimage
 
 
 def _reshapre(collection=[]):
@@ -28,10 +28,10 @@ def _reshapre(collection=[]):
         yield source, destination
 
 
-@factory.shaper(priority=0)
+@appimage.shaper(priority=0)
 @hexdi.inject('appimage')
 def factory_shaper_bin(appdir_root, appdir_build, appimage):
-    apprepo_bin = factory.get_folder_bin(appdir_root)
+    apprepo_bin = appimage.get_folder_bin(appdir_root)
 
     copypool = []
 
@@ -43,7 +43,7 @@ def factory_shaper_bin(appdir_root, appdir_build, appimage):
         yield output
 
 
-@factory.shaper(priority=10)
+@appimage.shaper(priority=10)
 @hexdi.inject('appimage')
 def factory_shaper_lib(appdir_root, appdir_build, appimage):
     apprepo_lib = appimage.get_folder_lib(appdir_root)
@@ -67,7 +67,7 @@ def factory_shaper_lib(appdir_root, appdir_build, appimage):
     yield None, None
 
 
-@factory.shaper(priority=20)
+@appimage.shaper(priority=20)
 @hexdi.inject('appimage')
 def factory_shaper_libexec(appdir_root, appdir_build, appimage):
     apprepo_libexec = appimage.get_folder_libexec(appdir_root)
@@ -83,7 +83,7 @@ def factory_shaper_libexec(appdir_root, appdir_build, appimage):
         yield output
 
 
-@factory.shaper(priority=20)
+@appimage.shaper(priority=20)
 @hexdi.inject('appimage')
 def factory_shaper_share(appdir_root, appdir_build, appimage):
     apprepo_share = appimage.get_folder_share(appdir_root)
@@ -98,7 +98,7 @@ def factory_shaper_share(appdir_root, appdir_build, appimage):
         yield output
 
 
-@factory.shaper(priority=100)
+@appimage.shaper(priority=100)
 @hexdi.inject('appimage')
 def factory_shaper_glib_schemas(appdir_root, appdir_build, appimage):
     apprepo_lib = appimage.get_folder_lib(appdir_root)
@@ -121,7 +121,7 @@ def factory_shaper_glib_schemas(appdir_root, appdir_build, appimage):
     yield None, None
 
 
-@factory.shaper(priority=100)
+@appimage.shaper(priority=100)
 @hexdi.inject('appimage')
 def factory_shaper_mime(appdir_root, appdir_build, appimage):
     apprepo_lib = appimage.get_folder_lib(appdir_root)
@@ -137,7 +137,7 @@ def factory_shaper_mime(appdir_root, appdir_build, appimage):
     yield None, None
 
 
-@factory.shaper(priority=100)
+@appimage.shaper(priority=100)
 @hexdi.inject('appimage')
 def factory_shaper_gtk_immodules(appdir_root, appdir_build, appimage):
     apprepo_lib = appimage.get_folder_lib(appdir_root)
@@ -188,7 +188,7 @@ def factory_shaper_gtk_immodules(appdir_root, appdir_build, appimage):
     yield None, None
 
 
-@factory.shaper(priority=100)
+@appimage.shaper(priority=100)
 @hexdi.inject('appimage')
 def factory_shaper_gdk_pixbuf_loaders(appdir_root, appdir_build, appimage):
     apprepo_lib = appimage.get_folder_lib(appdir_root)

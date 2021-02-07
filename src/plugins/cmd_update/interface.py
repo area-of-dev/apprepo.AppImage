@@ -28,12 +28,12 @@ def _update_action(search=None, options=None, appimagetool=None, apprepo=None, a
 
         version_remote[package] = hash
 
-    for appimage, desktop, icon, alias in appimagetool.collection(version_remote.keys()):
-        yield console.comment('[checking]: {}...'.format(os.path.basename(appimage)))
+    for entity in appimagetool.collection(version_remote.keys()):
+        yield console.comment('[checking]: {}...'.format(entity.name))
 
         try:
 
-            package = os.path.basename(appimage)
+            package = os.path.basename(entity.path)
             if not package: continue
 
             if package not in version_remote.keys():
@@ -43,7 +43,7 @@ def _update_action(search=None, options=None, appimagetool=None, apprepo=None, a
             hash_remote = version_remote[package]
             if not hash_remote: raise ValueError('{}: empty remote hash'.format(package))
 
-            hash_local = hasher(appimage)
+            hash_local = hasher(entity.path)
             if not hash_remote: raise ValueError('{}: empty local hash'.format(package))
 
             if hash_remote == hash_local:

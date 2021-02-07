@@ -12,11 +12,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 import hexdi
+from PyQt5 import QtCore
+from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
+from .button import ToolbarButton
+
 
 class ToolbarWidget(QtWidgets.QScrollArea):
+    actionUpdate = QtCore.pyqtSignal(object)
+    actionSynchronize = QtCore.pyqtSignal(object)
+    actionCleanup = QtCore.pyqtSignal(object)
+
     def __init__(self, themes=None):
         super(ToolbarWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -29,6 +37,18 @@ class ToolbarWidget(QtWidgets.QScrollArea):
         self.container.setLayout(QtWidgets.QHBoxLayout())
         self.container.layout().setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
         self.setWidget(self.container)
+
+        self.update = ToolbarButton(self, "Update", QtGui.QIcon('icons/update'))
+        self.update.clicked.connect(self.actionUpdate.emit)
+        self.addWidget(self.update)
+
+        self.synchronize = ToolbarButton(self, "Synchronize", QtGui.QIcon('icons/sync'))
+        self.synchronize.clicked.connect(self.actionSynchronize.emit)
+        self.addWidget(self.synchronize)
+
+        self.cleanup = ToolbarButton(self, "Cleanup", QtGui.QIcon('icons/cleanup'))
+        self.cleanup.clicked.connect(self.actionCleanup.emit)
+        self.addWidget(self.cleanup)
 
         self.reload(None)
 

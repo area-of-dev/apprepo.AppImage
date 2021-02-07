@@ -29,24 +29,24 @@ def main(options=None, args=None, appimagetool=None, console=None):
             stream.write('PATH=~/.local/bin:$PATH')
             stream.close()
 
-    for appimage, desktop, icon, alias in appimagetool.collection():
+    for index, appimage in enumerate(appimagetool.collection(), start=0):
+        yield console.comment("[processing]: {}...".format(appimage.path))
+        if os.path.exists(appimage.desktop) and os.path.exists(appimage.alias):
+            yield console.blue("[ignored]: {}, already synchronized...".format(appimage.name))
+            continue
 
-        if not os.path.exists(desktop) or not glob.glob(icon) or not os.path.exists(alias):
-            desktop, icon, alias = appimagetool.integrate(appimage, options.systemwide)
+        try:
+            appimage = appimagetool.integrate(appimage)
+            if not appimage: raise ValueError('Integration failed')
 
-        yield console.green("[done]: {}, {}, {}, {}".format(
-            os.path.basename(appimage)
-            if appimage is not None and os.path.exists(appimage)
-            else '---',
-            os.path.basename(desktop) if
-            desktop is not None and os.path.exists(desktop)
-            else '---',
-            os.path.basename(icon) if
-            icon is not None and glob.glob(icon)
-            else '---',
-            os.path.basename(alias) if
-            alias is not None and os.path.exists(alias)
-            else '---'
-        ))
+            yield console.green("[synchronized]: {}, {}, {}, {}".format(
+                os.path.basename(appimage.path) if os.path.exists(appimage.path) else "---",
+                os.path.basename(appimage.desktop) if os.path.exists(appimage.desktop) else "---",
+                os.path.basename(appimage.icon) if glob.glob(appimage.icon) else "---",
+                os.path.basename(appimage.alias) if os.path.exists(appimage.alias) else "---",
+            ))
 
-    return 0
+        except Exception as ex:
+            yield console.error("[error]: {}, {}".format(
+                appimage.path, ex
+            ))

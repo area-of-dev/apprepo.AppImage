@@ -14,11 +14,11 @@
 import hexdi
 
 from .toolbar.panel import ToolbarWidget
-from .workspace.settings import SettingsWidget
+from .workspace.dashboard import DashboardWidget
 
 
 @hexdi.permanent('workspace.installed')
-class SettingsWidgetInstance(SettingsWidget):
+class SettingsWidgetInstance(DashboardWidget):
     pass
 
 

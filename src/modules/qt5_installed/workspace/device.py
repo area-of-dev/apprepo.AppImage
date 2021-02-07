@@ -11,76 +11,58 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
-import functools
-
 import hexdi
 from PyQt5 import QtCore
+from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
-from .checkbox import CheckboxTriState
-
-
-class SchemaWidget(QtWidgets.QLabel):
-    def __init__(self, device=None):
-        super(SchemaWidget, self).__init__('...')
-        self.setAlignment(Qt.AlignVCenter | Qt.AlignCenter)
-        self.setMinimumWidth(150)
-
-        self.timerRefresh = QtCore.QTimer()
-        self.timerRefresh.timeout.connect(functools.partial(
-            self.refreshEvent, device=device
-        ))
-        self.timerRefresh.start(1000)
-
-    def refreshEvent(self, device=None):
-        self.setText('<b>{}</b>'.format(device.governor))
-
-
-class FrequenceWidget(QtWidgets.QLabel):
-    def __init__(self, device=None):
-        super(FrequenceWidget, self).__init__('...')
-        self.setAlignment(Qt.AlignVCenter)
-        self.setMinimumWidth(100)
-
-        self.timerRefresh = QtCore.QTimer()
-        self.timerRefresh.timeout.connect(functools.partial(
-            self.refreshEvent, device=device
-        ))
-        self.timerRefresh.start(1000)
-
-    def refreshEvent(self, device=None):
-        self.setText('{:>.1f} GHz'.format(
-            device.frequence / 1000000
-        ))
+from .button import ToolbarButton
 
 
 class DeviceWidget(QtWidgets.QWidget):
-    toggleDeviceAction = QtCore.pyqtSignal(object)
+    actionUpdate = QtCore.pyqtSignal(object)
+    actionRemove = QtCore.pyqtSignal(object)
+    actionStart = QtCore.pyqtSignal(object)
 
     @hexdi.inject('config')
-    def __init__(self, device=None, config=None):
+    def __init__(self, appimage=None, config=None):
         super(DeviceWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
-        self.setToolTip(device.path)
 
-        self.device = device
-
-        default = config.get('cpu.permanent.{}'.format(self.device.code), 0)
-        self.checkbox = CheckboxTriState(['Auto', 'Powersave', 'Performance'], int(default))
-        self.checkbox.stateChanged.connect(self.deviceToggleEvent)
+        self.setToolTip(appimage.path)
 
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
-        self.layout().addWidget(self.checkbox, 0, 0)
-        self.layout().addWidget(SchemaWidget(device), 0, 1)
-        self.layout().addWidget(QtWidgets.QLabel(device.name.replace('Cpu', 'CPU ')), 0, 2)
-        self.layout().addWidget(FrequenceWidget(device), 0, 3)
+        label = QtWidgets.QLabel(self)
+        label.setMinimumWidth(80)
+        pixmap = QtGui.QPixmap(appimage.icon)
+        label.setPixmap(pixmap.scaledToHeight(64))
 
-    @hexdi.inject('config')
-    def deviceToggleEvent(self, value, config):
-        config.set('cpu.permanent.{}'.format(self.device.code), int(value))
-        self.toggleDeviceAction.emit((value, self.device))
+        self.layout().addWidget(label, 0, 0, 2, 1)
+
+        test = QtWidgets.QLabel(appimage.name)
+        test.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        test.setMinimumWidth(300)
+        self.layout().addWidget(test, 0, 1, 1, 1)
+
+        test = QtWidgets.QLabel(appimage.description)
+        self.layout().addWidget(test, 1, 1, 1, 1)
+
+        self.start = ToolbarButton(self, "Run", QtGui.QIcon('icons/start'))
+        self.start.clicked.connect(self.actionStart.emit)
+        self.start.setToolTip("Start: {}".format(appimage.path))
+        self.layout().addWidget(self.start, 0, 2, 2, 1)
+
+        self.update = ToolbarButton(self, "Update", QtGui.QIcon('icons/update'))
+        self.update.clicked.connect(self.actionUpdate.emit)
+        self.update.setToolTip("Update: {}".format(appimage.path))
+        self.layout().addWidget(self.update, 0, 3, 2, 1)
+
+        self.remove = ToolbarButton(self, "Remove", QtGui.QIcon('icons/remove'))
+        self.remove.clicked.connect(self.actionRemove.emit)
+        self.remove.setToolTip("Remove: {}".format(appimage.path))
+        self.layout().addWidget(self.remove, 0, 4, 2, 1)

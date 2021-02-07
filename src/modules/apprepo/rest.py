@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,7 +66,6 @@ class ServiceApprepo(object):
 
         yield json.loads(response.content)
 
-
     def package_by_token(self, string=None):
 
         try:
@@ -79,8 +77,6 @@ class ServiceApprepo(object):
         if response.status_code not in [200]: raise Exception('Can not fetch package data: {}'.format(string))
 
         return json.loads(response.content)
-
-
 
     def upload(self, path=None, authentication=None, token=None, name=None, description=None):
         assert (path is not None and len(path))

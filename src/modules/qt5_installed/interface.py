@@ -14,16 +14,25 @@
 import hexdi
 
 from modules.qt5 import window
+from . import actions
 
 
 @window.workspace(name='Installed', focus=True, position=0)
 @hexdi.inject('workspace.installed')
 def window_workspace(parent=None, workspace=None):
+    workspace.actionUpdate.connect(lambda x: print(x))
+    workspace.actionRemove.connect(lambda x: print(x))
+    workspace.actionStart.connect(lambda x: print(x))
+
     return workspace
 
 
 @window.toolbar(name='Installed', focus=True, position=0)
 @hexdi.inject('toolbar.installed')
 def window_toolbar(parent=None, toolbar=None):
+    toolbar.actionUpdate.connect(actions.on_action_update)
+    toolbar.actionSynchronize.connect(actions.on_action_synchronize)
+    toolbar.actionCleanup.connect(actions.on_action_cleanup)
+
     parent.actionReload.connect(toolbar.reload)
     return toolbar

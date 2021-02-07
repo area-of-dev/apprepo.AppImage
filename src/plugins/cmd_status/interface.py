@@ -22,12 +22,10 @@ from modules.cmd import console
                           "AppImage files (/Applications | ~/Applications by default)")
 @hexdi.inject('appimagetool')
 def main(options=None, args=None, appimagetool=None):
-    for appimage, desktop, icon, alias in appimagetool.collection():
+    for appimage in appimagetool.collection():
         yield console.green("[found]: {}, {}, {}, {}".format(
-            os.path.basename(appimage) if os.path.exists(appimage) else "---",
-            os.path.basename(desktop) if os.path.exists(desktop) else "---",
-            os.path.basename(icon) if glob.glob(icon) else "---",
-            os.path.basename(alias) if os.path.exists(alias) else "---",
+            os.path.basename(appimage.path) if os.path.exists(appimage.path) else "---",
+            os.path.basename(appimage.desktop) if os.path.exists(appimage.desktop) else "---",
+            os.path.basename(appimage.icon) if glob.glob(appimage.icon) else "---",
+            os.path.basename(appimage.alias) if os.path.exists(appimage.alias) else "---",
         ))
-
-    return 0

@@ -14,21 +14,6 @@ import hexdi
 
 class PackageManagerFactory(object):
 
-    def _get_package_manager(self):
-        try:
-            from . import dnf
-            return dnf
-        except ImportError as ex:
-            pass
-
-        try:
-            from . import apt
-            return apt
-        except ImportError as ex:
-            pass
-
-        raise Exception('No package manager available')
-
     @hexdi.inject('config')
     def is_excluded(self, package, config):
         excludes = [
@@ -101,6 +86,21 @@ class PackageManagerFactory(object):
             if package.name.find(pattern) == 0:
                 return True
         return False
+
+    def _get_package_manager(self):
+        try:
+            from . import dnf
+            return dnf
+        except ImportError as ex:
+            pass
+
+        try:
+            from . import apt
+            return apt
+        except ImportError as ex:
+            pass
+
+        raise Exception('No package manager available')
 
     def get_packages(self, packages=[], arch='amd64,x86_64,noarch'):
         package_manager = self._get_package_manager()

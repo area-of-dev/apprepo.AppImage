@@ -13,6 +13,17 @@ import hashlib
 
 import hexdi
 
+from .downloader import ServiceDownloader
+from .rest import ServiceApprepo
+
+
+@hexdi.permanent('apprepo')
+class ServiceApprepoInstance(ServiceApprepo):
+    @hexdi.inject('config')
+    def __init__(self, config):
+        url = config.get('api.url', 'https://apprepo.de/rest/api')
+        return super(ServiceApprepoInstance, self).__init__(url)
+
 
 @hexdi.permanent('apprepo.hasher')
 def hash_provider():
@@ -26,3 +37,8 @@ def hash_provider():
         return hash.hexdigest()
 
     return get_hash
+
+
+@hexdi.permanent('apprepo.downloader')
+class ServiceDownloaderinstance(ServiceDownloader):
+    pass

@@ -10,19 +10,23 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
+import hexdi
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
+from .device import DeviceWidget
 from .list import SettingsListWidget
 
 
-class SettingsWidget(QtWidgets.QFrame):
-    toggleDeviceAction = QtCore.pyqtSignal(object)
+class DashboardWidget(QtWidgets.QFrame):
+    actionUpdate = QtCore.pyqtSignal(object)
+    actionRemove = QtCore.pyqtSignal(object)
+    actionStart = QtCore.pyqtSignal(object)
 
-    def __init__(self, service=None):
-        super(SettingsWidget, self).__init__()
+    @hexdi.inject('appimagetool')
+    def __init__(self, appimagetool):
+        super(DashboardWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
 
@@ -32,3 +36,10 @@ class SettingsWidget(QtWidgets.QFrame):
 
         self.list = SettingsListWidget()
         self.layout().addWidget(self.list)
+
+        for entity in appimagetool.collection():
+            widget = DeviceWidget(entity)
+            widget.actionStart.connect(self.actionStart.emit)
+            widget.actionUpdate.connect(self.actionUpdate.emit)
+            widget.actionRemove.connect(self.actionRemove.emit)
+            self.list.addWidget(widget)

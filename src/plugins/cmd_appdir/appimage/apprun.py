@@ -14,7 +14,7 @@ import os
 
 import hexdi
 
-factory = hexdi.resolve('appimage')
+from modules.appimage import appimage
 
 
 def _get_folders(enterpoint):
@@ -34,7 +34,7 @@ def _get_folders(enterpoint):
                 pool.append(path)
 
 
-@factory.apprun(priority=0)
+@appimage.apprun(priority=0)
 @hexdi.inject('appimage')
 def apprun_header(appdir_root, appimage):
     return ["""#! /bin/bash    
@@ -52,7 +52,7 @@ def apprun_header(appdir_root, appimage):
 #APPDIR=`pwd`\n\n"""]
 
 
-@factory.apprun(priority=20)
+@appimage.apprun(priority=20)
 @hexdi.inject('appimage')
 def apprun_path_bin(appdir_root, appimage):
     content = []
@@ -70,7 +70,7 @@ def apprun_path_bin(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=30)
+@appimage.apprun(priority=30)
 @hexdi.inject('appimage')
 def apprun_path_libexec(appdir_root, appimage):
     content = []
@@ -88,7 +88,7 @@ def apprun_path_libexec(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=40)
+@appimage.apprun(priority=40)
 @hexdi.inject('appimage')
 def apprun_path_ld_library_path(appdir_root, appimage):
     content = []
@@ -125,7 +125,7 @@ def apprun_path_ld_library_path(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=50)
+@appimage.apprun(priority=50)
 @hexdi.inject('appimage')
 def apprun_path_gi_typelib_path(appdir_root, appimage):
     content = []
@@ -143,7 +143,7 @@ def apprun_path_gi_typelib_path(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=60)
+@appimage.apprun(priority=60)
 @hexdi.inject('appimage')
 def apprun_path_qt_plugin_path(appdir_root, appimage):
     content = []
@@ -161,7 +161,7 @@ def apprun_path_qt_plugin_path(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=61)
+@appimage.apprun(priority=61)
 @hexdi.inject('appimage')
 def apprun_path_qt_webengineprocess_path(appdir_root, appimage):
     content = []
@@ -177,7 +177,7 @@ def apprun_path_qt_webengineprocess_path(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=70)
+@appimage.apprun(priority=70)
 @hexdi.inject('appimage')
 def apprun_path_perl5lib(appdir_root, appimage):
     content = []
@@ -195,7 +195,7 @@ def apprun_path_perl5lib(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=80)
+@appimage.apprun(priority=80)
 @hexdi.inject('appimage')
 def apprun_path_pythonpath(appdir_root, appimage):
     content = []
@@ -224,7 +224,7 @@ def apprun_path_pythonpath(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=90)
+@appimage.apprun(priority=90)
 @hexdi.inject('appimage')
 def apprun_path_xdg_data_dirs(appdir_root, appimage):
     content = []
@@ -240,7 +240,7 @@ def apprun_path_xdg_data_dirs(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=91)
+@appimage.apprun(priority=91)
 @hexdi.inject('appimage')
 def apprun_path_proj_lib(appdir_root, appimage):
     content = []
@@ -256,7 +256,7 @@ def apprun_path_proj_lib(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=100)
+@appimage.apprun(priority=100)
 @hexdi.inject('appimage')
 def apprun_path_requests_ca_bundle(appdir_root, appimage):
     content = []
@@ -272,7 +272,7 @@ def apprun_path_requests_ca_bundle(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=110)
+@appimage.apprun(priority=110)
 @hexdi.inject('appimage')
 def apprun_path_gtk2_rc_files(appdir_root, appimage):
     content = []
@@ -292,7 +292,7 @@ def apprun_path_gtk2_rc_files(appdir_root, appimage):
     return content
 
 
-@factory.apprun(priority=110)
+@appimage.apprun(priority=110)
 @hexdi.inject('appimage')
 def apprun_path_gst_plugin_path(appdir_root, appimage):
     content = []

@@ -19,8 +19,11 @@ from modules.cmd import console
 
 @console.task(name=['cleanup', 'clear'], description="Remove abandoned .desktop files and icons")
 def main(options=None, args=None):
-    integration = '/usr/share' if options.systemwide else \
-        os.path.expanduser('~/.local/share')
+    integration = os.path.expanduser('~/.local/share')
+
+    if options is not None:
+        integration = '/usr/share' if options.systemwide else \
+            os.path.expanduser('~/.local/share')
 
     config = configparser.RawConfigParser()
     config.optionxform = str

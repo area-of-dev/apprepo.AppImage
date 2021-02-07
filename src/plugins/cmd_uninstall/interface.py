@@ -24,32 +24,30 @@ from modules.cmd import console
 @hexdi.inject('appimagetool', 'console.application')
 def main(options=None, args=None, appimagetool=None, console=None):
     search = ' '.join(args).strip('\'" ')
-    for appimage, desktop, icon, alias in appimagetool.collection():
-        appimage = pathlib.Path(appimage)
+
+    for entity in appimagetool.collection():
+        appimage = pathlib.Path(entity.path)
         if appimage is None: continue
 
-        appimage_name = appimage.stem
-        appimage_name = appimage_name.lower()
-        if appimage_name != search:
+        name = appimage.stem
+        if name.lower() != search:
             continue
 
         yield console.green("[removed]: {}, {}, {}, {}".format(
-            os.path.basename(appimage),
-            os.path.basename(desktop),
-            os.path.basename(icon),
-            os.path.basename(alias),
+            os.path.basename(entity.path),
+            os.path.basename(entity.desktop),
+            os.path.basename(entity.icon),
+            os.path.basename(entity.alias),
         ))
 
-        for path in glob.glob(str(appimage)):
+        for path in glob.glob(entity.path):
             os.remove(path)
 
-        for path in glob.glob(str(desktop)):
+        for path in glob.glob(entity.desktop):
             os.remove(path)
 
-        for path in glob.glob(str(alias)):
+        for path in glob.glob(entity.alias):
             os.remove(path)
 
-        for path in glob.glob(str(icon)):
+        for path in glob.glob(entity.icon):
             os.remove(path)
-
-    return 0

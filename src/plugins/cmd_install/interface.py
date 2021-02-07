@@ -19,7 +19,7 @@ from modules.cmd import console
 @console.task(name=['install', 'get', 'in'],
               description="<string>\tinstall the application "
                           "and integrate it into the system")
-@hexdi.inject('appimagetool', 'apprepo', 'downloader', 'console')
+@hexdi.inject('appimagetool', 'apprepo', 'apprepo.downloader', 'console')
 def main(options=None, args=None, appimagetool=None, apprepo=None, downloader=None, console=None):
     string = ' '.join(args).strip('\'" ')
     if not string: raise Exception('search string can not be empty')
@@ -29,7 +29,7 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, downloader=No
         package = entity.get('package', None)
         if not package: raise Exception('Package is empty')
 
-        if not options.force and appimagetool.is_installed(package, options.systemwide):
+        if not options.force and appimagetool.installed(package, options.systemwide):
             raise Exception('{} already exists, use --force to override it'.format(package))
 
         download_file = entity.get('file', None)
@@ -40,18 +40,21 @@ def main(options=None, args=None, appimagetool=None, apprepo=None, downloader=No
 
         assert (os.path.exists(download))
 
-        appimage, desktop, icon, alias = appimagetool.install(
-            download, package, options.force, options.systemwide
+        appimage = appimagetool.install(
+            download, package,
+            options.force,
+            options.systemwide
         )
 
-        if not desktop: raise Exception('Desktop file is empty')
-        if not icon: raise Exception('Icon file is empty')
+        if not os.path.exists(appimage.desktop): raise Exception('Desktop file is empty')
+        if not os.path.exists(appimage.icon): raise Exception('Icon file is empty')
+        if not os.path.exists(appimage.alias): raise Exception('Alias file is empty')
 
         yield console.green("[done]: {}, {}, {}, {}".format(
-            os.path.basename(appimage) if os.path.exists(appimage) else "---",
-            os.path.basename(desktop) if os.path.exists(desktop) else "---",
-            os.path.basename(icon) if os.path.exists(icon) else "---",
-            os.path.basename(alias) if os.path.exists(alias) else "---",
+            os.path.basename(appimage.path)     if os.path.exists(appimage.path)    else "---",
+            os.path.basename(appimage.desktop)  if os.path.exists(appimage.desktop) else "---",
+            os.path.basename(appimage.icon)     if os.path.exists(appimage.icon)    else "---",
+            os.path.basename(appimage.alias)    if os.path.exists(appimage.alias)   else "---",
         ))
 
     return 0

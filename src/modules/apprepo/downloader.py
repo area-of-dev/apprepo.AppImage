@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2020 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +12,11 @@
 import sys
 import tempfile
 
-import hexdi
 import requests
 
 from modules.cmd import console
 
 
-@hexdi.permanent('downloader')
 class ServiceDownloader(object):
     def _download_stream(self, response):
 

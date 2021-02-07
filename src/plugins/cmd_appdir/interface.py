@@ -11,15 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import os
 
-import hexdi
-
 from modules.cmd import console
 from .appimage import appdir
 
 
 @console.task(name=['appdir'], description='Build an AppDir by the given package name (names)')
-@hexdi.inject('console.application')
-def appdir_action(options=None, arguments=None, application=None):
+def appdir_action(options=None, arguments=None):
     if not os.path.exists(options.destination):
         raise ValueError('Destination folder is empty')
 
