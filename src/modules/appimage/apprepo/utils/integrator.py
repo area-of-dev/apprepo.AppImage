@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import logging
 import os
+import pathlib
 import pty
 import subprocess
 
@@ -23,6 +24,23 @@ from .patcher import EqualsSpaceRemover
 
 
 class AppImageIntegrator(AppImagePermissionMixin, AppImageDesktopMixin, AppImageIconMixin):
+
+    def prefix(self, systemwide):
+        if systemwide: return '/usr'
+        return os.path.expanduser('~/.local')
+
+    def desktop(self, systemwide):
+        return "{}/share/applications".format(self.prefix(systemwide))
+
+    def icon(self, systemwide):
+        return "{}/share/icons".format(self.prefix(systemwide))
+
+    def alias(self, systemwide):
+        return "{}/bin".format(self.prefix(systemwide))
+
+    def destination(self, systemwide):
+        if systemwide: return "/Applications"
+        return os.path.expanduser("~/Applications")
 
     @hexdi.inject('apprepo.desktopreader')
     def integrate(self, appimage, desktopreader=None):
@@ -46,18 +64,18 @@ class AppImageIntegrator(AppImagePermissionMixin, AppImageDesktopMixin, AppImage
         os.makedirs(os.path.dirname(appimage.icon), exist_ok=True)
         os.makedirs(os.path.dirname(appimage.alias), exist_ok=True)
 
-        desktop = self.desktop(mountpoint)
+        desktop = self.desktop_origin(mountpoint)
         if not os.path.exists(desktop) or not os.path.isfile(desktop):
             raise Exception('.desktop file not found for: {}'.format(mountpoint))
 
-        icon = self.icon(mountpoint)
+        icon = self.icon_origin(mountpoint)
         if not os.path.exists(icon) or not os.path.isfile(icon):
             raise Exception('icon file not found for: {}'.format(icon))
 
         logger.debug('config: {}'.format(desktop))
         desktopreader.read(desktop)
 
-        desktopreader.set('Desktop Entry', 'Icon', appimage.icon)
+        desktopreader.set('Desktop Entry', 'Icon', appimage.package_name)
         if not desktopreader.has_option('Desktop Entry', 'Version'):
             desktopreader.set('Desktop Entry', 'Version', 1.0)
 
@@ -75,8 +93,11 @@ class AppImageIntegrator(AppImagePermissionMixin, AppImageDesktopMixin, AppImage
         with open(appimage.desktop, 'w') as stream:
             desktopreader.write(EqualsSpaceRemover(stream))
 
+        icon = pathlib.Path(icon)
         with open(icon, 'rb') as stream_origin:
-            with open(appimage.icon, 'wb') as stream_pending:
+            destination = "{}/{{}}{{}}".format(self.icon(appimage.systemwide))
+            destination = destination.format(appimage.package_name, icon.suffix)
+            with open(destination, 'wb') as stream_pending:
                 stream_pending.write(stream_origin.read())
                 stream_pending.close()
             stream_origin.close()

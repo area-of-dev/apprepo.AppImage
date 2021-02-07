@@ -31,9 +31,11 @@ def main(options=None, args=None, appimagetool=None, console=None):
 
     for index, appimage in enumerate(appimagetool.collection(), start=0):
         yield console.comment("[processing]: {}...".format(appimage.path))
-        if os.path.exists(appimage.desktop) and os.path.exists(appimage.alias):
-            yield console.blue("[ignored]: {}, already synchronized...".format(appimage.name))
-            continue
+
+        if appimage.desktop and appimage.alias and appimage.icon:
+            if os.path.exists(appimage.desktop) and os.path.exists(appimage.alias) and os.path.exists(appimage.icon):
+                yield console.blue("[ignored]: {}, already synchronized...".format(appimage.name))
+                continue
 
         try:
             appimage = appimagetool.integrate(appimage)

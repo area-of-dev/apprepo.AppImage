@@ -25,6 +25,11 @@ class DesktopFileReader(configparser.RawConfigParser):
         properties[0] = new
         return ' '.join(properties)
 
+    def get_first(self, section, option):
+        value = self.get(section, option)
+        properties = value.split(' ')
+        return properties.pop(0)
+
 
 class EqualsSpaceRemover(object):
     def __init__(self, origin):

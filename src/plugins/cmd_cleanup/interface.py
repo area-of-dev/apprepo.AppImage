@@ -9,72 +9,75 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import configparser
 import glob
 import os
 import pathlib
+
+import hexdi
 
 from modules.cmd import console
 
 
 @console.task(name=['cleanup', 'clear'], description="Remove abandoned .desktop files and icons")
-def main(options=None, args=None):
-    integration = os.path.expanduser('~/.local/share')
+@hexdi.inject('appimagetool', 'apprepo.integrator', 'apprepo.desktopreader')
+def main(options=None, args=None, appimagetool=None, integrator=None, desktopreader=None):
+    appimages = []
+    for appimage in appimagetool.collection():
+        appimages.append(appimage.package)
 
-    if options is not None:
-        integration = '/usr/share' if options.systemwide else \
-            os.path.expanduser('~/.local/share')
-
-    config = configparser.RawConfigParser()
-    config.optionxform = str
-
-    existed = []
-    for desktop in glob.glob('{}/applications/*.desktop'.format(integration)):
+    icons = []
+    destination = integrator.desktop(options.systemwide)
+    for desktop in glob.glob('{}/*.desktop'.format(destination)):
+        yield console.comment("[processing]: {}".format(desktop))
         if os.path.isdir(desktop):
             continue
 
-        yield console.green("[found]: {}".format(console.comment(os.path.basename(desktop))))
+        try:
+            desktopreader.read(desktop)
 
-        desktop_name = pathlib.Path(desktop)
-        desktop_name = desktop_name.stem
+            appimage = desktopreader.get_first('Desktop Entry', 'Exec')
+            yield console.comment("[appimage]: {}".format(appimage))
 
-        config.read(desktop)
+            if not os.path.exists(appimage):
+                yield console.warning("[removing]: {} not found".format(appimage))
+                os.remove(desktop)
+                continue
 
-        property_exec = config.get('Desktop Entry', 'Exec')
-        property_exec = property_exec.split(' ')
-        property_exec = property_exec.pop(0)
+            desktop_name = pathlib.Path(desktop)
+            if not desktop_name: continue
 
-        property_exec_name = pathlib.Path(property_exec)
-        property_exec_name = property_exec_name.stem
+            appimage_name = pathlib.Path(appimage)
+            if not appimage_name: continue
 
-        if property_exec_name != desktop_name:
-            yield console.warning("[removing]: {}, binary name is not the same as the .desktop file name...".
-                                  format(os.path.basename(desktop)))
-            os.remove(desktop)
+            yield console.comment("[name]: {}.desktop".format(desktop_name.stem))
+            yield console.comment("[name]: {}.AppImage".format(appimage_name.stem))
+            if desktop_name.stem != appimage_name.stem:
+                yield console.warning("[removing]: {} wrong naming".format(desktop_name.stem))
+                os.remove(desktop)
+                continue
+
+            icon = desktopreader.get_first('Desktop Entry', 'Icon')
+            yield console.comment("[name]: {}.(svg|png|xmp)".format(icon))
+            yield console.green("[clean]: {}".format(desktop))
+
+            icons.append(icon)
+
+        except Exception as ex:
+            yield console.error("[exception]: {}...".format(ex))
             continue
 
-        if not os.path.exists(property_exec):
-            yield console.warning("[removing]: {}, binary not found...".format(os.path.basename(desktop)))
-            os.remove(desktop)
-            continue
-
-        existed.append(config.get('Desktop Entry', 'Icon'))
-        continue
-
-    for icon in glob.glob('{}/icons/*'.format(integration)):
+    destination = integrator.icon(options.systemwide)
+    for icon in glob.glob('{}/*'.format(destination)):
+        yield console.comment("[processing]: {}".format(icon))
         if os.path.isdir(icon):
             continue
 
-        yield console.green("[found]: {}".format(console.comment(os.path.basename(icon))))
-
         icon = pathlib.Path(icon)
-        if icon.stem in existed:
+        if not icon: continue
+
+        if icon.stem in icons:
+            yield console.green("[clean]: {}".format(icon))
             continue
 
-        yield console.warning("[removing]: {}, .desktop file not found...".
-                              format(os.path.basename(icon)))
-
+        yield console.warning("[removing]: {}, .desktop file not found...".format(icon))
         os.remove(icon)
-        continue
-
-    return 0

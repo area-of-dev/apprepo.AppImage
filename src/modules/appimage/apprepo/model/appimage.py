@@ -21,12 +21,6 @@ class AppImage(object):
         self._path = path
 
     @property
-    def _prefix(self):
-        if not self.systemwide:
-            return os.path.expanduser('~/.local')
-        return '/usr'
-
-    @property
     def systemwide(self):
         return self.path.find('/home') == -1
 
@@ -49,52 +43,47 @@ class AppImage(object):
         return desktopreader.get('Desktop Entry', 'Categories')
 
     @property
-    def icon(self):
-        path = pathlib.Path(self.path)
-        assert (path is not None)
+    @hexdi.inject('apprepo.integrator')
+    def icon(self, integrator):
 
-        icon = '{}/share/icons/{}'.format(self._prefix, path.stem)
+        icon = "{}/{{}}".format(integrator.icon(self.systemwide))
+        icon = icon.format(pathlib.Path(self.path).stem)
 
-        for path in glob.glob("{}.{}".format(icon, 'svg')):
-            return path
+        patterns = []
+        patterns.append("{}.svg".format(icon))
+        patterns.append("{}.png".format(icon))
+        patterns.append("{}.xmp".format(icon))
+        patterns.append("{}.xpm".format(icon))
 
-        for path in glob.glob("{}.{}".format(icon, 'png')):
-            return path
+        for pattern in patterns:
+            for path in glob.glob(pattern):
+                return path
 
-        for path in glob.glob("{}.{}".format(icon, 'xpm')):
-            return path
-
-        return None
-
-    @property
-    def desktop(self):
-        path = pathlib.Path(self.path)
-        assert (path is not None)
-
-        return '{}/share/applications/{}.desktop'. \
-            format(self._prefix, path.stem)
+        return icon
 
     @property
-    def alias(self):
-        path = pathlib.Path(self.path)
-        assert (path is not None)
+    @hexdi.inject('apprepo.integrator')
+    def desktop(self, integrator):
+        path = "{}/{{}}.desktop".format(integrator.desktop(self.systemwide))
+        return path.format(pathlib.Path(self.path).stem)
 
-        return '{}/bin/{}'.format(
-            self._prefix,
-            path.stem.lower()
-        )
+    @property
+    @hexdi.inject('apprepo.integrator')
+    def alias(self, integrator):
+        path = "{}/{{}}".format(integrator.alias(self.systemwide))
+        return path.format(pathlib.Path(self.path).stem.lower())
 
     @property
     def path(self):
         return self._path
 
+    @property
+    def package(self):
+        return os.path.basename(self.path)
+
+    @property
+    def package_name(self):
+        return pathlib.Path(self.path).stem
+
     def __str__(self):
-        print([
-            self.name,
-            self.description,
-            self.categories,
-            self.icon,
-            self.desktop,
-            self.alias,
-        ])
         return self.path

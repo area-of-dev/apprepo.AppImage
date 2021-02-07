@@ -10,8 +10,9 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import glob
-import os
 import stat
+
+import hexdi
 
 
 class AppImagePermissionMixin(object):
@@ -21,25 +22,28 @@ class AppImagePermissionMixin(object):
 
 
 class AppImageDestinationMixin(object):
-    def destination(self, package, systemwide=False):
-        if systemwide is None or not systemwide:
-            return os.path.expanduser('~/Applications/{}'.format(package))
-        return '/Applications/{}'.format(package)
+
+    @hexdi.inject('apprepo.integrator')
+    def destination(self, package, systemwide=False, integrator=None):
+        return '{}/{}'.format(integrator.destination(systemwide), package)
 
 
 class AppImageDesktopMixin(object):
-    def desktop(self, mountpoint):
+    def desktop_origin(self, mountpoint):
         for path in glob.glob('{}/*.desktop'.format(mountpoint)):
             return path
         return None
 
 
 class AppImageIconMixin(object):
-    def icon(self, mountpoint):
-        for path in glob.glob('{}/*.svg'.format(mountpoint)):
-            return path
-        for path in glob.glob('{}/*.xmp'.format(mountpoint)):
-            return path
-        for path in glob.glob('{}/*.png'.format(mountpoint)):
-            return path
+    def icon_origin(self, mountpoint):
+
+        patterns = []
+        patterns.append("{}/*.svg".format(mountpoint))
+        patterns.append("{}/*.png".format(mountpoint))
+        patterns.append("{}/*.xmp".format(mountpoint))
+        patterns.append("{}/*.xpm".format(mountpoint))
+        for pattern in patterns:
+            for path in glob.glob(pattern):
+                return path
         return None
