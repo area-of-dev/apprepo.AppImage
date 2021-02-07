@@ -28,7 +28,6 @@ def main(options=None, args=None, appimagetool=None, integrator=None, desktoprea
     icons = []
     destination = integrator.desktop(options.systemwide)
     for desktop in glob.glob('{}/*.desktop'.format(destination)):
-        yield console.comment("[processing]: {}".format(desktop))
         if os.path.isdir(desktop):
             continue
 
@@ -36,8 +35,6 @@ def main(options=None, args=None, appimagetool=None, integrator=None, desktoprea
             desktopreader.read(desktop)
 
             appimage = desktopreader.get_first('Desktop Entry', 'Exec')
-            yield console.comment("[appimage]: {}".format(appimage))
-
             if not os.path.exists(appimage):
                 yield console.warning("[removing]: {} not found".format(appimage))
                 os.remove(desktop)
@@ -49,18 +46,12 @@ def main(options=None, args=None, appimagetool=None, integrator=None, desktoprea
             appimage_name = pathlib.Path(appimage)
             if not appimage_name: continue
 
-            yield console.comment("[name]: {}.desktop".format(desktop_name.stem))
-            yield console.comment("[name]: {}.AppImage".format(appimage_name.stem))
             if desktop_name.stem != appimage_name.stem:
                 yield console.warning("[removing]: {} wrong naming".format(desktop_name.stem))
                 os.remove(desktop)
                 continue
 
-            icon = desktopreader.get_first('Desktop Entry', 'Icon')
-            yield console.comment("[name]: {}.(svg|png|xmp)".format(icon))
-            yield console.green("[clean]: {}".format(desktop))
-
-            icons.append(icon)
+            icons.append(desktopreader.get_first('Desktop Entry', 'Icon'))
 
         except Exception as ex:
             yield console.error("[exception]: {}...".format(ex))
@@ -68,15 +59,11 @@ def main(options=None, args=None, appimagetool=None, integrator=None, desktoprea
 
     destination = integrator.icon(options.systemwide)
     for icon in glob.glob('{}/*'.format(destination)):
-        yield console.comment("[processing]: {}".format(icon))
         if os.path.isdir(icon):
             continue
 
         icon = pathlib.Path(icon)
-        if not icon: continue
-
         if icon.stem in icons:
-            yield console.green("[clean]: {}".format(icon))
             continue
 
         yield console.warning("[removing]: {}, .desktop file not found...".format(icon))

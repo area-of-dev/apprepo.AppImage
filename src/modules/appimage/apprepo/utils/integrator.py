@@ -17,30 +17,16 @@ import subprocess
 
 import hexdi
 
+from .mixins import AppImageAliasMixin
 from .mixins import AppImageDesktopMixin
+from .mixins import AppImageDestinationMixin
 from .mixins import AppImageIconMixin
 from .mixins import AppImagePermissionMixin
 from .patcher import EqualsSpaceRemover
 
 
-class AppImageIntegrator(AppImagePermissionMixin, AppImageDesktopMixin, AppImageIconMixin):
-
-    def prefix(self, systemwide):
-        if systemwide: return '/usr'
-        return os.path.expanduser('~/.local')
-
-    def desktop(self, systemwide):
-        return "{}/share/applications".format(self.prefix(systemwide))
-
-    def icon(self, systemwide):
-        return "{}/share/icons".format(self.prefix(systemwide))
-
-    def alias(self, systemwide):
-        return "{}/bin".format(self.prefix(systemwide))
-
-    def destination(self, systemwide):
-        if systemwide: return "/Applications"
-        return os.path.expanduser("~/Applications")
+class AppImageIntegrator(AppImagePermissionMixin, AppImageAliasMixin, AppImageDesktopMixin,
+                         AppImageIconMixin, AppImageDestinationMixin):
 
     @hexdi.inject('apprepo.desktopreader')
     def integrate(self, appimage, desktopreader=None):
@@ -64,15 +50,14 @@ class AppImageIntegrator(AppImagePermissionMixin, AppImageDesktopMixin, AppImage
         os.makedirs(os.path.dirname(appimage.icon), exist_ok=True)
         os.makedirs(os.path.dirname(appimage.alias), exist_ok=True)
 
-        desktop = self.desktop_origin(mountpoint)
+        desktop = self.desktop_file(mountpoint)
         if not os.path.exists(desktop) or not os.path.isfile(desktop):
             raise Exception('.desktop file not found for: {}'.format(mountpoint))
 
-        icon = self.icon_origin(mountpoint)
+        icon = self.icon_file(mountpoint)
         if not os.path.exists(icon) or not os.path.isfile(icon):
             raise Exception('icon file not found for: {}'.format(icon))
 
-        logger.debug('config: {}'.format(desktop))
         desktopreader.read(desktop)
 
         desktopreader.set('Desktop Entry', 'Icon', appimage.package_name)
@@ -81,26 +66,26 @@ class AppImageIntegrator(AppImagePermissionMixin, AppImageDesktopMixin, AppImage
 
         for section in desktopreader.sections():
             if desktopreader.has_option(section, 'Exec'):
-                exec = desktopreader.get(section, 'Exec')
-                exec = desktopreader.replace(exec, appimage.path)
-                desktopreader.set(section, 'Exec', exec)
+                binfile = desktopreader.get(section, 'Exec')
+                binfile = desktopreader.replace(binfile, appimage.path)
+                desktopreader.set(section, 'Exec', binfile)
 
             if desktopreader.has_option(section, 'TryExec'):
-                tryexec = desktopreader.get(section, 'TryExec')
-                tryexec = desktopreader.replace(tryexec, appimage.path)
-                desktopreader.set(section, 'TryExec', tryexec)
+                binfile = desktopreader.get(section, 'TryExec')
+                binfile = desktopreader.replace(binfile, appimage.path)
+                desktopreader.set(section, 'TryExec', binfile)
 
         with open(appimage.desktop, 'w') as stream:
             desktopreader.write(EqualsSpaceRemover(stream))
 
         icon = pathlib.Path(icon)
-        with open(icon, 'rb') as stream_origin:
+        with open(icon, 'rb') as stream_source:
             destination = "{}/{{}}{{}}".format(self.icon(appimage.systemwide))
             destination = destination.format(appimage.package_name, icon.suffix)
-            with open(destination, 'wb') as stream_pending:
-                stream_pending.write(stream_origin.read())
-                stream_pending.close()
-            stream_origin.close()
+            with open(destination, 'wb') as stream_destination:
+                stream_destination.write(stream_source.read())
+                stream_destination.close()
+            stream_source.close()
 
         if os.path.exists(appimage.path):
             if os.path.exists(appimage.alias):
