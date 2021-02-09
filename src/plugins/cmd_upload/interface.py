@@ -14,7 +14,7 @@ import os
 import hexdi
 
 from modules.cmd import console
-
+from modules.appimage.apprepo.model import appimage
 
 @console.task(name=['upload'], description="upload a new version of the AppImage to the apprepo server")
 @hexdi.inject('config', 'apprepo', 'appimagetool', 'console.application', 'apprepo.hasher')
@@ -50,11 +50,12 @@ def main(options=None, args=None, config=None, apprepo=None, appimagetool=None, 
             yield console.blue("[skipped] {} this version was already uploaded...".format(latest_package))
             return
 
+    source = appimage.AppImage(source)
     if not options.skip_check and not appimagetool.check(source):
         raise Exception('{} unknown AppImage format'.format(source))
 
     yield console.comment("[uploading] {}...".format(source))
 
-    apprepo.upload(source, authentication, token, name, options.version_description)
+    apprepo.upload(source.path, authentication, token, name, options.version_description)
 
     yield console.green("[done] {}...".format(source))

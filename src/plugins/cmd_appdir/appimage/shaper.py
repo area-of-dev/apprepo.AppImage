@@ -37,6 +37,7 @@ def factory_shaper_bin(appdir_root, appdir_build, appimage):
 
     copypool.append(('{}/usr/sbin/*'.format(appdir_build), apprepo_bin))
     copypool.append(('{}/usr/bin/*'.format(appdir_build), apprepo_bin))
+    copypool.append(('{}/sbin/*'.format(appdir_build), apprepo_bin))
     copypool.append(('{}/bin/*'.format(appdir_build), apprepo_bin))
 
     for output in _reshapre(copypool):

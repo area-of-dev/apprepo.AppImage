@@ -54,7 +54,7 @@ class PackageManagerFactory(object):
             'automake',
             'autoconf',
             'autotools',
-            'file',
+            # 'file',
             'dpkg',
             'gcc',
             'linux',
