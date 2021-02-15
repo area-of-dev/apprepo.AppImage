@@ -17,6 +17,7 @@ from .apprepo.utils.checker import AppImageChecker
 from .apprepo.utils.installer import AppImageInstaller
 from .apprepo.utils.integrator import AppImageIntegrator
 from .apprepo.utils.patcher import DesktopFileReader
+from .cache.interface import AppImageCache
 
 
 @hexdi.permanent('appimage')
@@ -75,4 +76,9 @@ class AppImageInstallerInstance(AppImageInstaller):
 
 @hexdi.permanent('apprepo.checker')
 class AppImageCheckerInstance(AppImageChecker):
+    pass
+
+
+@hexdi.permanent('appimage.cache')
+class AppImageCacheInstance(AppImageCache):
     pass

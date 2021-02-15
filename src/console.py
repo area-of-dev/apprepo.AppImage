@@ -42,6 +42,7 @@ class OptionParser(optparse.OptionParser):
         self.add_option("--version-description", dest="version_description", help="description", default=None)
         self.add_option("--version-name", dest="version_name", help="Upload name", default=None)
         self.add_option("--version-skip-check", dest="skip_check", help="Check appimage structure", action='store_true')
+        self.add_option("--synchronize-remote-only", dest="synchronize_remote_only", help="Update only remote information", action='store_true')
 
         configfile = '~/.config/apprepo/default.conf'
         self.add_option("--config", default=os.path.expanduser(configfile), dest="config",

@@ -57,10 +57,11 @@ class DeviceWidget(QtWidgets.QWidget):
         self.start.setToolTip("Start: {}".format(appimage.path))
         self.layout().addWidget(self.start, 0, 2, 2, 1)
 
-        self.update = ToolbarButton(self, "Update", QtGui.QIcon('icons/update'))
-        self.update.clicked.connect(self.actionUpdate.emit)
-        self.update.setToolTip("Update: {}".format(appimage.path))
-        self.layout().addWidget(self.update, 0, 3, 2, 1)
+        if appimage.outdated and appimage.slug:
+            self.update = ToolbarButton(self, "Update", QtGui.QIcon('icons/update'))
+            self.update.clicked.connect(self.actionUpdate.emit)
+            self.update.setToolTip("Update: {}".format(appimage.path))
+            self.layout().addWidget(self.update, 0, 3, 2, 1)
 
         self.remove = ToolbarButton(self, "Remove", QtGui.QIcon('icons/remove'))
         self.remove.clicked.connect(self.actionRemove.emit)

@@ -24,8 +24,8 @@ class DashboardWidget(QtWidgets.QFrame):
     actionRemove = QtCore.pyqtSignal(object)
     actionStart = QtCore.pyqtSignal(object)
 
-    @hexdi.inject('appimagetool')
-    def __init__(self, appimagetool):
+    @hexdi.inject('appimage.cache')
+    def __init__(self, cache):
         super(DashboardWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
@@ -37,7 +37,7 @@ class DashboardWidget(QtWidgets.QFrame):
         self.list = SettingsListWidget()
         self.layout().addWidget(self.list)
 
-        for entity in appimagetool.collection():
+        for entity in cache.collection():
             widget = DeviceWidget(entity)
             widget.actionStart.connect(self.actionStart.emit)
             widget.actionUpdate.connect(self.actionUpdate.emit)

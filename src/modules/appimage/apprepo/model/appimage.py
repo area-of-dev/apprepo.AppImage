@@ -17,8 +17,18 @@ import hexdi
 
 
 class AppImage(object):
-    def __init__(self, path):
+    def __init__(self, path, slug=None, outdated=None):
+        self._outdated = outdated
         self._path = path
+        self._slug = slug
+
+    @property
+    def slug(self):
+        return self._slug
+
+    @property
+    def outdated(self):
+        return self._outdated
 
     @property
     def systemwide(self):
@@ -66,6 +76,11 @@ class AppImage(object):
     def desktop(self, integrator):
         path = "{}/{{}}.desktop".format(integrator.desktop(self.systemwide))
         return path.format(pathlib.Path(self.path).stem)
+
+    @property
+    @hexdi.inject('apprepo.hasher')
+    def hash(self, hasher):
+        return hasher(self.path)
 
     @property
     @hexdi.inject('apprepo.integrator')
