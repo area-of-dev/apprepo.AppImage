@@ -13,7 +13,7 @@ import hashlib
 
 import hexdi
 
-from .cache import ApprepoCache
+from .cache.interface import AppRepoCache
 from .downloader import ServiceDownloader
 from .rest import ServiceApprepo
 
@@ -46,5 +46,5 @@ class ServiceDownloaderinstance(ServiceDownloader):
 
 
 @hexdi.permanent('apprepo.cache')
-class ApprepoCacheInstance(ApprepoCache):
+class ApprepoCacheInstance(AppRepoCache):
     pass

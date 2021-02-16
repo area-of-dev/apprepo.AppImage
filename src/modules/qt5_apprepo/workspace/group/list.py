@@ -10,28 +10,38 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
+import hexdi
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
+from .row import GroupWidget
 
-class SettingsListItem(QtWidgets.QListWidgetItem):
+
+class GroupListItem(QtWidgets.QListWidgetItem):
 
     def __init__(self, device=None):
-        super(SettingsListItem, self).__init__()
-        self.setSizeHint(QtCore.QSize(200, 30))
+        super(GroupListItem, self).__init__()
+        self.setSizeHint(QtCore.QSize(200, 20))
         self.setTextAlignment(Qt.AlignCenter)
         self.setData(0, device)
 
 
-class SettingsListWidget(QtWidgets.QListWidget):
-    def __init__(self):
-        super(SettingsListWidget, self).__init__()
+class GroupListWidget(QtWidgets.QListWidget):
+    actionUpdate = QtCore.pyqtSignal(object)
+    actionRemove = QtCore.pyqtSignal(object)
+
+    @hexdi.inject('apprepo.cache')
+    def __init__(self, cache):
+        super(GroupListWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-    def addWidget(self, widget):
-        item = SettingsListItem()
+        for entity in cache.package_groups():
+            self.addEntity(entity)
+
+    def addEntity(self, entity):
+        item = GroupListItem(entity)
         self.addItem(item)
 
+        widget = GroupWidget(entity)
         self.setItemWidget(item, widget)

@@ -41,6 +41,32 @@ class ServiceApprepo(object):
         sys.stdout.flush()
         return progress
 
+    def groups(self):
+
+        try:
+            response = requests.get('{}/package/groups'.format(self.url))
+        except Exception as ex:
+            return
+
+        if not response: raise Exception('something went wrong, please try later')
+        if response.status_code not in [200]: raise Exception('something went wrong, please try later')
+
+        for entity in json.loads(response.content):
+            yield entity
+
+    def packages(self):
+
+        try:
+            response = requests.get('{}/package'.format(self.url))
+        except Exception as ex:
+            return
+
+        if not response: raise Exception('something went wrong, please try later')
+        if response.status_code not in [200]: raise Exception('something went wrong, please try later')
+
+        for entity in json.loads(response.content):
+            yield entity
+
     def search(self, string=None):
 
         try:

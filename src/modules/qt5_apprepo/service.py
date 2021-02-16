@@ -14,11 +14,11 @@
 import hexdi
 
 from .toolbar.panel import ToolbarWidget
-from .workspace.settings import SettingsWidget
+from .workspace.dashboard import DashboardWidget
 
 
 @hexdi.permanent('workspace.apprepo')
-class ServiceSettingsWidget(SettingsWidget):
+class DashboardWidgetInstance(DashboardWidget):
     pass
 
 

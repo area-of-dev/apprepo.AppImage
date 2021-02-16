@@ -10,20 +10,17 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
-import hexdi
-
-from modules.qt5 import window
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt
 
 
-@window.workspace(name='Apprepo', focus=True, position=0)
-@hexdi.inject('workspace.apprepo')
-def window_workspace(parent, workspace):
-    return workspace
+class Description(QtWidgets.QTextEdit):
 
-
-@window.toolbar(name='Apprepo', focus=True, position=0)
-@hexdi.inject('toolbar.apprepo')
-def window_toolbar(parent=None, toolbar=None):
-    parent.actionReload.connect(toolbar.reload)
-    return toolbar
+    def __init__(self, text=None):
+        super(Description, self).__init__()
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setEnabled(False)
+        self.setHtml(text)
+        self.show()

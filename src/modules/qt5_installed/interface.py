@@ -17,7 +17,7 @@ from modules.qt5 import window
 from . import actions
 
 
-@window.workspace(name='Installed', focus=True, position=0)
+@window.workspace(name='Installed', focus=False, position=1)
 @hexdi.inject('workspace.installed')
 def window_workspace(parent=None, workspace=None):
     workspace.actionUpdate.connect(lambda x: print(x))
@@ -27,7 +27,7 @@ def window_workspace(parent=None, workspace=None):
     return workspace
 
 
-@window.toolbar(name='Installed', focus=True, position=0)
+@window.toolbar(name='Installed', focus=False, position=1)
 @hexdi.inject('toolbar.installed')
 def window_toolbar(parent=None, toolbar=None):
     toolbar.actionUpdate.connect(actions.on_action_update)

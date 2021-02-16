@@ -10,25 +10,30 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
+import hexdi
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
 
-from .list import SettingsListWidget
+from .group.list import GroupListWidget
+from .package.dashboard import PackageDashboardWidget
 
 
-class SettingsWidget(QtWidgets.QFrame):
+class DashboardWidget(QtWidgets.QSplitter):
     toggleDeviceAction = QtCore.pyqtSignal(object)
 
-    def __init__(self, service=None):
-        super(SettingsWidget, self).__init__()
+    @hexdi.inject('apprepo.cache')
+    def __init__(self, apprepo=None):
+        super(DashboardWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
 
-        self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.groups = GroupListWidget()
+        self.addWidget(self.groups)
 
-        self.list = SettingsListWidget()
-        self.layout().addWidget(self.list)
+        self.packages = PackageDashboardWidget()
+        self.packages.setTitle('test')
+
+        self.addWidget(self.packages)
+
+        self.setStretchFactor(0, 2)
+        self.setStretchFactor(1, 4)
