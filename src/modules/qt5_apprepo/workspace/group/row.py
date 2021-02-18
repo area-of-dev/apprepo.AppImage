@@ -24,6 +24,8 @@ class GroupWidget(QtWidgets.QWidget):
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
 
+        self.entity = entity
+
         self.setToolTip(entity.name)
 
         self.setLayout(QtWidgets.QGridLayout())
@@ -37,6 +39,6 @@ class GroupWidget(QtWidgets.QWidget):
     def event(self, a0: QtCore.QEvent) -> bool:
         if a0.__class__.__name__ == "QMouseEvent":
             if a0.type() == QtCore.QEvent.MouseButtonRelease:
-                self.actionClick.emit(a0)
+                self.actionClick.emit(self.entity)
 
         return super(GroupWidget, self).event(a0)

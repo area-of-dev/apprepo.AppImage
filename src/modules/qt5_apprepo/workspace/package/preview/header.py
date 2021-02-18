@@ -10,23 +10,30 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
+from .button import PictureButtonFlat
 
-class ToolbarButton(QtWidgets.QToolButton):
-    def __init__(self, parent=None, text=None, icon=None):
-        super(ToolbarButton, self).__init__(parent)
-        assert (text is not None)
-        assert (icon is not None)
 
-        self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        self.setIconSize(QtCore.QSize(28, 28))
-        self.setIcon(QtGui.QIcon(icon))
-        self.setFixedWidth(90)
-        self.setCheckable(False)
-        self.setToolTip(text)
+class CommentWidget(QtWidgets.QLabel):
+    def __init__(self, text=None):
+        super(CommentWidget, self).__init__()
+        self.setAcceptDrops(True)
         self.setText(text)
+
+
+class PreviewHeaderWidget(QtWidgets.QWidget):
+    actionBack = QtCore.pyqtSignal(object)
+
+    def __init__(self, entity=None):
+        super(PreviewHeaderWidget, self).__init__()
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
+        self.back = PictureButtonFlat(QtGui.QIcon('icons/sync'))
+        self.back.clicked.connect(self.actionBack.emit)
+        self.layout().addWidget(self.back)

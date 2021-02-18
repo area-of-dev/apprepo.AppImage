@@ -67,7 +67,12 @@ class AppRepoCache(object):
     def clean_packages(selfs):
         pass
 
-    def packages(self):
+    def packages(self, group: PackageGroup = None):
+        if group is not None:
+            for entity in group.packages:
+                yield entity
+            return
+
         for entity in self.session.query(Package).all():
             yield entity
 

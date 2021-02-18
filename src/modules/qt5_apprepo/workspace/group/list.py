@@ -28,20 +28,25 @@ class GroupListItem(QtWidgets.QListWidgetItem):
 
 
 class GroupListWidget(QtWidgets.QListWidget):
-    actionUpdate = QtCore.pyqtSignal(object)
-    actionRemove = QtCore.pyqtSignal(object)
+    actionClick = QtCore.pyqtSignal(object)
 
     @hexdi.inject('apprepo.cache')
     def __init__(self, cache):
         super(GroupListWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
-        for entity in cache.package_groups():
-            self.addEntity(entity)
+    def addGroup(self, entity):
+        self.addEntity(entity)
 
     def addEntity(self, entity):
         item = GroupListItem(entity)
         self.addItem(item)
 
         widget = GroupWidget(entity)
+        widget.actionClick.connect(self.actionClick.emit)
         self.setItemWidget(item, widget)
+
+    def clean(self, entity=None):
+        if not self.model():
+            return None
+        self.model().removeRows(0, self.model().rowCount())

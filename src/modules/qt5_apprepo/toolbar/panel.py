@@ -12,28 +12,36 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 import hexdi
+from PyQt5 import QtCore
+from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
+from .button import ToolbarButton
+from .text import SearchField
 
-class ToolbarWidget(QtWidgets.QScrollArea):
+
+class ToolbarWidgetTab(QtWidgets.QWidget):
+    actionSearch = QtCore.pyqtSignal(object)
+    actionUpdate = QtCore.pyqtSignal(object)
+
     def __init__(self, themes=None):
-        super(ToolbarWidget, self).__init__()
-        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-        self.setWidgetResizable(True)
+        super(ToolbarWidgetTab, self).__init__()
+        self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.setContentsMargins(0, 0, 0, 0)
 
-        self.container = QtWidgets.QWidget()
-        self.container.setLayout(QtWidgets.QHBoxLayout())
-        self.container.layout().setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-        self.setWidget(self.container)
+        self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().setAlignment(Qt.AlignLeft)
+
+        self.update = ToolbarButton(self, "Update", QtGui.QIcon('icons/sync'))
+        self.update.clicked.connect(self.actionUpdate.emit)
+        self.layout().addWidget(self.update)
+
+        self.search = SearchField(self)
+        self.search.returnPressed.connect(lambda: self.actionSearch.emit(self.search.text()))
+        self.layout().addWidget(self.search, -1)
 
         self.reload(None)
-
-    def addWidget(self, widget):
-        self.container.layout().addWidget(widget)
 
     @hexdi.inject('config')
     def reload(self, event, config=None):

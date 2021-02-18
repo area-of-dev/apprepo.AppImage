@@ -29,7 +29,9 @@ def create_engine(config=None):
     database = os.path.expanduser(database)
 
     from sqlalchemy import create_engine
-    return create_engine('sqlite:///{}'.format(database), echo=True)
+    return create_engine('sqlite:///{}'.format(database), connect_args={
+        'check_same_thread': False
+    }, echo=True)
 
 
 def create_session():
@@ -80,6 +82,11 @@ class Package(Base):
 
     groups = relationship("PackageGroup", secondary=GroupPackageMapping, back_populates="packages")
     images = relationship("PackageImage", back_populates="package")
+
+    @property
+    def image(self):
+        for entity in self.images:
+            return entity
 
 
 Base.metadata.create_all(bind=create_engine())

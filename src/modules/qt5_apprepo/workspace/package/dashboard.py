@@ -17,34 +17,52 @@ from PyQt5.QtCore import Qt
 
 from .label import Title
 from .list import PackageListWidget
+from .preview.dashboard import PreviewDashboardWidget
 
 
 class PackageDashboardWidget(QtWidgets.QWidget):
-    selectAction = QtCore.pyqtSignal(object)
+    actionClick = QtCore.pyqtSignal(object)
+    actionInstall = QtCore.pyqtSignal(object)
+    actionDownload = QtCore.pyqtSignal(object)
+    actionRemove = QtCore.pyqtSignal(object)
+    actionTest = QtCore.pyqtSignal(object)
+    actionStart = QtCore.pyqtSignal(object)
 
     def __init__(self, parent=None):
         super(PackageDashboardWidget, self).__init__()
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setAlignment(Qt.AlignCenter)
+        self.layout().setAlignment(Qt.AlignTop | Qt.AlignHCenter)
 
         self.title = Title('...')
         self.layout().addWidget(self.title)
 
         self.list = PackageListWidget()
-        self.list.selectAction.connect(self.selectAction.emit)
+        self.list.actionClick.connect(self.actionClick.emit)
+        self.list.actionClick.connect(self.onActionPackage)
         self.layout().addWidget(self.list)
 
-    def setTitle(self, text):
-        self.title.setText(text.capitalize())
-        return self
+        self.preview = PreviewDashboardWidget()
+        self.preview.actionBack.connect(self.onActionDashboard)
+        self.preview.actionInstall.connect(self.actionInstall.emit)
+        self.preview.actionDownload.connect(self.actionDownload.emit)
+        self.preview.actionRemove.connect(self.actionRemove.emit)
+        self.preview.actionTest.connect(self.actionTest.emit)
+        self.preview.actionStart.connect(self.actionStart.emit)
+        self.preview.setVisible(False)
+        self.layout().addWidget(self.preview)
 
-    def setPreview(self, collection=[]):
-        self.list.setPreview(collection)
-        return self
+    def addPackage(self, entity):
+        self.list.addEntity(entity)
 
-    def addPreview(self, document=None):
-        self.list.addPreview(document)
-        return self
+    def clean(self, entity=None):
+        self.list.clean(entity)
 
-    def count(self):
-        return self.list.count()
+    def onActionDashboard(self, package):
+        self.preview.setVisible(False)
+        self.list.setVisible(True)
+
+    def onActionPackage(self, package):
+        self.list.setVisible(False)
+        self.title.setText(package.name)
+        self.preview.setPackage(package)
+        self.preview.setVisible(True)

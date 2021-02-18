@@ -17,13 +17,30 @@ from modules.qt5 import window
 
 
 @window.workspace(name='Apprepo', focus=True, position=0)
-@hexdi.inject('workspace.apprepo')
-def window_workspace(parent, workspace):
+@hexdi.inject('workspace.apprepo', 'thread.apprepo')
+def window_workspace(parent, workspace, thread):
+    thread.packageAction.connect(workspace.addPackage)
+    thread.packageCleanAction.connect(workspace.cleanPackage)
+
+    thread.groupAction.connect(workspace.addGroup)
+    thread.groupCleanAction.connect(workspace.cleanGroup)
+
+    workspace.packageAction.connect(lambda x: print(x))
+    workspace.groupAction.connect(thread.packages)
+    workspace.actionInstall.connect(lambda x: print(x))
+    workspace.actionDownload.connect(lambda x: print(x))
+    workspace.actionRemove.connect(lambda x: print(x))
+    workspace.actionTest.connect(lambda x: print(x))
+    workspace.actionStart.connect(lambda x: print(x))
+
+    thread.start()
+
     return workspace
 
 
 @window.toolbar(name='Apprepo', focus=True, position=0)
 @hexdi.inject('toolbar.apprepo')
 def window_toolbar(parent=None, toolbar=None):
+    toolbar.actionSearch.connect(lambda x: print(x))
     parent.actionReload.connect(toolbar.reload)
     return toolbar

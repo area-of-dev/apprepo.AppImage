@@ -10,7 +10,6 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import hexdi
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
@@ -22,16 +21,15 @@ class PackageListItem(QtWidgets.QListWidgetItem):
 
     def __init__(self, entity=None):
         super(PackageListItem, self).__init__()
-        self.setSizeHint(QtCore.QSize(400, 500))
+        self.setSizeHint(QtCore.QSize(400, 300))
         self.setTextAlignment(Qt.AlignCenter)
         self.setData(0, entity)
 
 
 class PackageListWidget(QtWidgets.QListWidget):
-    selectAction = QtCore.pyqtSignal(object)
+    actionClick = QtCore.pyqtSignal(object)
 
-    @hexdi.inject('apprepo.cache')
-    def __init__(self, apprepo=None):
+    def __init__(self):
         super(PackageListWidget, self).__init__()
         self.setViewMode(QtWidgets.QListView.IconMode)
         self.setResizeMode(QtWidgets.QListView.Adjust)
@@ -42,12 +40,6 @@ class PackageListWidget(QtWidgets.QListWidget):
         self.setMinimumWidth(400)
 
         self.itemClicked.connect(self.itemClickedEvent)
-
-        for index, entity in enumerate(apprepo.packages(), start=0):
-            self.addEntity(entity)
-            if index > 10:
-                break
-
         self.hashmap_index = {}
 
     def addEntity(self, entity=None):
@@ -60,8 +52,9 @@ class PackageListWidget(QtWidgets.QListWidget):
         return self
 
     def itemClickedEvent(self, item):
-        document = item.data(0)
-        return self.selectAction.emit(document)
+        return self.actionClick.emit(item.data(0))
 
-    def count(self):
-        return len(self.hashmap_index.keys())
+    def clean(self, entity=None):
+        if not self.model():
+            return None
+        self.model().removeRows(0, self.model().rowCount())

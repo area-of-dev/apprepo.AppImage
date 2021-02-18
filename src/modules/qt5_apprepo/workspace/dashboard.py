@@ -10,7 +10,6 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import hexdi
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
@@ -19,21 +18,44 @@ from .package.dashboard import PackageDashboardWidget
 
 
 class DashboardWidget(QtWidgets.QSplitter):
-    toggleDeviceAction = QtCore.pyqtSignal(object)
+    packageAction = QtCore.pyqtSignal(object)
+    groupAction = QtCore.pyqtSignal(object)
+    actionInstall = QtCore.pyqtSignal(object)
+    actionDownload = QtCore.pyqtSignal(object)
+    actionRemove = QtCore.pyqtSignal(object)
+    actionTest = QtCore.pyqtSignal(object)
+    actionStart = QtCore.pyqtSignal(object)
 
-    @hexdi.inject('apprepo.cache')
-    def __init__(self, apprepo=None):
+    def __init__(self):
         super(DashboardWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
 
         self.groups = GroupListWidget()
+        self.groups.actionClick.connect(self.groupAction.emit)
         self.addWidget(self.groups)
 
         self.packages = PackageDashboardWidget()
-        self.packages.setTitle('test')
-
+        self.groups.actionClick.connect(self.packages.onActionDashboard)
+        self.packages.actionInstall.connect(self.actionInstall.emit)
+        self.packages.actionDownload.connect(self.actionDownload.emit)
+        self.packages.actionRemove.connect(self.actionRemove.emit)
+        self.packages.actionTest.connect(self.actionTest.emit)
+        self.packages.actionStart.connect(self.actionStart.emit)
+        self.packages.actionClick.connect(self.packageAction.emit)
         self.addWidget(self.packages)
 
         self.setStretchFactor(0, 2)
         self.setStretchFactor(1, 4)
+
+    def addPackage(self, entity=None):
+        self.packages.addPackage(entity)
+
+    def cleanPackage(self, entity=None):
+        self.packages.clean(entity)
+
+    def addGroup(self, entity=None):
+        self.groups.addGroup(entity)
+
+    def cleanGroup(self, entity=None):
+        self.groups.clean(entity)

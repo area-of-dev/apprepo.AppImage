@@ -13,8 +13,9 @@
 
 import hexdi
 
-from .toolbar.panel import ToolbarWidget
+from .toolbar.panel import ToolbarWidgetTab
 from .workspace.dashboard import DashboardWidget
+from .workspace.thread import WorkspaceThread
 
 
 @hexdi.permanent('workspace.apprepo')
@@ -23,5 +24,10 @@ class DashboardWidgetInstance(DashboardWidget):
 
 
 @hexdi.permanent('toolbar.apprepo')
-class ToolbarWidgetInstance(ToolbarWidget):
+class ToolbarWidgetInstance(ToolbarWidgetTab):
+    pass
+
+
+@hexdi.permanent('thread.apprepo')
+class WorkspaceThreadInstance(WorkspaceThread):
     pass
