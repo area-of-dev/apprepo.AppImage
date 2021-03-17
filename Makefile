@@ -19,9 +19,9 @@ all: clean
 
 	mkdir -p $(PWD)/build
 
-	source $(PWD)/venv/bin/activate && python3 $(PWD)/src/console.py --destination=$(PWD)/build appdir apprepo python3.8 \
-													python3.8-dev python3.8-psutil python3.8-setuptools python3-pip python3-dnf python3-apt \
-													openssl libffi7 intltool libgudev-1.0-0 libffi libgudev \
+	apprepo --destination=$(PWD)/build appdir apprepo python3.8 python3.8-dev python3.8-psutil \
+										python3.8-setuptools python3-pip python3-dnf python3-apt \
+										openssl libffi7 intltool libgudev-1.0-0 libffi libgudev
 
 	echo '#cd $${OWD}' >> $(PWD)/build/Apprepo.AppDir/AppRun
 	echo 'case "$${1}" in' >> $(PWD)/build/Apprepo.AppDir/AppRun
