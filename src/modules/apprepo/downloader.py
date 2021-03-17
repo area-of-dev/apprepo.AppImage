@@ -18,7 +18,7 @@ from modules.cmd import console
 
 
 class ServiceDownloader(object):
-    def _download_stream(self, response):
+    def _download_stream(self, response, callback=None):
 
         filesize = response.headers.get('content-length')
         if filesize is None or not len(filesize):
@@ -34,19 +34,8 @@ class ServiceDownloader(object):
                 stream.write(chunk)
 
                 progress += len(chunk)
-                done = int(50 * progress / filesize)
-
-                progress_done = '=' * done
-                progress_pending = ' ' * (50 - done)
-                progress_percent = progress / filesize * 100
-
-                sys.stdout.write("\r[{}downloading{}]: [{}{}] {:>.1f} %".format(
-                    console.OKGREEN,
-                    console.ENDC,
-                    progress_done,
-                    progress_pending,
-                    progress_percent
-                ))
+                if callback is not None and callable(callback):
+                    callback(progress, filesize)
 
                 sys.stdout.flush()
             stream.close()
@@ -56,17 +45,42 @@ class ServiceDownloader(object):
 
             return destination.name
 
-    def _download_file(self, response):
+    def _download_file(self, response, callback=None):
         with tempfile.NamedTemporaryFile(delete=False) as destination:
             destination.write(response.content)
+            if callable(callback):
+                size = len(response.content)
+                callback(size, size)
             destination.close()
+
         return destination.name
 
-    def download(self, path=None):
+    def _download_progress(self, progress, total):
+        done = int(50 * progress / total)
+
+        progress_done = '=' * done
+        progress_pending = ' ' * (50 - done)
+        progress_percent = progress / total * 100
+
+        sys.stdout.write("\r[{}downloading{}]: [{}{}] {:>.1f} %".format(
+            console.OKGREEN,
+            console.ENDC,
+            progress_done,
+            progress_pending,
+            progress_percent
+        ))
+
+    def download(self, path=None, callback=None):
+        callback = self._download_progress \
+            if not callback else callback
+
         response = requests.get(path, stream=True)
-        if response is None or response.status_code not in [200]:
+        if not response: raise Exception('Can not download file: {}'.format(path))
+
+        if response.status_code not in [200]:
             raise Exception('Can not download file: {}'.format(path))
+
         total_length = response.headers.get('content-length')
-        if total_length is not None and len(total_length):
-            return self._download_stream(response)
-        return self._download_file(response)
+        if not total_length or not len(total_length):
+            return self._download_file(response, callback)
+        return self._download_stream(response, callback)
