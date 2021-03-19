@@ -12,8 +12,6 @@
 
 import hexdi
 
-from .schema import Cache
-from .schema import create_session
 
 
 class AppImageCache(object):
@@ -24,17 +22,26 @@ class AppImageCache(object):
         pass
 
     def count(self):
+        from .schema import Cache
+        from .schema import create_session
+
         session = create_session()
         return session.query(Cache).count()
 
     def collection(self):
         from modules.appimage.apprepo.model import appimage
+        from .schema import Cache
+        from .schema import create_session
+
         session = create_session()
 
         for entity in session.query(Cache).all():
             yield appimage.AppImage(entity.path, entity.slug, entity.outdated)
 
     def has(self, appimage=None):
+        from .schema import Cache
+        from .schema import create_session
+
         if not appimage:
             return None
 
@@ -45,6 +52,9 @@ class AppImageCache(object):
         ).count()
 
     def add(self, appimage=None):
+        from .schema import Cache
+        from .schema import create_session
+
         if not appimage:
             return None
 
@@ -63,6 +73,9 @@ class AppImageCache(object):
         return True
 
     def update(self, appimage=None, info=None):
+        from .schema import Cache
+        from .schema import create_session
+
         if not appimage:
             return None
 

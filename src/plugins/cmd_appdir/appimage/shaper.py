@@ -46,6 +46,18 @@ def factory_shaper_bin(appdir_root, appdir_build, appimage):
 
 @appimage.shaper(priority=10)
 @hexdi.inject('appimage')
+def factory_shaper_include(appdir_root, appdir_build, appimage):
+    apprepo_include = appimage.get_folder_include(appdir_root)
+
+    copypool = []
+    copypool.append(('{}/include/*'.format(appdir_build), apprepo_include))
+    copypool.append(('{}/usr/include/*'.format(appdir_build), apprepo_include))
+    for output in _reshapre(copypool):
+        yield output
+
+
+@appimage.shaper(priority=10)
+@hexdi.inject('appimage')
 def factory_shaper_lib(appdir_root, appdir_build, appimage):
     apprepo_lib = appimage.get_folder_lib(appdir_root)
 

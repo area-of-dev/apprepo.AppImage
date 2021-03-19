@@ -10,10 +10,6 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
-from .schema import Package
-from .schema import PackageGroup
-from .schema import PackageImage
-from .schema import create_session
 
 
 class AppRepoCache(object):
@@ -23,15 +19,20 @@ class AppRepoCache(object):
 
     @property
     def session(self):
+        from .schema import create_session
+
         if not self._session:
             self._session = create_session()
         return self._session
 
     def package_groups(self):
+        from .schema import PackageGroup
         for entity in self.session.query(PackageGroup).all():
             yield entity
 
     def package_group(self, entity):
+        from .schema import PackageGroup
+
         if not entity:
             return None
 
@@ -40,6 +41,8 @@ class AppRepoCache(object):
         ).first()
 
     def has_package_group(self, entity):
+        from .schema import PackageGroup
+
         if not entity:
             return None
 
@@ -48,6 +51,8 @@ class AppRepoCache(object):
         ).count()
 
     def add_package_group(self, entity):
+        from .schema import PackageGroup
+
         if not entity:
             return None
 
@@ -67,7 +72,9 @@ class AppRepoCache(object):
     def clean_packages(selfs):
         pass
 
-    def packages(self, group: PackageGroup = None):
+    def packages(self, group = None):
+        from .schema import Package
+
         if group is not None:
             for entity in group.packages:
                 yield entity
@@ -77,6 +84,8 @@ class AppRepoCache(object):
             yield entity
 
     def package(self, entity):
+        from .schema import Package
+
         if not entity:
             return None
 
@@ -85,6 +94,8 @@ class AppRepoCache(object):
         ).first()
 
     def has_package(self, entity):
+        from .schema import Package
+
         if not entity:
             return None
 
@@ -93,6 +104,8 @@ class AppRepoCache(object):
         ).count()
 
     def add_package(self, entity):
+        from .schema import Package
+
         if not entity:
             return None
 
@@ -112,6 +125,8 @@ class AppRepoCache(object):
         return package
 
     def add_package_image(self, entity):
+        from .schema import PackageImage
+
         if not entity:
             return None
 
