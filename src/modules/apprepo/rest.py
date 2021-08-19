@@ -104,6 +104,34 @@ class ServiceApprepo(object):
 
         return json.loads(response.content)
 
+    def package_ipfs_cid_new(self, authentication=None, token=None, name=None, description=None, ipfs_cid=None,
+                             ipfs_gateway=None):
+        """
+
+        :param authentication:
+        :param token:
+        :param name:
+        :param description:
+        :param ipfs_cid:
+        :param ipfs_gateway:
+        :return:
+        """
+        response = requests.post('{}/private/package/version/{}/create/'.format(self.url, token), data={
+            'name': name,
+            'description': description,
+            'hash': ipfs_cid,
+            'ipfs_cid': ipfs_cid,
+            'ipfs_gateway': ipfs_gateway,
+        }, headers={'Authorization': authentication})
+
+        if response is not None and response.status_code not in [200]:
+            raise Exception('Repository unreachable')
+
+        if response is not None and response.status_code in [200]:
+            return json.loads(response.content)
+
+        raise Exception('Unknown error, please try again later')
+
     def upload(self, path=None, authentication=None, token=None, name=None, description=None):
         assert (path is not None and len(path))
         assert (os.path.exists(path) and not os.path.isdir(path))
