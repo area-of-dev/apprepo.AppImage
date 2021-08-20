@@ -104,8 +104,8 @@ class ServiceApprepo(object):
 
         return json.loads(response.content)
 
-    def package_ipfs_cid_new(self, authentication=None, token=None, name=None, description=None, ipfs_cid=None,
-                             ipfs_gateway=None):
+    def package_ipfs_cid_new(self, authentication=None, token=None, name=None, description=None, hash=None,
+                             ipfs_cid=None, ipfs_gateway=None):
         """
 
         :param authentication:
@@ -119,7 +119,7 @@ class ServiceApprepo(object):
         response = requests.post('{}/private/package/version/{}/create/'.format(self.url, token), data={
             'name': name,
             'description': description,
-            'hash': ipfs_cid,
+            'hash': hash,
             'ipfs_cid': ipfs_cid,
             'ipfs_gateway': ipfs_gateway,
         }, headers={'Authorization': authentication})

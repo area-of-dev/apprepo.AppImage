@@ -30,6 +30,7 @@ def main(options=None, args=None, config=None, apprepo=None, console=None):
     """
     if not options.version_token: raise Exception('Version token is empty')
     if not options.version_name: raise Exception('Version name is empty')
+    if not options.version_hash: raise Exception('Version hash is empty')
     if not options.version_description: raise Exception('Unknown description')
     if not options.version_ipfs_cid: raise Exception('Unknown version_ipfs_cid')
 
@@ -39,6 +40,7 @@ def main(options=None, args=None, config=None, apprepo=None, console=None):
         options.version_token,
         options.version_name,
         options.version_description,
+        options.version_hash,
 
         options.version_ipfs_cid,
         options.version_ipfs_gateway

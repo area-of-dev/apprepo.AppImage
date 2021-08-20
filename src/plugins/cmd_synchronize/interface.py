@@ -17,11 +17,13 @@ import hexdi
 from modules.cmd import console
 
 
-@console.task(name=['synchronize', 'sync'],
-              description="go through all available AppImage files "
-                          "and integrate them into the system if necessary")
+@console.task(name=[
+    'synchronize',
+    'sync'
+], description="go through all available AppImage files  and integrate them into the system if necessary")
 @hexdi.inject('appimagetool', 'console.application', 'apprepo', 'appimage.cache', 'apprepo.cache')
 def main(options=None, args=None, appimagetool=None, console=None, apprepo=None, cache=None, apprepo_cache=None):
+
     profile = os.path.expanduser('~/.profile')
     if not os.path.exists(profile) or not os.path.isfile(profile):
         yield "[{}] ~/.profile does not exist, creating...".format(console.blue('notice'))
@@ -29,28 +31,26 @@ def main(options=None, args=None, appimagetool=None, console=None, apprepo=None,
             stream.write('PATH=~/.local/bin:$PATH')
             stream.close()
 
-    apprepo_cache.clean_package_groups()
-    for entity in apprepo.groups():
-        if not apprepo_cache.has_package_group(entity):
-            apprepo_cache.add_package_group(entity)
-
-    apprepo_cache.clean_packages()
-    for entity in apprepo.packages():
-        if not apprepo_cache.has_package(entity):
-            package = apprepo_cache.add_package(entity)
-            if not package: continue
-
-            for group in entity['groups']:
-                group = apprepo_cache.package_group(group)
-                if not group: continue
-                package.groups.append(group)
-
-            for image in entity['images']:
-                image = apprepo_cache.add_package_image(image)
-                if not image: continue
-                package.images.append(image)
-
-    return
+    # apprepo_cache.clean_package_groups()
+    # for entity in apprepo.groups():
+    #     if not apprepo_cache.has_package_group(entity):
+    #         apprepo_cache.add_package_group(entity)
+    #
+    # apprepo_cache.clean_packages()
+    # for entity in apprepo.packages():
+    #     if not apprepo_cache.has_package(entity):
+    #         package = apprepo_cache.add_package(entity)
+    #         if not package: continue
+    #
+    #         for group in entity['groups']:
+    #             group = apprepo_cache.package_group(group)
+    #             if not group: continue
+    #             package.groups.append(group)
+    #
+    #         for image in entity['images']:
+    #             image = apprepo_cache.add_package_image(image)
+    #             if not image: continue
+    #             package.images.append(image)
 
     yield console.blue("[cache]: synchronizing")
     for appimage in appimagetool.collection():

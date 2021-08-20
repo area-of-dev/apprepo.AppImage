@@ -41,6 +41,7 @@ class OptionParser(optparse.OptionParser):
         self.add_option("--version-name", dest="version_name", help="Upload name", default=None)
         self.add_option("--version-description", dest="version_description", help="description", default=None)
         self.add_option("--version-token", dest="version_token", help="Upload token", default=None)
+        self.add_option("--version-hash", dest="version_hash", help="Version hash", default=None)
         self.add_option("--version-ipfs-cid", dest="version_ipfs_cid", help="Version IPFS CID", default=None)
         self.add_option("--version-ipfs-gateway", dest="version_ipfs_gateway", help="Version IPFS Gateway", default=None)
         self.add_option("--version-skip-check", dest="skip_check", help="Check appimage structure", action='store_true')
