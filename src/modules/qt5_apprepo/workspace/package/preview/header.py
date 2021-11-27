@@ -25,6 +25,10 @@ class CommentWidget(QtWidgets.QLabel):
         self.setAcceptDrops(True)
         self.setText(text)
 
+    def close(self):
+        super().deleteLater()
+        return super().close()
+
 
 class PreviewHeaderWidget(QtWidgets.QWidget):
     actionBack = QtCore.pyqtSignal(object)
@@ -37,3 +41,7 @@ class PreviewHeaderWidget(QtWidgets.QWidget):
         self.back = PictureButtonFlat(QtGui.QIcon('icons/sync'))
         self.back.clicked.connect(self.actionBack.emit)
         self.layout().addWidget(self.back)
+
+    def close(self):
+        super().deleteLater()
+        return super().close()

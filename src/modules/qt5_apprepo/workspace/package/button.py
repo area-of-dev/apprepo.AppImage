@@ -34,3 +34,7 @@ class PictureButtonFlat(QtWidgets.QPushButton):
             self.setGraphicsEffect(None)
 
         return super(PictureButtonFlat, self).event(QEvent)
+
+    def close(self):
+        super().deleteLater()
+        return super().close()

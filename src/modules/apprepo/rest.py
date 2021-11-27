@@ -16,6 +16,7 @@ import os
 import sys
 
 import requests
+from PyQt5 import QtNetwork, QtCore
 
 
 class ServiceApprepo(object):
@@ -93,16 +94,17 @@ class ServiceApprepo(object):
         yield json.loads(response.content)
 
     def packages_by_group(self, group=None):
-
         try:
             response = requests.get('{}/package/{}/by_group/'.format(self.url, group.get('unique', None)))
-        except Exception as ex:
-            return
 
-        if not response: raise Exception('Can not fetch package data: {}'.format(group))
-        if response.status_code not in [200]: raise Exception('Can not fetch package data: {}'.format(group))
+            if not response: raise Exception('Can not fetch package data: {}'.format(group))
+            if response.status_code not in [200]: raise Exception('Can not fetch package data: {}'.format(group))
 
-        return json.loads(response.content)
+            return response.json()
+
+        except:
+            print('Exception: {}'.format(group))
+            return []
 
     def package_by_token(self, string=None):
 

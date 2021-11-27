@@ -24,3 +24,7 @@ class Description(QtWidgets.QTextEdit):
         self.setEnabled(False)
         self.setHtml(text)
         self.show()
+
+    def close(self):
+        super().deleteLater()
+        return super().close()

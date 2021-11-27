@@ -19,14 +19,15 @@ from modules.qt5 import window
 @window.workspace(name='Apprepo', focus=True, position=0)
 @hexdi.inject('workspace.apprepo', 'thread.apprepo')
 def window_workspace(parent, workspace, thread):
-    thread.packageAction.connect(workspace.addPackage)
+
     thread.packageCleanAction.connect(workspace.cleanPackage)
+    thread.packageAction.connect(workspace.addPackage)
 
-    thread.groupAction.connect(workspace.addGroup)
     thread.groupCleanAction.connect(workspace.cleanGroup)
+    thread.groupAction.connect(workspace.addGroup)
 
-    workspace.packageAction.connect(lambda x: print(x))
     workspace.groupAction.connect(thread.packages)
+    workspace.packageAction.connect(lambda x: print(x))
     workspace.actionInstall.connect(lambda x: print(x))
     workspace.actionDownload.connect(lambda x: print(x))
     workspace.actionRemove.connect(lambda x: print(x))

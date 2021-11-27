@@ -33,8 +33,12 @@ SettingsWidget SettingsListWidget::item:selected:active { background: #fafafa; b
 SettingsWidget SettingsListWidget::item:hover { background: #fafafa; border: none;  }
 SettingsWidget SettingsListWidget DeviceWidget { margin: 10px; }
 
+QSplitter GroupListWidget { border: none; }
+QSplitter PackageListWidget { border: none;  background: #fafafa; }
+
 
 GroupWidget { margin: 5px; }
 GroupWidget Title { font-size: 16px; padding-left: 10px; }
 GroupWidget Description { font-size: 10px; padding-left: 10px;  }
 PackageWidget { margin: 15px; }
+GroupWidget ImageWidget {margin: 3px; }

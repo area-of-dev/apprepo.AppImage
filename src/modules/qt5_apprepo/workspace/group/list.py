@@ -9,13 +9,53 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import hexdi
+from urllib import request
+
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QAbstractItemView
 
 from .row import GroupWidget
+
+
+class ImageThread(QtCore.QThread):
+    imageLoaded = QtCore.pyqtSignal(object)
+
+    def __init__(self):
+        super(ImageThread, self).__init__()
+        self.stop = False
+        self.images = []
+
+    def append(self, image):
+        self.images.append(image)
+        return self
+
+    def clear(self):
+        self.images = []
+        return self
+
+    def run(self):
+
+        while True:
+
+            for (image, callback) in self.images:
+                if not len(self.images): break
+
+                url = image.get('icon', None)
+                if not url: continue
+
+                data = request.urlopen(url).read()
+                self.imageLoaded.emit((data, callback))
+
+            if self.stop: break
+            QtCore.QThread.msleep(300)
+
+    def terminate(self) -> None:
+        self.stop = True
+        super().terminate()
+
+    def __del__(self):
+        self.wait()
 
 
 class GroupListItem(QtWidgets.QListWidgetItem):
@@ -37,11 +77,23 @@ class GroupListWidget(QtWidgets.QListWidget):
         self.horizontalScrollBar().setVisible(False)
         self.verticalScrollBar().setVisible(False)
 
+        self.loaderImage = ImageThread()
+        self.loaderImage.imageLoaded.connect(self.onImageLoaded)
+
+    def onImageLoaded(self, event):
+        data, callback = event
+        if not callback: return None
+        if not data: return None
+
+        if not callable(callback):
+            return None
+
+        callback(data)
+
     def addGroup(self, entity):
         self.addEntity(entity)
 
     def addEntity(self, entity):
-
         item = GroupListItem(entity)
         self.addItem(item)
 
@@ -49,7 +101,24 @@ class GroupListWidget(QtWidgets.QListWidget):
         widget.actionClick.connect(self.actionClick.emit)
         self.setItemWidget(item, widget)
 
+        icon = entity.get('icon', None)
+        if not len(icon): return None
+
+        self.loaderImage.append((entity, widget.onImageLoaded))
+        if not self.loaderImage.isRunning():
+            self.loaderImage.start()
+
     def clean(self, entity=None):
-        if not self.model():
-            return None
-        self.model().removeRows(0, self.model().rowCount())
+        self.loaderImage.clear()
+
+        if not self.model(): return None
+
+        count = self.model().rowCount()
+        if not count: return None
+
+        self.model().removeRows(0, count)
+
+    def close(self):
+        self.loaderImage.terminate()
+        super().deleteLater()
+        return super().close()

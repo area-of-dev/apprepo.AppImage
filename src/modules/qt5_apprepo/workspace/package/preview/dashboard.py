@@ -55,3 +55,7 @@ class PreviewDashboardWidget(QtWidgets.QWidget):
         self.comments.setEntity(entity)
         self.pictures.setEntity(entity)
         self.toolbar.setEntity(entity)
+
+    def close(self):
+        super().deleteLater()
+        return super().close()

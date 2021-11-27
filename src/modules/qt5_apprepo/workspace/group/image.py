@@ -10,19 +10,29 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 
-class Title(QtWidgets.QLabel):
+class ImageWidget(QtWidgets.QLabel):
 
-    def __init__(self, text):
-        super(Title, self).__init__(text)
-        font = self.font()
-        font.setPixelSize(20)
-        self.setFont(font)
-        self.setWordWrap(True)
-        self.setAlignment(Qt.AlignCenter)
+    def __init__(self, entity=None, width=36):
+        super(ImageWidget, self).__init__()
+        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+
+        pixmap = QtGui.QPixmap('img/spinner.webp')
+        self.setPixmap(pixmap.scaledToWidth(width))
+
+    def onImageLoaded(self, data, width=36):
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(data)
+
+        pixmap = pixmap.scaledToWidth(width, Qt.SmoothTransformation)
+        if not pixmap: return None
+
+        self.setPixmap(pixmap)
 
     def close(self):
         super().deleteLater()

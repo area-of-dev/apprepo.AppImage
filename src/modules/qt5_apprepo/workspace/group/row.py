@@ -15,6 +15,8 @@ from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
+from modules.qt5_apprepo.workspace.group.image import ImageWidget
+
 
 class Title(QtWidgets.QLabel):
     def __init__(self, title=None):
@@ -42,6 +44,9 @@ class GroupWidget(QtWidgets.QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
+        self.image = ImageWidget(entity.get('image', None))
+        self.layout().addWidget(self.image, 0, 0, 2, 1)
+
         test = Title(entity.get('name', None))
         test.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.layout().addWidget(test, 0, 1, 1, 1)
@@ -49,6 +54,16 @@ class GroupWidget(QtWidgets.QWidget):
         description = Description(entity.get('description', None))
         description.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.layout().addWidget(description, 1, 1, 1, 1)
+
+    def onImageLoaded(self, data=None):
+        if not self.image: return None
+        if not data: return None
+
+        try:
+            self.image.onImageLoaded(data)
+        except RuntimeError as ex:
+            print(ex)
+            pass
 
     def event(self, a0: QtCore.QEvent) -> bool:
         if a0.__class__.__name__ == "QMouseEvent":

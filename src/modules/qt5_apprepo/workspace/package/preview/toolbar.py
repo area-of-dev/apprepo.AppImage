@@ -26,6 +26,10 @@ class CommentWidget(QtWidgets.QLabel):
         self.setAcceptDrops(True)
         self.setText(text)
 
+    def close(self):
+        super().deleteLater()
+        return super().close()
+
 
 class PreviewToolbarWidget(QtWidgets.QWidget):
     actionInstall = QtCore.pyqtSignal(object)
@@ -41,28 +45,26 @@ class PreviewToolbarWidget(QtWidgets.QWidget):
 
         self.entity = None
 
-        self.install = ToolbarButton(self, "Install", QtGui.QIcon('icons/sync'))
+        self.install = PictureButtonFlat(QtGui.QIcon('icons/install'))
+        self.install.setToolTip('Download into the "~/Applications" folder and apply the system integration')
         self.install.clicked.connect(lambda x: self.actionInstall.emit(self.entity))
         self.layout().addWidget(self.install)
 
-        self.download = ToolbarButton(self, "Download", QtGui.QIcon('icons/sync'))
+        self.download = PictureButtonFlat(QtGui.QIcon('icons/download'))
+        self.download.setToolTip('Download into the "~/Downloads" folder without any system integration')
         self.download.clicked.connect(lambda x: self.actionDownload.emit(self.entity))
         self.layout().addWidget(self.download)
 
-        self.remove = ToolbarButton(self, "Remove", QtGui.QIcon('icons/sync'))
-        self.remove.clicked.connect(lambda x: self.actionRemove.emit(self.entity))
-        self.layout().addWidget(self.remove)
-
-        self.start = ToolbarButton(self, "Start", QtGui.QIcon('icons/sync'))
-        self.start.clicked.connect(lambda x: self.actionStart.emit(self.entity))
-        self.layout().addWidget(self.start)
-
-        self.test = ToolbarButton(self, "Test", QtGui.QIcon('icons/sync'))
+        self.test = PictureButtonFlat(QtGui.QIcon('icons/test'))
         self.test.clicked.connect(lambda x: self.actionTest.emit(self.entity))
         self.layout().addWidget(self.test)
 
     def setEntity(self, entity):
         self.entity = entity
+
+    def close(self):
+        super().deleteLater()
+        return super().close()
 
 
 class PreviewNavbarWidget(QtWidgets.QWidget):
@@ -73,6 +75,10 @@ class PreviewNavbarWidget(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setAlignment(Qt.AlignTop)
 
-        self.back = PictureButtonFlat(QtGui.QIcon('icons/sync'))
+        self.back = PictureButtonFlat(QtGui.QIcon('icons/back'))
         self.back.clicked.connect(self.actionBack.emit)
         self.layout().addWidget(self.back)
+
+    def close(self):
+        super().deleteLater()
+        return super().close()

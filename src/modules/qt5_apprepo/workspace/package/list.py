@@ -10,11 +10,52 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from urllib import request
+
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from .row import PackageWidget
+
+
+class ImageThread(QtCore.QThread):
+    imageLoaded = QtCore.pyqtSignal(object)
+
+    def __init__(self):
+        super(ImageThread, self).__init__()
+        self.stop = False
+        self.images = []
+
+    def append(self, image):
+        self.images.append(image)
+        return self
+
+    def clear(self):
+        self.images = []
+        return self
+
+    def run(self):
+
+        while True:
+            for (image, callback) in self.images:
+                if not len(self.images): break
+
+                url = image.get('url', None)
+                if not url: continue
+
+                data = request.urlopen(url).read()
+                self.imageLoaded.emit((data, callback))
+
+            if self.stop: break
+            QtCore.QThread.msleep(300)
+
+    def terminate(self) -> None:
+        self.stop = True
+        super().terminate()
+
+    def __del__(self):
+        self.wait()
 
 
 class PackageListItem(QtWidgets.QListWidgetItem):
@@ -42,6 +83,19 @@ class PackageListWidget(QtWidgets.QListWidget):
         self.itemClicked.connect(self.itemClickedEvent)
         self.hashmap_index = {}
 
+        self.loaderImage = ImageThread()
+        self.loaderImage.imageLoaded.connect(self.onImageLoaded)
+
+    def onImageLoaded(self, event):
+        data, callback = event
+        if not callback: return None
+        if not data: return None
+
+        if not callable(callback):
+            return None
+
+        callback(data)
+
     def addEntity(self, entity=None):
         item = PackageListItem(entity)
         self.addItem(item)
@@ -49,12 +103,29 @@ class PackageListWidget(QtWidgets.QListWidget):
         widget = PackageWidget(entity)
         self.setItemWidget(item, widget)
 
+        for image in entity.get('images', None):
+            self.loaderImage.append((image, widget.onImageLoaded))
+            break
+
+        if not self.loaderImage.isRunning():
+            self.loaderImage.start()
+
         return self
 
     def itemClickedEvent(self, item):
         return self.actionClick.emit(item.data(0))
 
     def clean(self, entity=None):
-        if not self.model():
-            return None
-        self.model().removeRows(0, self.model().rowCount())
+        self.loaderImage.clear()
+
+        if not self.model(): return None
+
+        count = self.model().rowCount()
+        if not count: return None
+
+        self.model().removeRows(0, count)
+
+    def close(self):
+        self.loaderImage.terminate()
+        super(PackageListWidget, self).deleteLater()
+        return super(PackageListWidget, self).close()

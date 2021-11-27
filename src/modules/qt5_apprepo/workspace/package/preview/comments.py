@@ -27,12 +27,20 @@ class DescriptionWidget(QtWidgets.QLabel):
     def clear(self):
         self.setText('')
 
+    def close(self):
+        super().deleteLater()
+        return super().close()
+
 
 class CommentWidget(QtWidgets.QLabel):
     def __init__(self, text=None):
         super(CommentWidget, self).__init__()
         self.setWordWrap(True)
         self.setText(text)
+
+    def close(self):
+        super().deleteLater()
+        return super().close()
 
 
 class PreviewCommentsWidget(QtWidgets.QWidget):
@@ -50,3 +58,7 @@ class PreviewCommentsWidget(QtWidgets.QWidget):
 
     def setEntity(self, entity):
         self.description.setText(entity.get('description', None))
+
+    def close(self):
+        super().deleteLater()
+        return super().close()

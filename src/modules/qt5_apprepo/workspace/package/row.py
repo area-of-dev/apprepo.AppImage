@@ -18,6 +18,7 @@ from PyQt5.QtCore import Qt
 
 from .image import ImageWidget
 from .label import Title
+from .preview.toolbar import PreviewToolbarWidget
 
 
 class PackageWidget(QtWidgets.QGroupBox):
@@ -32,12 +33,18 @@ class PackageWidget(QtWidgets.QGroupBox):
         self.layout.setAlignment(Qt.AlignTop)
 
         title = Title(entity.get('name', None))
-        self.layout.addWidget(title, 0, 0)
+        self.layout.addWidget(title, 0, 0, 1, 2)
 
-        for image in entity.get('images', None):
-            self.image = ImageWidget(image)
-            self.layout.addWidget(self.image, 1, 0)
-            break
+        description = QtWidgets.QLabel(entity.get('description', None))
+        description.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        description.setWordWrap(True)
+        self.layout.addWidget(description, 2, 0, 1, 3)
+
+        self.image = ImageWidget(entity.get('image', None))
+        self.layout.addWidget(self.image, 1, 0, 1, 2)
+
+        self.toolbar = PreviewToolbarWidget()
+        self.layout.addWidget(self.toolbar, 0, 2, 2, 1)
 
         self.setLayout(self.layout)
 
@@ -45,6 +52,16 @@ class PackageWidget(QtWidgets.QGroupBox):
         effect.setBlurRadius(10)
         effect.setOffset(0)
         self.setGraphicsEffect(effect)
+
+    def onImageLoaded(self, data=None):
+        if not self.image: return None
+        if not data: return None
+
+        try:
+            self.image.onImageLoaded(data)
+        except RuntimeError as ex:
+            print(ex)
+            pass
 
     def event(self, QEvent):
         if QEvent.__class__.__name__ == "QMouseEvent":

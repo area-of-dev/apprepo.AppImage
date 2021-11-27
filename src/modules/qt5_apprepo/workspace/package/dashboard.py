@@ -66,3 +66,7 @@ class PackageDashboardWidget(QtWidgets.QWidget):
         self.title.setText(package.get('name', None))
         self.preview.setPackage(package)
         self.preview.setVisible(True)
+
+    def close(self):
+        super().deleteLater()
+        return super().close()

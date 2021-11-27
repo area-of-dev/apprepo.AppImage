@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2015 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,75 +18,150 @@ from PyQt5.QtCore import Qt
 
 
 class ImageThread(QtCore.QThread):
-    imageLoadedAction = QtCore.pyqtSignal(object)
+    imageLoaded = QtCore.pyqtSignal(object)
 
-    def __init__(self, entity):
+    def __init__(self):
         super(ImageThread, self).__init__()
-        self.path = entity.get('url', None) \
-            if entity else None
+        self.stop = False
+        self.images = []
+
+    def append(self, image):
+        self.images.append(image)
+        return self
+
+    def clear(self):
+        self.images = []
+        return self
 
     def run(self):
-        if not self.path:
-            return None
 
-        url = self.path.replace('http://', 'https://')
+        while True:
+            for (image, callback) in self.images:
+                if not len(self.images): break
 
-        data = request.urlopen(url).read()
-        self.imageLoadedAction.emit(data)
+                url = image.get('url', None)
+                if not url: continue
+
+                data = request.urlopen(url).read()
+                self.imageLoaded.emit((data, callback))
+
+            if self.stop: break
+            QtCore.QThread.msleep(300)
+
+    def terminate(self) -> None:
+        self.stop = True
+        super().terminate()
 
     def __del__(self):
         self.wait()
 
 
 class PictureWidget(QtWidgets.QLabel):
+    actionClick = QtCore.pyqtSignal(object)
+
     def __init__(self, entity=None, width=200):
         super(PictureWidget, self).__init__()
+        self.entity = entity
         self.width = width
 
         pixmap = QtGui.QPixmap('img/spinner.webp')
-        self.setPixmap(pixmap.scaledToWidth(width))
+        pixmap = pixmap.scaledToWidth(width, Qt.SmoothTransformation)
 
-        if not entity:
-            return
+        if not pixmap: return None
+        self.setPixmap(pixmap)
 
-        self.thread = ImageThread(entity)
-        self.thread.imageLoadedAction.connect(self.onImageLoaded)
-        self.thread.start()
+    def onImageLoaded(self, data=None):
+        if not data: return None
 
-    def onImageLoaded(self, data):
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(data)
+        pixmap = pixmap.scaledToWidth(self.width, Qt.SmoothTransformation)
 
-        self.setPixmap(pixmap.scaledToWidth(self.width))
-        self.thread.terminate()
+        if not pixmap: return None
+        self.setPixmap(pixmap)
+
+    def mousePressEvent(self, ev):
+        self.actionClick.emit(self.entity)
+
+    def close(self):
+        super().deleteLater()
+        return super().close()
 
 
 class PreviewPicturesWidget(QtWidgets.QWidget):
-    actionClick = QtCore.pyqtSignal(object)
 
     def __init__(self, entity=None):
         super(PreviewPicturesWidget, self).__init__()
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setAlignment(Qt.AlignCenter)
 
-        self.layout().addWidget(PictureWidget(None, 200 * 3), 0, 0, 1, 3)
-        self.layout().addWidget(PictureWidget(), 1, 0)
-        self.layout().addWidget(PictureWidget(), 1, 1)
-        self.layout().addWidget(PictureWidget(), 1, 2)
+        self.preview = PictureWidget(None, 200 * 3)
+        self.layout().addWidget(self.preview, 0, 0, 1, 3)
+
+        self.thread = ImageThread()
+        self.thread.imageLoaded.connect(self.onImageLoaded)
+
+    def onImageLoaded(self, event):
+        data, callback = event
+        if not callback: return None
+        if not data: return None
+
+        try:
+            if callable(callback):
+                callback(data)
+        except RuntimeError as ex:
+            print(ex)
 
     def setEntity(self, entity):
         self.entity = entity
         self.clear()
 
-        for image in entity.get('images', None):
-            self.layout().addWidget(PictureWidget(image, 200 * 3), 0, 0, 1, 3)
+        for index, image in enumerate(entity.get('images', None), start=0):
+            self.preview = PictureWidget(image, 200 * 3)
+            self.layout().addWidget(self.preview, 0, 0, 1, 3)
+
+            if not callable(self.preview.onImageLoaded): break
+            self.thread.append((image, self.preview.onImageLoaded))
             break
 
         for index, image in enumerate(entity.get('images', None), start=0):
-            self.layout().addWidget(PictureWidget(image), 1, index)
+            imagePreview = PictureWidget(image)
+            imagePreview.actionClick.connect(self.onImageSelected)
+            self.layout().addWidget(imagePreview, 1, index)
+
+            if not callable(imagePreview.onImageLoaded): continue
+            self.thread.append((image, imagePreview.onImageLoaded))
+
+        self.thread.start()
+
+    def onImageSelected(self, entity):
+
+        url = entity.get('url', None)
+        if not url: return None
+
+        data = request.urlopen(url).read()
+        if not data: return None
+
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(data)
+
+        pixmap = pixmap.scaledToWidth(self.preview.width)
+        if not pixmap: return None
+
+        self.preview.setPixmap(pixmap)
 
     def clear(self):
+        self.thread.clear()
+
         while self.layout().count():
             child = self.layout().takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
+            if not child: continue
+
+            if not child.widget(): continue
+            child.widget().deleteLater()
+
+    def close(self):
+        self.thread.terminate()
+
+        super(PreviewPicturesWidget, self).deleteLater()
+        return super(PreviewPicturesWidget, self).close()

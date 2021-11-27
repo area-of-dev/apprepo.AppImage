@@ -36,6 +36,10 @@ class PictureButtonFlat(QtWidgets.QPushButton):
 
         return super(PictureButtonFlat, self).event(QEvent)
 
+    def close(self):
+        super().deleteLater()
+        return super().close()
+
 
 class ToolbarButton(QtWidgets.QToolButton):
     def __init__(self, parent=None, text=None, icon=None):
@@ -51,3 +55,7 @@ class ToolbarButton(QtWidgets.QToolButton):
         self.setCheckable(False)
         self.setToolTip(text)
         self.setText(text)
+
+    def close(self):
+        super().deleteLater()
+        return super().close()

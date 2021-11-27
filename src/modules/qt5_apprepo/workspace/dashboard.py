@@ -36,7 +36,6 @@ class DashboardWidget(QtWidgets.QSplitter):
         self.addWidget(self.groups)
 
         self.packages = PackageDashboardWidget()
-        self.groups.actionClick.connect(self.packages.onActionDashboard)
         self.packages.actionInstall.connect(self.actionInstall.emit)
         self.packages.actionDownload.connect(self.actionDownload.emit)
         self.packages.actionRemove.connect(self.actionRemove.emit)
@@ -44,6 +43,8 @@ class DashboardWidget(QtWidgets.QSplitter):
         self.packages.actionStart.connect(self.actionStart.emit)
         self.packages.actionClick.connect(self.packageAction.emit)
         self.addWidget(self.packages)
+
+        self.groups.actionClick.connect(self.packages.onActionDashboard)
 
         self.setStretchFactor(0, 2)
         self.setStretchFactor(1, 4)
