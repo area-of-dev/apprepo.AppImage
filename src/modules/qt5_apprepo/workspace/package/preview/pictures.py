@@ -23,7 +23,7 @@ class ImageThread(QtCore.QThread):
 
     def __init__(self, entity):
         super(ImageThread, self).__init__()
-        self.path = entity.url \
+        self.path = entity.get('url', None) \
             if entity else None
 
     def run(self):
@@ -79,11 +79,11 @@ class PreviewPicturesWidget(QtWidgets.QWidget):
         self.entity = entity
         self.clear()
 
-        for image in entity.images:
+        for image in entity.get('images', None):
             self.layout().addWidget(PictureWidget(image, 200 * 3), 0, 0, 1, 3)
             break
 
-        for index, image in enumerate(entity.images, start=0):
+        for index, image in enumerate(entity.get('images', None), start=0):
             self.layout().addWidget(PictureWidget(image), 1, index)
 
     def clear(self):

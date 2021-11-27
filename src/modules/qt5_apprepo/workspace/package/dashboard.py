@@ -63,6 +63,6 @@ class PackageDashboardWidget(QtWidgets.QWidget):
 
     def onActionPackage(self, package):
         self.list.setVisible(False)
-        self.title.setText(package.name)
+        self.title.setText(package.get('name', None))
         self.preview.setPackage(package)
         self.preview.setVisible(True)

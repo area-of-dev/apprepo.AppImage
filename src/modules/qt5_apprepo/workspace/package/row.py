@@ -31,11 +31,13 @@ class PackageWidget(QtWidgets.QGroupBox):
         self.layout = QtWidgets.QGridLayout()
         self.layout.setAlignment(Qt.AlignTop)
 
-        title = Title(entity.name)
+        title = Title(entity.get('name', None))
         self.layout.addWidget(title, 0, 0)
 
-        self.image = ImageWidget(entity.image)
-        self.layout.addWidget(self.image, 1, 0)
+        for image in entity.get('images', None):
+            self.image = ImageWidget(image)
+            self.layout.addWidget(self.image, 1, 0)
+            break
 
         self.setLayout(self.layout)
 

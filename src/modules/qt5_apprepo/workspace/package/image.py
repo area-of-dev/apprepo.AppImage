@@ -22,7 +22,7 @@ class ImageThread(QtCore.QThread):
 
     def __init__(self, entity):
         super(ImageThread, self).__init__()
-        self.path = entity.url \
+        self.path = entity.get('url', None) \
             if entity else None
 
     def run(self):

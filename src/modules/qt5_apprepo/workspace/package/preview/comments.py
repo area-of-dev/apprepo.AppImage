@@ -49,4 +49,4 @@ class PreviewCommentsWidget(QtWidgets.QWidget):
         self.layout().addWidget(CommentWidget('Comment line 3'))
 
     def setEntity(self, entity):
-        self.description.setText(entity.description)
+        self.description.setText(entity.get('description', None))

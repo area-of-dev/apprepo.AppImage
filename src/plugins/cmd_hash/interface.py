@@ -27,4 +27,4 @@ def main(options=None, args=None, console=None, hasher=None):
     if not os.path.exists(source): raise Exception('{} does not exist or is not a file'.format(source))
     if not os.path.isfile(source): raise Exception('{} does not exist or is not a file'.format(source))
 
-    yield console.green(hasher(source))
+    yield hasher(source)

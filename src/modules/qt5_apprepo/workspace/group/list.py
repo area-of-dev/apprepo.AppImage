@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2015 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +13,7 @@ import hexdi
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QAbstractItemView
 
 from .row import GroupWidget
 
@@ -23,6 +23,7 @@ class GroupListItem(QtWidgets.QListWidgetItem):
     def __init__(self, device=None):
         super(GroupListItem, self).__init__()
         self.setSizeHint(QtCore.QSize(200, 20))
+        self.setSizeHint(QtCore.QSize(100, 65))
         self.setTextAlignment(Qt.AlignCenter)
         self.setData(0, device)
 
@@ -30,15 +31,17 @@ class GroupListItem(QtWidgets.QListWidgetItem):
 class GroupListWidget(QtWidgets.QListWidget):
     actionClick = QtCore.pyqtSignal(object)
 
-    @hexdi.inject('apprepo.cache')
-    def __init__(self, cache):
+    def __init__(self):
         super(GroupListWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.horizontalScrollBar().setVisible(False)
+        self.verticalScrollBar().setVisible(False)
 
     def addGroup(self, entity):
         self.addEntity(entity)
 
     def addEntity(self, entity):
+
         item = GroupListItem(entity)
         self.addItem(item)
 

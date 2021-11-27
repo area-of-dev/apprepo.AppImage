@@ -26,23 +26,22 @@ class WorkspaceThread(QtCore.QThread):
         super(WorkspaceThread, self).__init__()
         self.group = None
 
-    @hexdi.inject('apprepo.cache')
-    def _load_groups(self, cache):
+    @hexdi.inject('apprepo')
+    def _load_groups(self, apprepo):
         self.groupCleanAction.emit(None)
-        for entity in cache.package_groups():
+        for entity in apprepo.groups():
             self.groupAction.emit(entity)
 
-    @hexdi.inject('apprepo.cache')
-    def _load_packages(self, cache):
-        self.packageCleanAction.emit(None)
-        for index, entity in enumerate(cache.packages(self.group), start=0):
-            if not self.group and index > 5:
-                break
+    @hexdi.inject('apprepo')
+    def _load_packages(self, apprepo):
+        if not self.group: return
 
+        self.packageCleanAction.emit(None)
+        for entity in apprepo.packages_by_group(self.group):
             self.packageAction.emit(entity)
 
-    @hexdi.inject('apprepo.cache')
-    def run(self, cache):
+    @hexdi.inject('apprepo')
+    def run(self, apprepo):
 
         if not self.group:
             time.sleep(1)

@@ -16,6 +16,17 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 
+class Title(QtWidgets.QLabel):
+    def __init__(self, title=None):
+        super(Title, self).__init__(title)
+
+
+class Description(QtWidgets.QLabel):
+    def __init__(self, title=None):
+        super(Description, self).__init__(title)
+        self.setWordWrap(True)
+
+
 class GroupWidget(QtWidgets.QWidget):
     actionClick = QtCore.pyqtSignal(object)
 
@@ -26,15 +37,18 @@ class GroupWidget(QtWidgets.QWidget):
 
         self.entity = entity
 
-        self.setToolTip(entity.name)
-
+        self.setToolTip(entity.get('name', None))
         self.setLayout(QtWidgets.QGridLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
-        test = QtWidgets.QLabel(entity.name)
+        test = Title(entity.get('name', None))
         test.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.layout().addWidget(test, 0, 1, 1, 1)
+
+        description = Description(entity.get('description', None))
+        description.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.layout().addWidget(description, 1, 1, 1, 1)
 
     def event(self, a0: QtCore.QEvent) -> bool:
         if a0.__class__.__name__ == "QMouseEvent":

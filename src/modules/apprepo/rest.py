@@ -83,7 +83,7 @@ class ServiceApprepo(object):
     def package(self, string=None):
 
         try:
-            response = requests.get('{}/package/{}/'.format(self.url, string))
+            response = requests.get('{}/package/{}/by_slug/'.format(self.url, string))
         except Exception as ex:
             return
 
@@ -91,6 +91,18 @@ class ServiceApprepo(object):
         if response.status_code not in [200]: raise Exception('Can not fetch package data: {}'.format(string))
 
         yield json.loads(response.content)
+
+    def packages_by_group(self, group=None):
+
+        try:
+            response = requests.get('{}/package/{}/by_group/'.format(self.url, group.get('unique', None)))
+        except Exception as ex:
+            return
+
+        if not response: raise Exception('Can not fetch package data: {}'.format(group))
+        if response.status_code not in [200]: raise Exception('Can not fetch package data: {}'.format(group))
+
+        return json.loads(response.content)
 
     def package_by_token(self, string=None):
 
