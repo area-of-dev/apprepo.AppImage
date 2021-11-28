@@ -18,12 +18,13 @@ from PyQt5.QtCore import Qt
 
 from .image import ImageWidget
 from .label import Title, Description
+from .toolbar import ToolbarWidget
 
 
 class AppImageInstalledWidget(QtWidgets.QWidget):
-    actionUpdate = QtCore.pyqtSignal(object)
-    actionRemove = QtCore.pyqtSignal(object)
-    actionStart = QtCore.pyqtSignal(object)
+    removeAction = QtCore.pyqtSignal(object)
+    startAction = QtCore.pyqtSignal(object)
+    infoAction = QtCore.pyqtSignal(object)
 
     @hexdi.inject('config')
     def __init__(self, appimage=None, config=None):
@@ -37,9 +38,6 @@ class AppImageInstalledWidget(QtWidgets.QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
-        self.image = ImageWidget(appimage.icon)
-        self.layout().addWidget(self.image, 0, 0, 5, 1)
-
         title = Title(appimage.name)
         title.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.layout().addWidget(title, 0, 1, 1, 1)
@@ -50,24 +48,17 @@ class AppImageInstalledWidget(QtWidgets.QWidget):
         description = Description(appimage.path)
         self.layout().addWidget(description, 2, 1, 1, 1)
 
-        description = Description(appimage.icon)
+        description = Description(appimage.desktop)
         self.layout().addWidget(description, 3, 1, 1, 1)
 
-        description = Description(appimage.desktop)
-        self.layout().addWidget(description, 4, 1, 1, 1)
+        icon = Description(appimage.icon)
+        self.layout().addWidget(icon, 4, 1, 1, 1)
 
-        # self.start = ToolbarButton(self, "Run", QtGui.QIcon('icons/start'))
-        # self.start.clicked.connect(self.actionStart.emit)
-        # self.start.setToolTip("Start: {}".format(appimage.path))
-        # self.layout().addWidget(self.start, 0, 2, 2, 1)
-        #
-        # if appimage.outdated and appimage.slug:
-        #     self.update = ToolbarButton(self, "Update", QtGui.QIcon('icons/update'))
-        #     self.update.clicked.connect(self.actionUpdate.emit)
-        #     self.update.setToolTip("Update: {}".format(appimage.path))
-        #     self.layout().addWidget(self.update, 0, 3, 2, 1)
-        #
-        # self.remove = ToolbarButton(self, "Remove", QtGui.QIcon('icons/remove'))
-        # self.remove.clicked.connect(self.actionRemove.emit)
-        # self.remove.setToolTip("Remove: {}".format(appimage.path))
-        # self.layout().addWidget(self.remove, 0, 4, 2, 1)
+        self.image = ImageWidget(appimage.icon)
+        self.layout().addWidget(self.image, 0, 0, 5, 1)
+
+        self.toolbar = ToolbarWidget(appimage)
+        self.toolbar.removeAction.connect(self.removeAction.emit)
+        self.toolbar.startAction.connect(self.startAction.emit)
+        self.toolbar.infoAction.connect(self.infoAction.emit)
+        self.layout().addWidget(self.toolbar, 3, 0, 2, 1)

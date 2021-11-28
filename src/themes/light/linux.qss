@@ -48,4 +48,5 @@ GroupWidget ImageWidget {margin: 3px; }
 DashboardWidget SettingsListWidget { border: none; }
 AppImageInstalledWidget Title { font-size: 16px; }
 AppImageInstalledWidget Description { font-size: 10px; }
-AppImageInstalledWidget ImageWidget { margin: 8px; }
+AppImageInstalledWidget ImageWidget { background: #ffffff; padding: 8px; }
+AppImageInstalledWidget ToolbarWidget { background: #ffffff; border: none; }

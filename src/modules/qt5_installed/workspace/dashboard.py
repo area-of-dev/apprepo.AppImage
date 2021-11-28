@@ -20,9 +20,9 @@ from .list import SettingsListWidget
 
 
 class DashboardWidget(QtWidgets.QWidget):
-    actionUpdate = QtCore.pyqtSignal(object)
-    actionRemove = QtCore.pyqtSignal(object)
-    actionStart = QtCore.pyqtSignal(object)
+    infoAction = QtCore.pyqtSignal(object)
+    removeAction = QtCore.pyqtSignal(object)
+    startAction = QtCore.pyqtSignal(object)
 
     @hexdi.inject('appimagetool')
     def __init__(self, cache):
@@ -39,7 +39,7 @@ class DashboardWidget(QtWidgets.QWidget):
 
         for entity in cache.collection():
             widget = AppImageInstalledWidget(entity)
-            widget.actionStart.connect(self.actionStart.emit)
-            widget.actionUpdate.connect(self.actionUpdate.emit)
-            widget.actionRemove.connect(self.actionRemove.emit)
+            widget.infoAction.connect(self.infoAction.emit)
+            widget.startAction.connect(self.startAction.emit)
+            widget.removeAction.connect(self.removeAction.emit)
             self.list.addWidget(widget)

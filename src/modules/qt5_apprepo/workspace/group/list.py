@@ -48,7 +48,7 @@ class ImageThread(QtCore.QThread):
                 self.imageLoaded.emit((data, callback))
 
             if self.stop: break
-            QtCore.QThread.msleep(300)
+            QtCore.QThread.msleep(500)
 
     def terminate(self) -> None:
         self.stop = True

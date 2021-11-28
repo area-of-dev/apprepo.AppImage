@@ -55,7 +55,7 @@ class WorkspaceThread(QtCore.QThread):
                 self._load_packages()
 
             if self.stop: break
-            QtCore.QThread.msleep(300)
+            QtCore.QThread.msleep(500)
 
     def groups(self):
         self.is_pending_packages = False
