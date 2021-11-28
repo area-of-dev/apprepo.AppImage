@@ -23,6 +23,7 @@ class ImageThread(QtCore.QThread):
     def __init__(self):
         super(ImageThread, self).__init__()
         self.stop = False
+        self.is_pending = True
         self.images = []
 
     def append(self, image):
@@ -30,22 +31,24 @@ class ImageThread(QtCore.QThread):
         return self
 
     def clear(self):
+        self.is_pending = True
         self.images = []
         return self
 
     def run(self):
 
-        while True:
-            for (image, callback) in self.images:
-                if not len(self.images): break
+        while not self.stop:
+            if self.is_pending:
+                for (image, callback) in self.images:
+                    if not len(self.images): break
 
-                url = image.get('url', None)
-                if not url: continue
+                    url = image.get('url', None)
+                    if not url: continue
 
-                data = request.urlopen(url).read()
-                self.imageLoaded.emit((data, callback))
+                    data = request.urlopen(url).read()
+                    self.imageLoaded.emit((data, callback))
+                self.is_pending = False
 
-            if self.stop: break
             QtCore.QThread.msleep(300)
 
     def terminate(self) -> None:
@@ -125,12 +128,12 @@ class PreviewPicturesWidget(QtWidgets.QWidget):
             break
 
         for index, image in enumerate(entity.get('images', None), start=0):
-            imagePreview = PictureWidget(image)
-            imagePreview.actionClick.connect(self.onImageSelected)
-            self.layout().addWidget(imagePreview, 1, index)
+            widget = PictureWidget(image)
+            widget.actionClick.connect(self.onImageSelected)
+            self.layout().addWidget(widget, 1, index)
 
-            if not callable(imagePreview.onImageLoaded): continue
-            self.thread.append((image, imagePreview.onImageLoaded))
+            if not callable(widget.onImageLoaded): continue
+            self.thread.append((image, widget.onImageLoaded))
 
         self.thread.start()
 

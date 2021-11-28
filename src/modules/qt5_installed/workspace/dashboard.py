@@ -15,16 +15,16 @@ from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
-from .device import DeviceWidget
+from .appimage import AppImageInstalledWidget
 from .list import SettingsListWidget
 
 
-class DashboardWidget(QtWidgets.QFrame):
+class DashboardWidget(QtWidgets.QWidget):
     actionUpdate = QtCore.pyqtSignal(object)
     actionRemove = QtCore.pyqtSignal(object)
     actionStart = QtCore.pyqtSignal(object)
 
-    @hexdi.inject('appimage.cache')
+    @hexdi.inject('appimagetool')
     def __init__(self, cache):
         super(DashboardWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -38,7 +38,7 @@ class DashboardWidget(QtWidgets.QFrame):
         self.layout().addWidget(self.list)
 
         for entity in cache.collection():
-            widget = DeviceWidget(entity)
+            widget = AppImageInstalledWidget(entity)
             widget.actionStart.connect(self.actionStart.emit)
             widget.actionUpdate.connect(self.actionUpdate.emit)
             widget.actionRemove.connect(self.actionRemove.emit)

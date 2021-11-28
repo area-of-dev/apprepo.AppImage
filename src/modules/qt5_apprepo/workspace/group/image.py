@@ -23,7 +23,10 @@ class ImageWidget(QtWidgets.QLabel):
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
 
         pixmap = QtGui.QPixmap('img/spinner.webp')
-        self.setPixmap(pixmap.scaledToWidth(width))
+        pixmap = pixmap.scaledToWidth(width, Qt.SmoothTransformation)
+        if not pixmap: return None
+
+        self.setPixmap(pixmap)
 
     def onImageLoaded(self, data, width=36):
         pixmap = QtGui.QPixmap()

@@ -11,19 +11,23 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
+from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 
-class Title(QtWidgets.QLabel):
+class ImageWidget(QtWidgets.QLabel):
 
-    def __init__(self, text):
-        super(Title, self).__init__(text)
-        self.setAlignment(Qt.AlignLeft)
+    def __init__(self, entity=None, width=70):
+        super(ImageWidget, self).__init__()
+        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
 
+        pixmap = QtGui.QPixmap(entity)
+        pixmap = pixmap.scaledToWidth(width, Qt.SmoothTransformation)
+        if not pixmap: return None
 
-class Description(QtWidgets.QLabel):
+        self.setPixmap(pixmap)
 
-    def __init__(self, text):
-        super(Description, self).__init__(text)
-        self.setAlignment(Qt.AlignLeft)
+    def close(self):
+        super().deleteLater()
+        return super().close()
