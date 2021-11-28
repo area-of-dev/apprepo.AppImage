@@ -27,3 +27,14 @@ class Title(QtWidgets.QLabel):
     def close(self):
         super().deleteLater()
         return super().close()
+
+
+class Description(QtWidgets.QLabel):
+
+    def __init__(self, text):
+        super(Description, self).__init__(text)
+        self.setAlignment(Qt.AlignLeft)
+
+    def close(self):
+        super().deleteLater()
+        return super().close()

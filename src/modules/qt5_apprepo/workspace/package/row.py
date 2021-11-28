@@ -17,7 +17,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from .image import ImageWidget
-from .label import Title
+from .label import Title, Description
 from .preview.toolbar import PreviewToolbarWidget
 
 
@@ -35,16 +35,16 @@ class PackageWidget(QtWidgets.QGroupBox):
         title = Title(entity.get('name', None))
         self.layout.addWidget(title, 0, 0, 1, 2)
 
-        description = QtWidgets.QLabel(entity.get('description', None))
+        self.image = ImageWidget(entity.get('image', None))
+        self.layout.addWidget(self.image, 1, 0, 2, 2)
+
+        description = Description(entity.get('description', None))
         description.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         description.setWordWrap(True)
-        self.layout.addWidget(description, 2, 0, 1, 3)
-
-        self.image = ImageWidget(entity.get('image', None))
-        self.layout.addWidget(self.image, 1, 0, 1, 2)
+        self.layout.addWidget(description, 2, 0, 1, 2)
 
         self.toolbar = PreviewToolbarWidget()
-        self.layout.addWidget(self.toolbar, 0, 2, 2, 1)
+        self.layout.addWidget(self.toolbar, 0, 2, 3, 1)
 
         self.setLayout(self.layout)
 

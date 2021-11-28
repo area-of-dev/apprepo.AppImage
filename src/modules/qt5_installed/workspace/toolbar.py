@@ -31,16 +31,19 @@ class ToolbarWidget(QtWidgets.QFrame):
         self.remove = PictureButtonFlat('icons/remove')
         self.remove.setToolTip('Download into the "~/Applications" folder and apply the system integration')
         self.remove.clicked.connect(lambda x: self.removeAction.emit(entity))
+        self.remove.setToolTipDuration(0)
         self.layout().addWidget(self.remove)
 
         self.remove = PictureButtonFlat('icons/test')
         self.remove.setToolTip('Download into the "~/Applications" folder and apply the system integration')
         self.remove.clicked.connect(lambda x: self.removeAction.emit(entity))
+        self.remove.setToolTipDuration(0)
         self.layout().addWidget(self.remove)
 
         self.remove = PictureButtonFlat('icons/start')
         self.remove.setToolTip('Download into the "~/Applications" folder and apply the system integration')
         self.remove.clicked.connect(lambda x: self.removeAction.emit(entity))
+        self.remove.setToolTipDuration(0)
         self.layout().addWidget(self.remove)
 
     def setEntity(self, entity):

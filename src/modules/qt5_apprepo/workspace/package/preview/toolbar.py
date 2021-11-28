@@ -17,7 +17,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from .button import PictureButtonFlat
-from .button import ToolbarButton
 
 
 class CommentWidget(QtWidgets.QLabel):
@@ -55,7 +54,23 @@ class PreviewToolbarWidget(QtWidgets.QWidget):
         self.download.clicked.connect(lambda x: self.actionDownload.emit(self.entity))
         self.layout().addWidget(self.download)
 
+        self.test = PictureButtonFlat(QtGui.QIcon('icons/home'))
+        self.test.setToolTip('Go to the application home page')
+        self.test.clicked.connect(lambda x: self.actionTest.emit(self.entity))
+        self.layout().addWidget(self.test)
+
+        self.test = PictureButtonFlat(QtGui.QIcon('icons/github'))
+        self.test.setToolTip('Go to the AppImage package github page')
+        self.test.clicked.connect(lambda x: self.actionTest.emit(self.entity))
+        self.layout().addWidget(self.test)
+
+        self.test = PictureButtonFlat(QtGui.QIcon('icons/donate'))
+        self.test.setToolTip('Support the author of the application')
+        self.test.clicked.connect(lambda x: self.actionTest.emit(self.entity))
+        self.layout().addWidget(self.test)
+
         self.test = PictureButtonFlat(QtGui.QIcon('icons/test'))
+        self.test.setToolTip('Download into the "~/Downloads" try to start and submit the results to the apprepo')
         self.test.clicked.connect(lambda x: self.actionTest.emit(self.entity))
         self.layout().addWidget(self.test)
 
