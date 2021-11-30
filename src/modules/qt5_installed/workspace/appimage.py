@@ -18,7 +18,7 @@ from PyQt5.QtCore import Qt
 
 from .image import ImageWidget
 from .label import Title, Description
-from .toolbar import ToolbarWidget
+from .toolbar import AppImageInstalledToolbarWidget
 
 
 class AppImageInstalledWidget(QtWidgets.QWidget):
@@ -57,7 +57,7 @@ class AppImageInstalledWidget(QtWidgets.QWidget):
         self.image = ImageWidget(appimage.icon)
         self.layout().addWidget(self.image, 0, 0, 5, 1)
 
-        self.toolbar = ToolbarWidget(appimage)
+        self.toolbar = AppImageInstalledToolbarWidget(appimage)
         self.toolbar.removeAction.connect(self.removeAction.emit)
         self.toolbar.startAction.connect(self.startAction.emit)
         self.toolbar.infoAction.connect(self.infoAction.emit)

@@ -22,6 +22,7 @@ from .preview.dashboard import PreviewDashboardWidget
 
 class PackageDashboardWidget(QtWidgets.QWidget):
     actionClick = QtCore.pyqtSignal(object)
+    actionBack = QtCore.pyqtSignal(object)
     actionInstall = QtCore.pyqtSignal(object)
     actionDownload = QtCore.pyqtSignal(object)
     actionRemove = QtCore.pyqtSignal(object)
@@ -43,6 +44,7 @@ class PackageDashboardWidget(QtWidgets.QWidget):
 
         self.preview = PreviewDashboardWidget()
         self.preview.actionBack.connect(self.onActionDashboard)
+        self.preview.actionBack.connect(self.actionBack.emit)
         self.preview.actionInstall.connect(self.actionInstall.emit)
         self.preview.actionDownload.connect(self.actionDownload.emit)
         self.preview.actionRemove.connect(self.actionRemove.emit)
@@ -51,11 +53,13 @@ class PackageDashboardWidget(QtWidgets.QWidget):
         self.preview.setVisible(False)
         self.layout().addWidget(self.preview)
 
+    def setTitle(self, text=None):
+        if not text: return self
+        self.title.setText(text)
+        return self
+
     def addPackage(self, entity):
         self.list.addEntity(entity)
-
-    def clean(self, entity=None):
-        self.list.clean(entity)
 
     def onActionDashboard(self, package):
         self.preview.setVisible(False)
@@ -66,6 +70,10 @@ class PackageDashboardWidget(QtWidgets.QWidget):
         self.title.setText(package.get('name', None))
         self.preview.setPackage(package)
         self.preview.setVisible(True)
+
+    def clean(self, entity=None):
+        self.list.clean(entity)
+        return self
 
     def close(self):
         super().deleteLater()

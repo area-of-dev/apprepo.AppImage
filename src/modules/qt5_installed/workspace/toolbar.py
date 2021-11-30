@@ -18,13 +18,13 @@ from PyQt5.QtCore import Qt
 from .button import PictureButtonFlat
 
 
-class ToolbarWidget(QtWidgets.QFrame):
+class AppImageInstalledToolbarWidget(QtWidgets.QFrame):
     removeAction = QtCore.pyqtSignal(object)
     startAction = QtCore.pyqtSignal(object)
     infoAction = QtCore.pyqtSignal(object)
 
     def __init__(self, entity=None):
-        super(ToolbarWidget, self).__init__()
+        super(AppImageInstalledToolbarWidget, self).__init__()
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setAlignment(Qt.AlignTop)
 

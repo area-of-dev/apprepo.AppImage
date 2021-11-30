@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2015 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +18,6 @@ from modules.qt5 import window
 @window.workspace(name='Apprepo', focus=True, position=0)
 @hexdi.inject('workspace.apprepo', 'thread.apprepo')
 def window_workspace(parent, workspace, thread):
-
     thread.packageCleanAction.connect(workspace.cleanPackage)
     thread.packageAction.connect(workspace.addPackage)
 
@@ -40,8 +38,10 @@ def window_workspace(parent, workspace, thread):
 
 
 @window.toolbar(name='Apprepo', focus=True, position=0)
-@hexdi.inject('toolbar.apprepo')
-def window_toolbar(parent=None, toolbar=None):
+@hexdi.inject('toolbar.apprepo', 'thread.apprepo')
+def window_toolbar(parent=None, toolbar=None, thread=None):
     toolbar.actionSearch.connect(lambda x: print(x))
+    toolbar.actionSearch.connect(thread.search)
+
     parent.actionReload.connect(toolbar.reload)
     return toolbar

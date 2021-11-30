@@ -31,6 +31,8 @@ class DashboardWidget(QtWidgets.QSplitter):
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
 
+        self.group = None
+
         self.groups = GroupListWidget()
         self.groups.actionClick.connect(self.groupAction.emit)
         self.addWidget(self.groups)
@@ -42,12 +44,32 @@ class DashboardWidget(QtWidgets.QSplitter):
         self.packages.actionTest.connect(self.actionTest.emit)
         self.packages.actionStart.connect(self.actionStart.emit)
         self.packages.actionClick.connect(self.packageAction.emit)
+        self.packages.actionBack.connect(self.onRevertGroup)
+
         self.addWidget(self.packages)
 
         self.groups.actionClick.connect(self.packages.onActionDashboard)
+        self.groups.actionClick.connect(self.onChangeGroup)
 
         self.setStretchFactor(0, 2)
         self.setStretchFactor(1, 4)
+
+    def onRevertGroup(self, entity=None):
+        name = self.group.get('name', None)
+        if name is None: return self
+
+        self.packages.setTitle(name)
+
+        return self
+
+    def onChangeGroup(self, entity):
+        name = entity.get('name', None)
+        if name is None: return self
+
+        self.packages.setTitle(name)
+        self.group = entity
+
+        return self
 
     def addPackage(self, entity=None):
         self.packages.addPackage(entity)
@@ -57,6 +79,17 @@ class DashboardWidget(QtWidgets.QSplitter):
 
     def addGroup(self, entity=None):
         self.groups.addGroup(entity)
+
+        if self.group is not None:
+            return self
+
+        name = entity.get('name', None)
+        if name is None: return self
+
+        self.packages.setTitle(name)
+        self.group = entity
+
+        return self
 
     def cleanGroup(self, entity=None):
         self.groups.clean(entity)

@@ -13,7 +13,7 @@
 
 import hexdi
 
-from .toolbar.panel import ToolbarWidgetTab
+from .toolbar.panel import ApprepoToolbarWidget
 from .workspace.dashboard import DashboardWidget
 from .workspace.thread import WorkspaceThread
 
@@ -24,7 +24,7 @@ class DashboardWidgetInstance(DashboardWidget):
 
 
 @hexdi.permanent('toolbar.apprepo')
-class ToolbarWidgetInstance(ToolbarWidgetTab):
+class ToolbarWidgetInstance(ApprepoToolbarWidget):
     pass
 
 

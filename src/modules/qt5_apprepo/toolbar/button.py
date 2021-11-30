@@ -16,6 +16,31 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 
+class PictureButtonFlat(QtWidgets.QPushButton):
+
+    def __init__(self, icon=None, parent=None):
+        super(PictureButtonFlat, self).__init__(parent)
+        self.setIcon(icon)
+        self.setFlat(True)
+
+    def event(self, QEvent):
+        if QEvent.type() == QtCore.QEvent.Enter:
+            effect = QtWidgets.QGraphicsDropShadowEffect()
+            effect.setColor(QtGui.QColor('#0000FF'))
+            effect.setBlurRadius(20)
+            effect.setOffset(0)
+
+            self.setGraphicsEffect(effect)
+        if QEvent.type() == QtCore.QEvent.Leave:
+            self.setGraphicsEffect(None)
+
+        return super(PictureButtonFlat, self).event(QEvent)
+
+    def close(self):
+        super().deleteLater()
+        return super().close()
+
+
 class ToolbarButton(QtWidgets.QToolButton):
     def __init__(self, parent=None, text=None, icon=None):
         super(ToolbarButton, self).__init__(parent)

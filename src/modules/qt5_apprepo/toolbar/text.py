@@ -21,7 +21,7 @@ class SearchField(QtWidgets.QLineEdit):
     def __init__(self, parent=None):
         super(SearchField, self).__init__(parent)
         self.setPlaceholderText('Enter the search string...')
-
+        self.setFocusPolicy(Qt.StrongFocus)
         shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+f"), self)
         shortcut.activated.connect(self.on_shortcut_activated)
 
