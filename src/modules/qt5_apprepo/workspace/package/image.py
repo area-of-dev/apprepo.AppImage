@@ -22,7 +22,7 @@ class ImageWidget(QtWidgets.QLabel):
     def __init__(self, entity=None, width=400):
         super(ImageWidget, self).__init__()
 
-        pixmap = QtGui.QPixmap('img/spinner.webp')
+        pixmap = QtGui.QPixmap('icons/spinner')
         self.setPixmap(pixmap.scaledToWidth(width))
 
     def onImageLoaded(self, data, width=400):

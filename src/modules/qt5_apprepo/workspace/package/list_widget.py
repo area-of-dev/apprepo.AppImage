@@ -23,6 +23,11 @@ from .preview.toolbar import PreviewToolbarWidget
 
 class PackageWidget(QtWidgets.QGroupBox):
     actionClick = QtCore.pyqtSignal(object)
+    actionInstall = QtCore.pyqtSignal(object)
+    actionDownload = QtCore.pyqtSignal(object)
+    actionRemove = QtCore.pyqtSignal(object)
+    actionTest = QtCore.pyqtSignal(object)
+    actionStart = QtCore.pyqtSignal(object)
 
     def __init__(self, entity):
         super(PackageWidget, self).__init__()
@@ -43,7 +48,13 @@ class PackageWidget(QtWidgets.QGroupBox):
         description.setWordWrap(True)
         self.layout.addWidget(description, 2, 0, 1, 2)
 
-        self.toolbar = PreviewToolbarWidget()
+        self.toolbar = PreviewToolbarWidget(entity)
+        self.toolbar.actionInstall.connect(self.actionInstall.emit)
+        self.toolbar.actionDownload.connect(self.actionDownload.emit)
+        self.toolbar.actionRemove.connect(self.actionRemove.emit)
+        self.toolbar.actionTest.connect(self.actionTest.emit)
+        self.toolbar.actionStart.connect(self.actionStart.emit)
+
         self.layout.addWidget(self.toolbar, 0, 2, 3, 1)
 
         self.setLayout(self.layout)

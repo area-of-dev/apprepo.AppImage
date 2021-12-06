@@ -42,7 +42,7 @@ class PreviewToolbarWidget(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setAlignment(Qt.AlignTop)
 
-        self.entity = None
+        self.entity = entity
 
         self.install = PictureButtonFlat(QtGui.QIcon('icons/install'))
         self.install.setToolTip('Download into the "~/Applications" folder and apply the system integration')

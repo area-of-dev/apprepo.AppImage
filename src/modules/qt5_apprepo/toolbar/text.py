@@ -17,19 +17,23 @@ from PyQt5.QtCore import Qt
 
 
 class SearchField(QtWidgets.QLineEdit):
+    search = QtCore.pyqtSignal(object)
 
     def __init__(self, parent=None):
         super(SearchField, self).__init__(parent)
         self.setPlaceholderText('Enter the search string...')
         self.setFocusPolicy(Qt.StrongFocus)
+
         shortcut = QtWidgets.QShortcut(QtGui.QKeySequence("Ctrl+f"), self)
         shortcut.activated.connect(self.on_shortcut_activated)
 
-        # effect = QtWidgets.QGraphicsDropShadowEffect()
-        # effect.setBlurRadius(5)
-        # effect.setOffset(0)
-        #
-        # self.setGraphicsEffect(effect)
+        self.returnPressed.connect(lambda: self.search.emit(self.text()))
+
+        effect = QtWidgets.QGraphicsDropShadowEffect()
+        effect.setBlurRadius(5)
+        effect.setOffset(0)
+
+        self.setGraphicsEffect(effect)
 
     def on_shortcut_activated(self, event=None):
         self.setFocusPolicy(Qt.StrongFocus)
@@ -44,6 +48,10 @@ class SearchField(QtWidgets.QLineEdit):
             self.setGraphicsEffect(effect)
 
         if QEvent.type() == QtCore.QEvent.Leave:
-            self.setGraphicsEffect(None)
+            effect = QtWidgets.QGraphicsDropShadowEffect()
+            effect.setBlurRadius(5)
+            effect.setOffset(0)
+
+            self.setGraphicsEffect(effect)
 
         return super(SearchField, self).event(QEvent)

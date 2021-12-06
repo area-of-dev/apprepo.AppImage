@@ -10,65 +10,23 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-from urllib import request
 
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
-from .row import PackageWidget
-
-
-class ImageThread(QtCore.QThread):
-    imageLoaded = QtCore.pyqtSignal(object)
-
-    def __init__(self):
-        super(ImageThread, self).__init__()
-        self.stop = False
-        self.images = []
-
-    def append(self, image):
-        self.images.append(image)
-        return self
-
-    def clear(self):
-        self.images = []
-        return self
-
-    def run(self):
-
-        while True:
-            for (image, callback) in self.images:
-                if not len(self.images): break
-
-                url = image.get('url', None)
-                if not url: continue
-
-                data = request.urlopen(url).read()
-                self.imageLoaded.emit((data, callback))
-
-            if self.stop: break
-            QtCore.QThread.msleep(500)
-
-    def terminate(self) -> None:
-        self.stop = True
-        super().terminate()
-
-    def __del__(self):
-        self.wait()
-
-
-class PackageListItem(QtWidgets.QListWidgetItem):
-
-    def __init__(self, entity=None):
-        super(PackageListItem, self).__init__()
-        self.setSizeHint(QtCore.QSize(400, 300))
-        self.setTextAlignment(Qt.AlignCenter)
-        self.setData(0, entity)
+from .list_item import PackageListItem
+from .list_thread import PackageImageThread
+from .list_widget import PackageWidget
 
 
 class PackageListWidget(QtWidgets.QListWidget):
     actionClick = QtCore.pyqtSignal(object)
+    actionInstall = QtCore.pyqtSignal(object)
+    actionDownload = QtCore.pyqtSignal(object)
+    actionRemove = QtCore.pyqtSignal(object)
+    actionTest = QtCore.pyqtSignal(object)
+    actionStart = QtCore.pyqtSignal(object)
 
     def __init__(self):
         super(PackageListWidget, self).__init__()
@@ -83,7 +41,7 @@ class PackageListWidget(QtWidgets.QListWidget):
         self.itemClicked.connect(self.itemClickedEvent)
         self.hashmap_index = {}
 
-        self.loaderImage = ImageThread()
+        self.loaderImage = PackageImageThread()
         self.loaderImage.imageLoaded.connect(self.onImageLoaded)
 
     def onImageLoaded(self, event):
@@ -101,6 +59,12 @@ class PackageListWidget(QtWidgets.QListWidget):
         self.addItem(item)
 
         widget = PackageWidget(entity)
+        widget.actionInstall.connect(self.actionInstall.emit)
+        widget.actionDownload.connect(self.actionDownload.emit)
+        widget.actionRemove.connect(self.actionRemove.emit)
+        widget.actionTest.connect(self.actionTest.emit)
+        widget.actionStart.connect(self.actionStart.emit)
+
         self.setItemWidget(item, widget)
 
         for image in entity.get('images', None):

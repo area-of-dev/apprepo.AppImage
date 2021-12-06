@@ -11,31 +11,41 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QGraphicsBlurEffect
 
 
 class ImageWidget(QtWidgets.QLabel):
+    actionClick = QtCore.pyqtSignal(object)
 
-    def __init__(self, entity=None, width=36):
+    def __init__(self, entity=None, width=200):
         super(ImageWidget, self).__init__()
-        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+        self.setAlignment(Qt.AlignCenter | Qt.AlignTop)
+
+        self.entity = entity
+        self.width = width
 
         pixmap = QtGui.QPixmap('icons/spinner')
-        pixmap = pixmap.scaledToWidth(width, Qt.SmoothTransformation)
-        if not pixmap: return None
+        self.setPixmap(pixmap.scaledToWidth(width))
 
-        self.setPixmap(pixmap)
-
-    def onImageLoaded(self, data, width=36):
+    def onImageLoaded(self, data):
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(data)
 
-        pixmap = pixmap.scaledToWidth(width, Qt.SmoothTransformation)
+        pixmap = pixmap.scaledToWidth(self.width, Qt.SmoothTransformation)
         if not pixmap: return None
 
         self.setPixmap(pixmap)
+
+        # creating a blur effect
+        blur_effect = QGraphicsBlurEffect()
+        blur_effect.setBlurRadius(1)
+        self.setGraphicsEffect(blur_effect)
+
+    def mousePressEvent(self, ev):
+        self.actionClick.emit(self.entity)
 
     def close(self):
         super().deleteLater()

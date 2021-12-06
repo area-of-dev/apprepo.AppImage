@@ -18,8 +18,8 @@ from .package.dashboard import PackageDashboardWidget
 
 
 class DashboardWidget(QtWidgets.QSplitter):
-    packageAction = QtCore.pyqtSignal(object)
-    groupAction = QtCore.pyqtSignal(object)
+    actionPackage = QtCore.pyqtSignal(object)
+    actionGroup = QtCore.pyqtSignal(object)
     actionInstall = QtCore.pyqtSignal(object)
     actionDownload = QtCore.pyqtSignal(object)
     actionRemove = QtCore.pyqtSignal(object)
@@ -34,7 +34,7 @@ class DashboardWidget(QtWidgets.QSplitter):
         self.group = None
 
         self.groups = GroupListWidget()
-        self.groups.actionClick.connect(self.groupAction.emit)
+        self.groups.actionClick.connect(self.actionGroup.emit)
         self.addWidget(self.groups)
 
         self.packages = PackageDashboardWidget()
@@ -43,7 +43,7 @@ class DashboardWidget(QtWidgets.QSplitter):
         self.packages.actionRemove.connect(self.actionRemove.emit)
         self.packages.actionTest.connect(self.actionTest.emit)
         self.packages.actionStart.connect(self.actionStart.emit)
-        self.packages.actionClick.connect(self.packageAction.emit)
+        self.packages.actionClick.connect(self.actionPackage.emit)
         self.packages.actionBack.connect(self.onRevertGroup)
 
         self.addWidget(self.packages)

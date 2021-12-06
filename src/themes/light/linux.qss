@@ -46,7 +46,7 @@ PackageWidget Description { background-color: rgba(255,255,255,80%); }
 GroupWidget ImageWidget {margin: 3px; }
 
 
-
+PreviewDashboardWidget { background: #fafafa; border: none;  }
 
 DashboardWidget SettingsListWidget { border: none; }
 AppImageInstalledWidget Title { font-size: 16px; }
@@ -56,3 +56,4 @@ AppImageInstalledWidget ImageWidget { background: #ffffff; padding: 8px; }
 AppImageInstalledWidget AppImageInstalledToolbarWidget { background: rgba(255,255,255,65%); border: none; }
 
 ApprepoToolbarWidget SearchField { font-size: 16px; padding: 10px; }
+ApprepoToolbarWidget DragAndDropImageWidget { background-color: #f3f3f3; border-radius: 3px;  padding:10px; margin: 0px 10px; }

@@ -68,7 +68,7 @@ class PictureWidget(QtWidgets.QLabel):
         self.entity = entity
         self.width = width
 
-        pixmap = QtGui.QPixmap('img/spinner.webp')
+        pixmap = QtGui.QPixmap('icons/spinner')
         pixmap = pixmap.scaledToWidth(width, Qt.SmoothTransformation)
 
         if not pixmap: return None

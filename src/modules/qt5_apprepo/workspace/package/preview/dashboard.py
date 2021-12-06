@@ -15,12 +15,12 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from .comments import PreviewCommentsWidget
-from .pictures import PreviewPicturesWidget
 from .toolbar import PreviewNavbarWidget
 from .toolbar import PreviewToolbarWidget
+from .dashboard_pictures import PreviewPicturesWidget
 
 
-class PreviewDashboardWidget(QtWidgets.QWidget):
+class PreviewDashboardWidget(QtWidgets.QScrollArea):
     actionInstall = QtCore.pyqtSignal(object)
     actionDownload = QtCore.pyqtSignal(object)
     actionRemove = QtCore.pyqtSignal(object)
@@ -30,18 +30,25 @@ class PreviewDashboardWidget(QtWidgets.QWidget):
 
     def __init__(self, entity=None):
         super(PreviewDashboardWidget, self).__init__()
-        self.setLayout(QtWidgets.QGridLayout())
-        self.layout().setAlignment(Qt.AlignTop | Qt.AlignBottom)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        self.container = QtWidgets.QWidget(self)
+        self.setWidgetResizable(True)
+        self.setWidget(self.container)
+
+        self.container.setLayout(QtWidgets.QGridLayout())
+        self.container.layout().setAlignment(Qt.AlignCenter | Qt.AlignTop)
 
         self.navbar = PreviewNavbarWidget()
         self.navbar.actionBack.connect(self.actionBack.emit)
-        self.layout().addWidget(self.navbar, 0, 0, 2, 1)
+        self.container.layout().addWidget(self.navbar, 0, 0, 2, 1)
 
         self.pictures = PreviewPicturesWidget()
-        self.layout().addWidget(self.pictures, 0, 1)
+        self.container.layout().addWidget(self.pictures, 0, 1)
 
         self.comments = PreviewCommentsWidget()
-        self.layout().addWidget(self.comments, 1, 1)
+        self.container.layout().addWidget(self.comments, 1, 1)
 
         self.toolbar = PreviewToolbarWidget()
         self.toolbar.actionInstall.connect(self.actionInstall.emit)
@@ -49,7 +56,7 @@ class PreviewDashboardWidget(QtWidgets.QWidget):
         self.toolbar.actionRemove.connect(self.actionRemove.emit)
         self.toolbar.actionTest.connect(self.actionTest.emit)
         self.toolbar.actionStart.connect(self.actionStart.emit)
-        self.layout().addWidget(self.toolbar, 0, 2, 2, 1)
+        self.container.layout().addWidget(self.toolbar, 0, 2, 2, 1)
 
     def setPackage(self, entity):
         self.comments.setEntity(entity)

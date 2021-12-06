@@ -38,6 +38,12 @@ class PackageDashboardWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.title)
 
         self.list = PackageListWidget()
+        self.list.actionInstall.connect(self.actionInstall.emit)
+        self.list.actionDownload.connect(self.actionDownload.emit)
+        self.list.actionRemove.connect(self.actionRemove.emit)
+        self.list.actionTest.connect(self.actionTest.emit)
+        self.list.actionStart.connect(self.actionStart.emit)
+
         self.list.actionClick.connect(self.actionClick.emit)
         self.list.actionClick.connect(self.onActionPackage)
         self.layout().addWidget(self.list)
