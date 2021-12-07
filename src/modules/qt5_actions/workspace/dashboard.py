@@ -19,8 +19,7 @@ from modules.qt5_actions.workspace.list_widget import ActionsItemListWidget
 
 class DashboardWidget(QtWidgets.QWidget):
 
-    @hexdi.inject('actions')
-    def __init__(self, actions):
+    def __init__(self):
         super(DashboardWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
@@ -32,6 +31,11 @@ class DashboardWidget(QtWidgets.QWidget):
         self.list = ActionsListWidget()
         self.layout().addWidget(self.list)
 
+        self.update(None)
+
+    @hexdi.inject('actions')
+    def update(self, entity=None, actions=None):
+        self.list.clean()
         for entity in actions.actions():
             widget = ActionsItemListWidget(entity)
             self.list.addWidget(widget)

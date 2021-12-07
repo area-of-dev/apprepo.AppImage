@@ -16,8 +16,8 @@ from modules.qt5 import window
 
 
 @window.workspace(name='Apprepo', focus=True, position=0)
-@hexdi.inject('workspace.apprepo', 'thread.apprepo', 'actions')
-def window_workspace(parent, workspace, thread, actions):
+@hexdi.inject('workspace.apprepo', 'thread.apprepo', 'workspace.actions', 'actions')
+def window_workspace(parent, workspace, thread, workspace_actions, actions):
     thread.packageCleanAction.connect(workspace.cleanPackage)
     thread.packageAction.connect(workspace.addPackage)
 
@@ -31,16 +31,24 @@ def window_workspace(parent, workspace, thread, actions):
     workspace.actionTest.connect(actions.validate)
     workspace.actionStart.connect(actions.start)
 
+    workspace.actionInstall.connect(workspace_actions.update)
+    workspace.actionDownload.connect(workspace_actions.update)
+    workspace.actionRemove.connect(workspace_actions.update)
+    workspace.actionTest.connect(workspace_actions.update)
+    workspace.actionStart.connect(workspace_actions.update)
+
     thread.start()
 
     return workspace
 
 
 @window.toolbar(name='Apprepo', focus=True, position=0)
-@hexdi.inject('toolbar.apprepo', 'thread.apprepo', 'actions')
-def window_toolbar(parent, toolbar, thread, actions):
+@hexdi.inject('toolbar.apprepo', 'thread.apprepo', 'workspace.actions', 'actions')
+def window_toolbar(parent, toolbar, thread, workspace_actions, actions):
     toolbar.search.connect(thread.search)
+
     toolbar.drop.connect(actions.integrate)
+    toolbar.drop.connect(workspace_actions.update)
 
     parent.actionReload.connect(toolbar.reload)
 

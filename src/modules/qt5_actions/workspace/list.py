@@ -29,3 +29,11 @@ class ActionsListWidget(QtWidgets.QListWidget):
         self.addItem(item)
 
         self.setItemWidget(item, widget)
+
+    def clean(self, entity=None):
+        if not self.model(): return None
+
+        count = self.model().rowCount()
+        if not count: return None
+
+        self.model().removeRows(0, count)

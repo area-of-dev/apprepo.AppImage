@@ -18,11 +18,15 @@ from . import actions
 
 
 @window.workspace(name='Installed', focus=False, position=1)
-@hexdi.inject('workspace.installed', 'actions')
-def window_workspace(parent, workspace, actions):
+@hexdi.inject('workspace.installed', 'workspace.actions', 'actions')
+def window_workspace(parent, workspace, workspace_actions, actions):
     workspace.validate.connect(actions.validate)
     workspace.remove.connect(actions.remove)
     workspace.start.connect(actions.start)
+
+    workspace.validate.connect(workspace_actions.update)
+    workspace.remove.connect(workspace_actions.update)
+    workspace.start.connect(workspace_actions.update)
 
     return workspace
 
