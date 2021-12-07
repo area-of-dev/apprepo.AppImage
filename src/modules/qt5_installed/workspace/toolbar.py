@@ -19,32 +19,31 @@ from .button import PictureButtonFlat
 
 
 class AppImageInstalledToolbarWidget(QtWidgets.QFrame):
-    removeAction = QtCore.pyqtSignal(object)
-    startAction = QtCore.pyqtSignal(object)
-    infoAction = QtCore.pyqtSignal(object)
+    remove = QtCore.pyqtSignal(object)
+    validate = QtCore.pyqtSignal(object)
+    start = QtCore.pyqtSignal(object)
 
     def __init__(self, entity=None):
         super(AppImageInstalledToolbarWidget, self).__init__()
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setAlignment(Qt.AlignTop)
 
-        self.remove = PictureButtonFlat('icons/remove')
-        self.remove.setToolTip('Download into the "~/Applications" folder and apply the system integration')
-        self.remove.clicked.connect(lambda x: self.removeAction.emit(entity))
-        self.remove.setToolTipDuration(0)
-        self.layout().addWidget(self.remove)
+        button = PictureButtonFlat('icons/remove')
+        button.setToolTip('Download into the "~/Applications" folder and apply the system integration')
+        button.clicked.connect(lambda x: self.remove.emit(entity.path))
+        button.setToolTipDuration(0)
+        self.layout().addWidget(button)
 
-        self.remove = PictureButtonFlat('icons/test')
-        self.remove.setToolTip('Download into the "~/Applications" folder and apply the system integration')
-        self.remove.clicked.connect(lambda x: self.removeAction.emit(entity))
-        self.remove.setToolTipDuration(0)
-        self.layout().addWidget(self.remove)
+        button = PictureButtonFlat('icons/test')
+        button.setToolTip('Download into the "~/Applications" folder and apply the system integration')
+        button.setToolTipDuration(0)
+        self.layout().addWidget(button)
 
-        self.remove = PictureButtonFlat('icons/start')
-        self.remove.setToolTip('Download into the "~/Applications" folder and apply the system integration')
-        self.remove.clicked.connect(lambda x: self.removeAction.emit(entity))
-        self.remove.setToolTipDuration(0)
-        self.layout().addWidget(self.remove)
+        button = PictureButtonFlat('icons/start')
+        button.setToolTip('Download into the "~/Applications" folder and apply the system integration')
+        button.clicked.connect(lambda x: self.start.emit(entity.path))
+        button.setToolTipDuration(0)
+        self.layout().addWidget(button)
 
     def setEntity(self, entity):
         self.entity = entity

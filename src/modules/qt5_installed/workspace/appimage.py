@@ -22,9 +22,9 @@ from .toolbar import AppImageInstalledToolbarWidget
 
 
 class AppImageInstalledWidget(QtWidgets.QWidget):
-    removeAction = QtCore.pyqtSignal(object)
-    startAction = QtCore.pyqtSignal(object)
-    infoAction = QtCore.pyqtSignal(object)
+    remove = QtCore.pyqtSignal(object)
+    validate = QtCore.pyqtSignal(object)
+    start = QtCore.pyqtSignal(object)
 
     @hexdi.inject('config')
     def __init__(self, appimage=None, config=None):
@@ -58,7 +58,7 @@ class AppImageInstalledWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.image, 0, 0, 5, 1)
 
         self.toolbar = AppImageInstalledToolbarWidget(appimage)
-        self.toolbar.removeAction.connect(self.removeAction.emit)
-        self.toolbar.startAction.connect(self.startAction.emit)
-        self.toolbar.infoAction.connect(self.infoAction.emit)
+        self.toolbar.remove.connect(self.remove.emit)
+        self.toolbar.validate.connect(self.validate.emit)
+        self.toolbar.start.connect(self.start.emit)
         self.layout().addWidget(self.toolbar, 3, 0, 2, 1)

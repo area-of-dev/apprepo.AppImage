@@ -16,8 +16,8 @@ from modules.qt5 import window
 
 
 @window.workspace(name='Apprepo', focus=True, position=0)
-@hexdi.inject('workspace.apprepo', 'thread.apprepo')
-def window_workspace(parent, workspace, thread):
+@hexdi.inject('workspace.apprepo', 'thread.apprepo', 'actions')
+def window_workspace(parent, workspace, thread, actions):
     thread.packageCleanAction.connect(workspace.cleanPackage)
     thread.packageAction.connect(workspace.addPackage)
 
@@ -25,12 +25,11 @@ def window_workspace(parent, workspace, thread):
     thread.groupAction.connect(workspace.addGroup)
 
     workspace.actionGroup.connect(thread.packages)
-    workspace.actionPackage.connect(lambda x: print(x))
-    workspace.actionInstall.connect(lambda x: print(x))
-    workspace.actionDownload.connect(lambda x: print(x))
-    workspace.actionRemove.connect(lambda x: print(x))
-    workspace.actionTest.connect(lambda x: print(x))
-    workspace.actionStart.connect(lambda x: print(x))
+    workspace.actionInstall.connect(actions.install)
+    workspace.actionDownload.connect(actions.download)
+    workspace.actionRemove.connect(actions.remove)
+    workspace.actionTest.connect(actions.validate)
+    workspace.actionStart.connect(actions.start)
 
     thread.start()
 
@@ -38,12 +37,11 @@ def window_workspace(parent, workspace, thread):
 
 
 @window.toolbar(name='Apprepo', focus=True, position=0)
-@hexdi.inject('toolbar.apprepo', 'thread.apprepo')
-def window_toolbar(parent=None, toolbar=None, thread=None):
+@hexdi.inject('toolbar.apprepo', 'thread.apprepo', 'actions')
+def window_toolbar(parent, toolbar, thread, actions):
     toolbar.search.connect(thread.search)
-
-    toolbar.search.connect(lambda x: print(x))
-    toolbar.drop.connect(lambda x: print(x))
+    toolbar.drop.connect(actions.integrate)
 
     parent.actionReload.connect(toolbar.reload)
+
     return toolbar

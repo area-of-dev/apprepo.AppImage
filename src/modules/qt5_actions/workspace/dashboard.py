@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-# Copyright 2015 Alex Woroschilow (alex.woroschilow@gmail.com)
+# Copyright 2021 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,20 +10,17 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import hexdi
-from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
-from .appimage import AppImageInstalledWidget
-from .list import SettingsListWidget
+from modules.qt5_actions.workspace.list import ActionsListWidget
+from modules.qt5_actions.workspace.list_widget import ActionsItemListWidget
 
 
 class DashboardWidget(QtWidgets.QWidget):
-    remove = QtCore.pyqtSignal(object)
-    validate = QtCore.pyqtSignal(object)
-    start = QtCore.pyqtSignal(object)
 
-    def __init__(self):
+    @hexdi.inject('actions')
+    def __init__(self, actions):
         super(DashboardWidget, self).__init__()
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
@@ -33,16 +29,9 @@ class DashboardWidget(QtWidgets.QWidget):
         self.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.layout().setContentsMargins(0, 0, 0, 0)
 
-        self.list = SettingsListWidget()
+        self.list = ActionsListWidget()
         self.layout().addWidget(self.list)
 
-        self.update()
-
-    @hexdi.inject('appimagetool')
-    def update(self, cache) -> None:
-        for entity in cache.collection():
-            widget = AppImageInstalledWidget(entity)
-            widget.validate.connect(self.validate.emit)
-            widget.start.connect(self.start.emit)
-            widget.remove.connect(self.remove.emit)
+        for entity in actions.actions():
+            widget = ActionsItemListWidget(entity)
             self.list.addWidget(widget)
