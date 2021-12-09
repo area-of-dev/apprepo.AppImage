@@ -16,21 +16,22 @@ from modules.qt5 import window
 
 
 @window.workspace(name='Actions', focus=False, position=3)
-@hexdi.inject('workspace.actions', 'thread.actions')
-def window_workspace(parent, workspace, thread):
-    # thread.packageCleanAction.connect(workspace.cleanPackage)
-    # thread.packageAction.connect(workspace.addPackage)
-    #
-    # workspace.actionPackage.connect(lambda x: print(x))
-    # workspace.actionInstall.connect(lambda x: print(x))
-    # workspace.actionDownload.connect(lambda x: print(x))
-    # workspace.actionRemove.connect(lambda x: print(x))
-    # workspace.actionTest.connect(lambda x: print(x))
-    # workspace.actionStart.connect(lambda x: print(x))
-    thread.start()
+@hexdi.inject('workspace.actions', 'actions')
+def window_workspace(parent, workspace, actions):
+    workspace_apprepo = hexdi.resolve('workspace.apprepo')
+    workspace_apprepo.actionInstall.connect(actions.install)
+    workspace_apprepo.actionDownload.connect(actions.download)
+    workspace_apprepo.actionRemove.connect(actions.remove)
+    workspace_apprepo.actionTest.connect(actions.validate)
+    workspace_apprepo.actionStart.connect(actions.start)
 
-    # workspace.validate.connect(workspace.update)
-    # workspace.remove.connect(workspace.update)
-    # workspace.start.connect(workspace.update)
+    workspace_apprepo.actionInstall.connect(workspace.update)
+    workspace_apprepo.actionDownload.connect(workspace.update)
+    workspace_apprepo.actionRemove.connect(workspace.update)
+    workspace_apprepo.actionTest.connect(workspace.update)
+    workspace_apprepo.actionStart.connect(workspace.update)
+
+    thread = hexdi.resolve('thread.actions')
+    thread.start()
 
     return workspace

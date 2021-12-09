@@ -14,8 +14,8 @@
 import hexdi
 
 from .storage.interface import ActionsStorage
+from .thread.background import BackgroundThread
 from .workspace.dashboard import DashboardWidget
-from .workspace.thread import WorkspaceThread
 
 
 @hexdi.permanent('workspace.actions')
@@ -24,7 +24,7 @@ class DashboardWidgetInstance(DashboardWidget):
 
 
 @hexdi.permanent('thread.actions')
-class WorkspaceThreadInstance(WorkspaceThread):
+class WorkspaceThreadInstance(BackgroundThread):
     pass
 
 
@@ -37,23 +37,17 @@ class ActionsStorageInstance(ActionsStorage):
             'package': model,
         })
 
-        print(self, entity)
-
     def download(self, model):
         entity = self.add_action({
             'action': 'download',
             'package': model,
         })
 
-        print(self, entity)
-
     def validate(self, model):
         entity = self.add_action({
             'action': 'validate',
             'package': model,
         })
-
-        print(self, entity)
 
     def integrate(self, model):
         entity = self.add_action({
@@ -68,11 +62,9 @@ class ActionsStorageInstance(ActionsStorage):
             'action': 'remove',
             'appimage': model,
         })
-        print(self, entity)
 
     def start(self, model):
         entity = self.add_action({
             'action': 'start',
             'appimage': model,
         })
-        print(self, entity)

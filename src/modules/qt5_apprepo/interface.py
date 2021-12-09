@@ -16,26 +16,15 @@ from modules.qt5 import window
 
 
 @window.workspace(name='Apprepo', focus=True, position=0)
-@hexdi.inject('workspace.apprepo', 'thread.apprepo', 'workspace.actions', 'actions')
-def window_workspace(parent, workspace, thread, workspace_actions, actions):
+@hexdi.inject('workspace.apprepo')
+def window_workspace(parent, workspace):
+    thread = hexdi.resolve('thread.apprepo')
     thread.packageCleanAction.connect(workspace.cleanPackage)
     thread.packageAction.connect(workspace.addPackage)
-
     thread.groupCleanAction.connect(workspace.cleanGroup)
     thread.groupAction.connect(workspace.addGroup)
 
     workspace.actionGroup.connect(thread.packages)
-    workspace.actionInstall.connect(actions.install)
-    workspace.actionDownload.connect(actions.download)
-    workspace.actionRemove.connect(actions.remove)
-    workspace.actionTest.connect(actions.validate)
-    workspace.actionStart.connect(actions.start)
-
-    workspace.actionInstall.connect(workspace_actions.update)
-    workspace.actionDownload.connect(workspace_actions.update)
-    workspace.actionRemove.connect(workspace_actions.update)
-    workspace.actionTest.connect(workspace_actions.update)
-    workspace.actionStart.connect(workspace_actions.update)
 
     thread.start()
 

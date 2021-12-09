@@ -18,15 +18,18 @@ import hexdi
 from modules.qt5_actions.storage.interface import ActionsStorage
 
 
-class WorkspaceThread(QtCore.QThread):
+class BackgroundThread(QtCore.QThread):
 
     def __init__(self):
-        super(WorkspaceThread, self).__init__()
+        super(BackgroundThread, self).__init__()
 
     @hexdi.inject('actions')
     def run(self, actions):
         while True:
             print('.')
+            for action in actions.actions():
+                print(action)
+                time.sleep(1)
             time.sleep(1)
 
     @hexdi.inject('actions')

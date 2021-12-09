@@ -15,12 +15,14 @@ from PyQt5.QtCore import Qt
 
 from modules.qt5_actions.workspace.list import ActionsListWidget
 from modules.qt5_actions.workspace.list_widget import ActionsItemListWidget
+from modules.qt5_actions.workspace.thread import WorkspaceThread
 
 
 class DashboardWidget(QtWidgets.QWidget):
 
     def __init__(self):
         super(DashboardWidget, self).__init__()
+
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setContentsMargins(0, 0, 0, 0)
 
@@ -30,6 +32,9 @@ class DashboardWidget(QtWidgets.QWidget):
 
         self.list = ActionsListWidget()
         self.layout().addWidget(self.list)
+
+        self.thread_updater = WorkspaceThread()
+        self.thread_updater.start()
 
         self.update(None)
 

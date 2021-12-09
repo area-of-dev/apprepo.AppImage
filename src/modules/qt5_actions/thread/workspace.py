@@ -27,6 +27,9 @@ class WorkspaceThread(QtCore.QThread):
     def run(self, actions):
         while True:
             print('.')
+            for action in actions.actions():
+                print(action)
+                time.sleep(1)
             time.sleep(1)
 
     @hexdi.inject('actions')
