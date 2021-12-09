@@ -33,6 +33,15 @@ class ActionsStorage(object):
         for entity in self.session.query(Action).order_by(desc(Action.id)).all():
             yield entity
 
+    def refresh(self, entity):
+        self.session.refresh(entity)
+        return self
+
+    def update(self, entity):
+        self.session.commit()
+        self.session.refresh(entity)
+        return self
+
     def add_action(self, model):
         if not model: return None
 

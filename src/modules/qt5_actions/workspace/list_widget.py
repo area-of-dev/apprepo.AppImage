@@ -54,6 +54,13 @@ class ActionsItemListWidget(QtWidgets.QWidget):
 
             widget = Description(entity.package.get('file'))
             self.layout().addWidget(widget, 4, 1, 1, 1)
+
+            widget = Description(entity.package.get('file'))
+            self.layout().addWidget(widget, 4, 1, 1, 1)
+
+            self.progress = QtWidgets.QProgressBar(self)
+            self.progress.setVisible(False)
+            self.layout().addWidget(self.progress, 5, 1, 1, 1)
             return None
 
         widget = Title(os.path.basename(entity.appimage))
@@ -65,3 +72,20 @@ class ActionsItemListWidget(QtWidgets.QWidget):
 
         widget = Description(entity.appimage)
         self.layout().addWidget(widget, 2, 1, 1, 1)
+
+        self.progress = QtWidgets.QProgressBar(self)
+        self.progress.setVisible(False)
+        self.layout().addWidget(self.progress, 3, 1, 1, 1)
+
+    def update(self, entity):
+        if not hasattr(entity, 'progress'):
+            return self
+
+        if entity.progress >= 100:
+            self.progress.setValue(100)
+            self.progress.setVisible(False)
+            return self
+
+        self.progress.setValue(entity.progress)
+        self.progress.setVisible(True)
+        return self

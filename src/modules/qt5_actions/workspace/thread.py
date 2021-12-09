@@ -13,21 +13,29 @@ import time
 
 import hexdi
 from PyQt5 import QtCore
-import hexdi
 
 from modules.qt5_actions.storage.interface import ActionsStorage
 
 
 class WorkspaceThread(QtCore.QThread):
+    progress = QtCore.pyqtSignal(object)
 
     def __init__(self):
         super(WorkspaceThread, self).__init__()
+        self.collection = []
 
     @hexdi.inject('actions')
-    def run(self, actions):
+    def run(self, actions: ActionsStorage):
         while True:
-            print('.')
-            time.sleep(1)
+            for (entity, callback) in self.collection:
+                actions.refresh(entity)
+                self.progress.emit((entity, callback))
+                time.sleep(0.5)
+            time.sleep(0.5)
+
+    def append(self, bunch):
+        self.collection.append(bunch)
+        return self
 
     @hexdi.inject('actions')
     def start(self, actions: ActionsStorage) -> None:

@@ -9,6 +9,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+import random
 import time
 
 import hexdi
@@ -26,10 +27,9 @@ class BackgroundThread(QtCore.QThread):
     @hexdi.inject('actions')
     def run(self, actions):
         while True:
-            print('.')
             for action in actions.actions():
-                print(action)
-                time.sleep(1)
+                action.progress = random.randrange(1, 100, 1)
+                time.sleep(0.1)
             time.sleep(1)
 
     @hexdi.inject('actions')

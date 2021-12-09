@@ -34,9 +34,15 @@ class DashboardWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.list)
 
         self.thread_updater = WorkspaceThread()
+        self.thread_updater.progress.connect(self.progress)
         self.thread_updater.start()
 
         self.update(None)
+
+    def progress(self, bunch):
+        (entity, callback) = bunch
+        if not callable(callback): return None
+        callback(entity)
 
     @hexdi.inject('actions')
     def update(self, entity=None, actions=None):
@@ -44,3 +50,5 @@ class DashboardWidget(QtWidgets.QWidget):
         for entity in actions.actions():
             widget = ActionsItemListWidget(entity)
             self.list.addWidget(widget)
+
+            self.thread_updater.append((entity, widget.update))
