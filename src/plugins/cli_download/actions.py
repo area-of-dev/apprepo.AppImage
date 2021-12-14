@@ -23,8 +23,14 @@ def download(entity=None, options=False, callback=None, downloader=None, console
     download_file = entity.get('file', None)
     if not download_file: raise Exception('File is empty')
 
-    download = downloader.download(download_file, callback if callback is not None else None)
-    if not download: raise Exception('Can not download: {}'.format(download_file))
+    destination = os.path.expanduser("~/Downloads/{}".format(package))
+    if os.path.exists(destination) and not options.force:
+        raise Exception('{} already exists, use --force to override it'.format(destination))
 
-    shutil.move(download, os.path.expanduser("~/Downloads/{}".format(package)))
+    download = downloader.download(download_file, callback if callback is not None else None)
     yield console.green("[downloaded]: {}".format(download))
+
+    if not os.path.exists(download): raise Exception('File does not exist: {}'.format(download))
+
+    shutil.move(download, destination)
+    yield console.green("[moved]: {}".format(destination))

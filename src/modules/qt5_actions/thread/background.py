@@ -20,7 +20,7 @@ import hexdi
 from PyQt5 import QtCore
 
 from modules.qt5_actions.storage.interface import ActionsStorage
-from plugins import cmd_install, cmd_uninstall, cli_download
+from plugins import cmd_install, cmd_uninstall, cli_download, cli_integrate
 
 Options = namedtuple('Options', 'force systemwide')
 
@@ -37,6 +37,13 @@ class BackgroundThread(QtCore.QThread):
             if action is None:
                 time.sleep(1)
                 continue
+
+            if action.action == 'integrate':
+                appimage = action.appimage
+                if not appimage: continue
+
+                for output in cli_integrate.actions.integrate(appimage, Options(True, False)):
+                    self._progress(100, 100, action)
 
             if action.action == 'download':
                 package = action.package
@@ -62,10 +69,7 @@ class BackgroundThread(QtCore.QThread):
                 if not appimage: continue
 
                 for output in cmd_uninstall.actions.remove(appimage, None):
-                    print(output)
-
-                action.progress = 100
-                action.finished_at = datetime.now()
+                    self._progress(100, 100, action)
 
     def _progress(self, x, y, entity=None):
 
