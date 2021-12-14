@@ -9,45 +9,15 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import glob
-import os
-import pathlib
-
-import hexdi
 
 from modules.cmd import console
+from plugins.cmd_uninstall import actions
 
 
-@console.task(name=['uninstall', 'remove', 'delete'],
-              description="<string>\t- remove the AppImage "
-                          "from the system by the name")
-@hexdi.inject('appimagetool', 'console.application')
-def main(options=None, args=None, appimagetool=None, console=None):
+@console.task(name=['uninstall', 'remove', 'delete'], description="<string>\t- remove the AppImage " "from the system by the name")
+def main(options=None, args=None):
     search = ' '.join(args).strip('\'" ')
+    if not len(search): raise Exception('Unknown application')
 
-    for entity in appimagetool.collection():
-        appimage = pathlib.Path(entity.path)
-        if appimage is None: continue
-
-        name = appimage.stem
-        if name.lower() != search:
-            continue
-
-        yield console.green("[removed]: {}, {}, {}, {}".format(
-            os.path.basename(entity.path),
-            os.path.basename(entity.desktop),
-            os.path.basename(entity.icon),
-            os.path.basename(entity.alias),
-        ))
-
-        for path in glob.glob(entity.path):
-            os.remove(path)
-
-        for path in glob.glob(entity.desktop):
-            os.remove(path)
-
-        for path in glob.glob(entity.alias):
-            os.remove(path)
-
-        for path in glob.glob(entity.icon):
-            os.remove(path)
+    for output in actions.remove(search, options):
+        yield output

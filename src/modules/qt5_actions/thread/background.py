@@ -9,14 +9,20 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-import random
+import functools
+import math
+import os
 import time
+from collections import namedtuple
+from datetime import datetime
 
 import hexdi
 from PyQt5 import QtCore
-import hexdi
 
 from modules.qt5_actions.storage.interface import ActionsStorage
+from plugins import cmd_install, cmd_uninstall, cli_download
+
+Options = namedtuple('Options', 'force systemwide')
 
 
 class BackgroundThread(QtCore.QThread):
@@ -25,12 +31,47 @@ class BackgroundThread(QtCore.QThread):
         super(BackgroundThread, self).__init__()
 
     @hexdi.inject('actions')
-    def run(self, actions):
+    def run(self, storage):
         while True:
-            for action in actions.actions():
-                action.progress = random.randrange(1, 100, 1)
-                time.sleep(0.1)
-            time.sleep(1)
+            action = storage.next()
+            if action is None:
+                time.sleep(1)
+                continue
+
+            if action.action == 'download':
+                package = action.package
+                if not package: continue
+
+                callback = functools.partial(self._progress, entity=action)
+                for output in cli_download.actions.download(action.package, Options(True, False), callback):
+                    print(output)
+
+            if action.action == 'install':
+                package = action.package
+                if not package: continue
+
+                callback = functools.partial(self._progress, entity=action)
+                for output in cmd_install.actions.install(action.package, Options(True, False), callback):
+                    print(output)
+
+            if action.action == 'remove':
+                appimage = action.appimage
+                if not appimage: continue
+
+                appimage = os.path.basename(appimage)
+                if not appimage: continue
+
+                for output in cmd_uninstall.actions.remove(appimage, None):
+                    print(output)
+
+                action.progress = 100
+                action.finished_at = datetime.now()
+
+    def _progress(self, x, y, entity=None):
+
+        entity.progress = math.ceil(x / y * 100)
+        if entity.progress < 100: return
+        entity.finished_at = datetime.now()
 
     @hexdi.inject('actions')
     def start(self, actions: ActionsStorage) -> None:

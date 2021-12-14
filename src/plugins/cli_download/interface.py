@@ -13,16 +13,17 @@
 import hexdi
 
 from modules.cmd import console
-from plugins.cmd_install import actions
+from plugins.cli_download import actions
 
 
-@console.task(name=['install', 'get', 'in'], description="<string>\tinstall the application " "and integrate it into the system")
+@console.task(name=['download'], description="<string>\tdownload the application into the ~/Downloads folder")
 @hexdi.inject('apprepo')
 def main(options=None, args=None, apprepo=None):
     string = ' '.join(args).strip('\'" ')
     if not string: raise Exception('search string can not be empty')
 
     for entity in apprepo.package(string):
-        for output in actions.install(entity, options, None):
+        for output in actions.download(entity, options, None):
             yield output
+
     return 0

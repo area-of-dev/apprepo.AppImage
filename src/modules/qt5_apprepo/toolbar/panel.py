@@ -15,7 +15,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
-from .image import DragAndDropImageWidget
+from .image import DragAndDropImageWidget, ImageWidget
 from .text import SearchField
 
 
@@ -30,6 +30,9 @@ class ApprepoToolbarWidget(QtWidgets.QWidget):
 
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setAlignment(Qt.AlignLeft)
+
+        # self.logo = ImageWidget('icons/logo', 150)
+        # self.layout().addWidget(self.logo)
 
         self.dragAndDrop = DragAndDropImageWidget('icons/drop', 40)
         self.dragAndDrop.drop.connect(self.drop.emit)

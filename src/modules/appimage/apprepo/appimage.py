@@ -25,6 +25,7 @@ def get_folder_bin(appdir_root):
 def get_folder_lib(appdir_root):
     return '{}/lib64'.format(appdir_root)
 
+
 def get_folder_include(appdir_root):
     return '{}/include'.format(appdir_root)
 

@@ -28,10 +28,9 @@ class WorkspaceThread(QtCore.QThread):
     def run(self, actions: ActionsStorage):
         while True:
             for (entity, callback) in self.collection:
-                actions.refresh(entity)
                 self.progress.emit((entity, callback))
-                time.sleep(0.5)
-            time.sleep(0.5)
+                time.sleep(0.1)
+            time.sleep(1)
 
     def append(self, bunch):
         self.collection.append(bunch)

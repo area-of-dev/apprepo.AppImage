@@ -34,7 +34,7 @@ def create_engine(config=None):
 
 def create_session():
     from sqlalchemy.orm import sessionmaker
-    Session = sessionmaker(bind=create_engine())
+    Session = sessionmaker(bind=create_engine(), autocommit=True)
     return Session()
 
 
@@ -49,7 +49,7 @@ class Action(Base):
     progress = Column('progress', sqlalchemy.Integer, default=None)
 
     created_at = Column('created_at', sqlalchemy.DateTime, default=datetime.now)
-    finished_at = Column('finished_at', sqlalchemy.DateTime, default=datetime.now)
+    finished_at = Column('finished_at', sqlalchemy.DateTime, default=None)
 
 
 Base.metadata.create_all(bind=create_engine())

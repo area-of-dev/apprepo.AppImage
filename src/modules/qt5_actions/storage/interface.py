@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 from datetime import datetime
 
-from sqlalchemy import desc
+from sqlalchemy import desc, asc
 
 from .schema import Action
 
@@ -29,8 +29,13 @@ class ActionsStorage(object):
             self._session = create_session()
         return self._session
 
+    def next(self):
+        return self.session.query(Action). \
+            filter(Action.finished_at.is_(None)). \
+            order_by(desc(Action.id)).first()
+
     def actions(self):
-        for entity in self.session.query(Action).order_by(desc(Action.id)).all():
+        for entity in self.session.query(Action).order_by(asc(Action.finished_at)).all():
             yield entity
 
     def refresh(self, entity):

@@ -32,39 +32,37 @@ class WorkspaceThreadInstance(BackgroundThread):
 class ActionsStorageInstance(ActionsStorage):
 
     def install(self, model):
-        entity = self.add_action({
+        self.add_action({
             'action': 'install',
             'package': model,
         })
 
     def download(self, model):
-        entity = self.add_action({
+        self.add_action({
             'action': 'download',
             'package': model,
         })
 
     def validate(self, model):
-        entity = self.add_action({
+        self.add_action({
             'action': 'validate',
             'package': model,
         })
 
     def integrate(self, model):
-        entity = self.add_action({
+        self.add_action({
             'action': 'integrate',
             'appimage': model,
         })
 
-        print(self, entity)
-
     def remove(self, model):
-        entity = self.add_action({
+        self.add_action({
             'action': 'remove',
             'appimage': model,
         })
 
     def start(self, model):
-        entity = self.add_action({
+        self.add_action({
             'action': 'start',
             'appimage': model,
         })

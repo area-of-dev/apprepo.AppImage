@@ -51,4 +51,5 @@ class DashboardWidget(QtWidgets.QWidget):
             widget = ActionsItemListWidget(entity)
             self.list.addWidget(widget)
 
+            if entity.finished_at is not None: continue
             self.thread_updater.append((entity, widget.update))
