@@ -16,7 +16,6 @@ import os
 import sys
 
 import requests
-from PyQt5 import QtNetwork, QtCore
 
 
 class ServiceApprepo(object):

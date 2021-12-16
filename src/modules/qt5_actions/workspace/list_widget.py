@@ -12,13 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import os
 
-import hexdi
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from .image import ImageWidget
 from .label import Title, Description
+from .toolbar import ActionsToolbarWidget
 
 
 class ActionsItemListWidget(QtWidgets.QWidget):
@@ -58,6 +58,9 @@ class ActionsItemListWidget(QtWidgets.QWidget):
             widget = Description(entity.package.get('file'))
             self.layout().addWidget(widget, 4, 1, 1, 1)
 
+            self.toolbar = ActionsToolbarWidget(entity)
+            self.layout().addWidget(self.toolbar, 3, 0, 2, 1)
+
             self.progress = QtWidgets.QProgressBar(self)
             self.progress.setVisible(False)
             self.layout().addWidget(self.progress, 5, 1, 1, 1)
@@ -72,6 +75,9 @@ class ActionsItemListWidget(QtWidgets.QWidget):
 
         widget = Description(entity.appimage)
         self.layout().addWidget(widget, 2, 1, 1, 1)
+
+        self.toolbar = ActionsToolbarWidget(entity)
+        self.layout().addWidget(self.toolbar, 3, 0, 2, 1)
 
         self.progress = QtWidgets.QProgressBar(self)
         self.progress.setVisible(False)

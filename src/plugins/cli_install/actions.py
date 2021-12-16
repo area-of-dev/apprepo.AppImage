@@ -25,8 +25,6 @@ def install(entity=None, options=False, callback=None, appimagetool=None, downlo
     download_file = entity.get('file', None)
     if not download_file: raise Exception('File is empty')
 
-    print(download_file, package)
-
     download = downloader.download(download_file, callback if callback is not None else None)
     if not download: raise Exception('Can not download: {}'.format(download_file))
 

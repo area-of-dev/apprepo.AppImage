@@ -15,7 +15,7 @@ import hexdi
 from modules.qt5 import window
 
 
-@window.workspace(name='Actions', focus=False, position=3)
+@window.workspace(name='Activity', focus=False, position=3)
 @hexdi.inject('workspace.actions', 'actions')
 def window_workspace(parent, workspace, actions):
     workspace_apprepo = hexdi.resolve('workspace.apprepo')

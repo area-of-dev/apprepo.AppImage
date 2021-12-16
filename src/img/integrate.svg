@@ -3,13 +3,13 @@
    aria-hidden="true"
    focusable="false"
    data-prefix="fas"
-   data-icon="play"
+   data-icon="arrow-alt-down"
    role="img"
    viewBox="0 0 512 512"
-   class="svg-inline--fa fa-play fa-w-14 fa-7x"
+   class="svg-inline--fa fa-arrow-alt-down fa-w-14 fa-9x"
    version="1.1"
    id="svg4"
-   sodipodi:docname="start.svg"
+   sodipodi:docname="integrate.svg"
    width="512"
    height="512"
    inkscape:version="1.1 (c4e8f9e, 2021-05-24)"
@@ -29,13 +29,13 @@
      inkscape:pagecheckerboard="0"
      showgrid="false"
      inkscape:zoom="1.4707031"
-     inkscape:cx="223.70252"
+     inkscape:cx="223.70253"
      inkscape:cy="256"
      inkscape:current-layer="svg4" />
   <path
      fill="#c0c0c0"
-     d="M 392.99089,227.73971 152.37566,85.489625 C 132.82568,73.937359 102.88549,85.147842 102.88549,113.7209 v 284.43182 c 0,25.63372 27.82113,41.08231 49.49017,28.23127 L 392.99089,284.20226 c 21.46397,-12.64597 21.53233,-43.81658 0,-56.46255 z"
+     d="m 429.33334,149.33333 h -160 L 215.99999,96 H 82.666665 c -22.091667,0 -40,17.90833 -40,40 v 240 c 0,22.09167 17.908333,40 40,40 H 429.33334 c 22.09165,0 40,-17.90833 40,-40 V 189.33333 c 0,-22.09166 -17.90835,-40 -40,-40 z"
      class=""
-     id="path2"
-     style="stroke-width:0.683566" />
+     id="path4"
+     style="stroke-width:0.833333" />
 </svg>

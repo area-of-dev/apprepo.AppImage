@@ -18,28 +18,23 @@ from PyQt5.QtCore import Qt
 from .button import PictureButtonFlat
 
 
-class AppImageInstalledToolbarWidget(QtWidgets.QFrame):
+class ActionsToolbarWidget(QtWidgets.QFrame):
     remove = QtCore.pyqtSignal(object)
     validate = QtCore.pyqtSignal(object)
     update = QtCore.pyqtSignal(object)
 
     def __init__(self, entity=None):
-        super(AppImageInstalledToolbarWidget, self).__init__()
+        super(ActionsToolbarWidget, self).__init__()
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setAlignment(Qt.AlignTop)
 
         button = PictureButtonFlat('icons/remove')
-        button.setToolTip('Download into the "~/Applications" folder and apply the system integration')
-        button.clicked.connect(lambda x: self.remove.emit(entity.path))
-        button.setToolTipDuration(0)
         self.layout().addWidget(button)
 
-        self.layout().addWidget(QtWidgets.QLabel('...'))
+        button = PictureButtonFlat('icons/stop')
+        self.layout().addWidget(button)
 
-        button = PictureButtonFlat('icons/update')
-        button.setToolTip('Download into the "~/Applications" folder and apply the system integration')
-        button.clicked.connect(lambda x: self.update.emit(entity.path))
-        button.setToolTipDuration(0)
+        button = PictureButtonFlat('icons/pause')
         self.layout().addWidget(button)
 
     def setEntity(self, entity):

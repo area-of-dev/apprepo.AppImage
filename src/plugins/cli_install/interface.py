@@ -13,7 +13,7 @@
 import hexdi
 
 from modules.cmd import console
-from plugins.cmd_install import actions
+from plugins.cli_install import actions
 
 
 @console.task(name=['install', 'get', 'in'], description="<string>\tinstall the application " "and integrate it into the system")

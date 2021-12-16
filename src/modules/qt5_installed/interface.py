@@ -22,11 +22,11 @@ from . import actions
 def window_workspace(parent, workspace, workspace_actions, actions):
     workspace.validate.connect(actions.validate)
     workspace.remove.connect(actions.remove)
-    workspace.start.connect(actions.start)
+    workspace.update.connect(actions.update)
 
     workspace.validate.connect(workspace_actions.update)
     workspace.remove.connect(workspace_actions.update)
-    workspace.start.connect(workspace_actions.update)
+    workspace.update.connect(workspace_actions.update)
 
     return workspace
 
