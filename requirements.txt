@@ -6,11 +6,12 @@ chardet==3.0.4
 html5lib==1.0.1
 idna==2.9
 pydux==0.2.2
-requests==2.23.0
+requests==2.26.0
 six==1.14.0
 soupsieve==2.0.1
 urllib3==1.26.5
 webencodings==0.5.1
+cryptography>=3.4.6
 hexdi
 distro
 psutil
