@@ -21,6 +21,10 @@ class ActionsStorage(object):
     def __init__(self):
         self._session = None
 
+    def instance(self):
+        self._session = None
+        return self
+
     @property
     def session(self):
         from .schema import create_session
@@ -32,20 +36,28 @@ class ActionsStorage(object):
     def next(self):
         return self.session.query(Action). \
             filter(Action.finished_at.is_(None)). \
+            filter(Action.cancelled_at.is_(None)). \
             order_by(desc(Action.id)).first()
 
     def actions(self):
-        for entity in self.session.query(Action).order_by(asc(Action.finished_at)).all():
+        collection = self.session.query(Action). \
+            filter(Action.finished_at.is_(None)). \
+            order_by(asc(Action.finished_at)). \
+            all()
+
+        for entity in collection:
             yield entity
 
     def refresh(self, entity):
         self.session.refresh(entity)
-        return self
+        return entity
 
     def update(self, entity):
-        self.session.commit()
-        self.session.refresh(entity)
-        return self
+        with self.session.begin():
+            self.session.add(entity)
+            self.session.commit()
+            self.session.flush()
+        return entity
 
     def add_action(self, model):
         if not model: return None
@@ -56,10 +68,13 @@ class ActionsStorage(object):
             package=model.get('package', None),
             progress=model.get('progress', 0),
             created_at=datetime.now(),
+            processed_at=None,
+            cancelled_at=None,
             finished_at=None
         )
 
-        self.session.add(entity)
-        self.session.commit()
-
+        with self.session.begin():
+            self.session.add(entity)
+            self.session.commit()
+            self.session.flush()
         return entity

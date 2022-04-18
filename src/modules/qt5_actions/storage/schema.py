@@ -34,7 +34,7 @@ def create_engine(config=None):
 
 def create_session():
     from sqlalchemy.orm import sessionmaker
-    Session = sessionmaker(bind=create_engine(), autocommit=True)
+    Session = sessionmaker(bind=create_engine(), autocommit=True, autoflush=False)
     return Session()
 
 
@@ -49,6 +49,8 @@ class Action(Base):
     progress = Column('progress', sqlalchemy.Integer, default=None)
 
     created_at = Column('created_at', sqlalchemy.DateTime, default=datetime.now)
+    processed_at = Column('processed_at', sqlalchemy.DateTime, default=None)
+    cancelled_at = Column('cancelled_at', sqlalchemy.DateTime, default=None)
     finished_at = Column('finished_at', sqlalchemy.DateTime, default=None)
 
 

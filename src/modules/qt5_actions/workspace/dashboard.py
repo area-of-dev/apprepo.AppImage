@@ -10,7 +10,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import hexdi
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtCore import Qt
 
 from modules.qt5_actions.workspace.list import ActionsListWidget
@@ -19,6 +19,9 @@ from modules.qt5_actions.workspace.thread import WorkspaceThread
 
 
 class DashboardWidget(QtWidgets.QWidget):
+    clean = QtCore.pyqtSignal(object)
+    stop = QtCore.pyqtSignal(object)
+    restart = QtCore.pyqtSignal(object)
 
     def __init__(self):
         super(DashboardWidget, self).__init__()
@@ -41,14 +44,21 @@ class DashboardWidget(QtWidgets.QWidget):
 
     def progress(self, bunch):
         (entity, callback) = bunch
-        if not callable(callback): return None
-        callback(entity)
+        try:
+            if not callable(callback): return None
+            callback(entity)
+        except RuntimeError:
+            pass
 
     @hexdi.inject('actions')
     def update(self, entity=None, actions=None):
         self.list.clean()
         for entity in actions.actions():
+
             widget = ActionsItemListWidget(entity)
+            widget.removeAction.connect(self.clean.emit)
+            widget.restartAction.connect(self.restart.emit)
+            widget.stopAction.connect(self.stop.emit)
             self.list.addWidget(widget)
 
             if entity.finished_at is not None: continue

@@ -16,29 +16,38 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from .button import PictureButtonFlat
+from ..storage.schema import Action
 
 
 class ActionsToolbarWidget(QtWidgets.QFrame):
     remove = QtCore.pyqtSignal(object)
-    validate = QtCore.pyqtSignal(object)
-    update = QtCore.pyqtSignal(object)
+    stop = QtCore.pyqtSignal(object)
+    restart = QtCore.pyqtSignal(object)
 
-    def __init__(self, entity=None):
+    def __init__(self, entity: Action = None):
         super(ActionsToolbarWidget, self).__init__()
+
+        self.entity = entity
+
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().setAlignment(Qt.AlignTop)
 
-        button = PictureButtonFlat('icons/remove')
-        self.layout().addWidget(button)
+        self.buttonRemove = PictureButtonFlat('icons/remove')
+        self.buttonRemove.setToolTip('Remove this action from the list')
+        self.buttonRemove.clicked.connect(lambda x: self.remove.emit(self.entity))
+        self.layout().addWidget(self.buttonRemove)
 
-        button = PictureButtonFlat('icons/stop')
-        self.layout().addWidget(button)
+        self.buttonStop = PictureButtonFlat('icons/stop')
+        self.buttonStop.setToolTip('Stop current activity')
+        self.buttonStop.setDisabled(entity.cancelled_at is not None)
+        self.buttonStop.clicked.connect(lambda x: self.stop.emit(self.entity))
+        self.layout().addWidget(self.buttonStop)
 
-        button = PictureButtonFlat('icons/pause')
-        self.layout().addWidget(button)
-
-    def setEntity(self, entity):
-        self.entity = entity
+        self.buttonRestart = PictureButtonFlat('icons/restart')
+        self.buttonRestart.setToolTip('Restart cancelled process')
+        self.buttonRestart.setDisabled(entity.cancelled_at is None)
+        self.buttonRestart.clicked.connect(lambda x: self.restart.emit(self.entity))
+        self.layout().addWidget(self.buttonRestart)
 
     def close(self):
         super().deleteLater()

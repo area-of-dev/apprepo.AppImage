@@ -10,6 +10,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from urllib import request
 
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
@@ -23,16 +24,17 @@ class ImageWidget(QtWidgets.QLabel):
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         self.setAlignment(Qt.AlignCenter)
 
-        pixmap = QtGui.QPixmap(self.__icon(entity))
+        pixmap = QtGui.QPixmap("img/{}".format(entity.action))
+
+        if entity.package is not None and entity.package:
+            with request.urlopen(entity.package.get('icon')) as response:
+                pixmap.loadFromData(response.read())
+
         pixmap = pixmap.scaledToWidth(width, Qt.SmoothTransformation)
         if not pixmap: return None
 
         self.setToolTip(entity.action)
-
         self.setPixmap(pixmap)
-
-    def __icon(self, entity):
-        return "img/{}".format(entity.action)
 
     def close(self):
         super().deleteLater()

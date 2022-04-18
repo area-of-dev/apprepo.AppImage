@@ -31,6 +31,15 @@ def window_workspace(parent, workspace, actions):
     workspace_apprepo.actionTest.connect(workspace.update)
     workspace_apprepo.actionStart.connect(workspace.update)
 
+    workspace.clean.connect(actions.clean)
+    workspace.clean.connect(workspace.update)
+
+    workspace.restart.connect(actions.restart)
+    workspace.restart.connect(workspace.update)
+
+    workspace.stop.connect(actions.stop)
+    workspace.stop.connect(workspace.update)
+
     thread = hexdi.resolve('thread.actions')
     thread.start()
 

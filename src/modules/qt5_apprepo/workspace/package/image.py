@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2015 Alex Woroschilow (alex.woroschilow@gmail.com)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QGraphicsBlurEffect
 
 
 class ImageWidget(QtWidgets.QLabel):
@@ -33,11 +31,6 @@ class ImageWidget(QtWidgets.QLabel):
         if not pixmap: return None
 
         self.setPixmap(pixmap)
-
-        # # creating a blur effect
-        # blur_effect = QGraphicsBlurEffect()
-        # blur_effect.setBlurRadius(1)
-        # self.setGraphicsEffect(blur_effect)
 
     def close(self):
         super().deleteLater()

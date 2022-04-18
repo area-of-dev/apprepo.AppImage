@@ -12,6 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 import os
 
+import hexdi
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
@@ -23,8 +24,8 @@ from .toolbar import ActionsToolbarWidget
 
 class ActionsItemListWidget(QtWidgets.QWidget):
     removeAction = QtCore.pyqtSignal(object)
-    startAction = QtCore.pyqtSignal(object)
-    infoAction = QtCore.pyqtSignal(object)
+    restartAction = QtCore.pyqtSignal(object)
+    stopAction = QtCore.pyqtSignal(object)
 
     def __init__(self, entity=None):
         super(ActionsItemListWidget, self).__init__()
@@ -35,10 +36,10 @@ class ActionsItemListWidget(QtWidgets.QWidget):
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
-        self.image = ImageWidget(entity)
-        self.layout().addWidget(self.image, 0, 0, 5, 1)
-
         if entity.package is not None:
+            self.image = ImageWidget(entity)
+            self.layout().addWidget(self.image, 0, 0, 5, 1)
+
             widget = Title(entity.package.get('name'))
             widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             self.layout().addWidget(widget, 0, 1, 1, 1)
@@ -59,12 +60,18 @@ class ActionsItemListWidget(QtWidgets.QWidget):
             self.layout().addWidget(widget, 4, 1, 1, 1)
 
             self.toolbar = ActionsToolbarWidget(entity)
+            self.toolbar.remove.connect(self.removeAction.emit)
+            self.toolbar.restart.connect(self.restartAction.emit)
+            self.toolbar.stop.connect(self.stopAction.emit)
             self.layout().addWidget(self.toolbar, 3, 0, 2, 1)
 
             self.progress = QtWidgets.QProgressBar(self)
             self.progress.setVisible(False)
             self.layout().addWidget(self.progress, 5, 1, 1, 1)
             return None
+
+        self.image = ImageWidget(entity)
+        self.layout().addWidget(self.image, 0, 0, 5, 1)
 
         widget = Title(os.path.basename(entity.appimage))
         widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -77,19 +84,27 @@ class ActionsItemListWidget(QtWidgets.QWidget):
         self.layout().addWidget(widget, 2, 1, 1, 1)
 
         self.toolbar = ActionsToolbarWidget(entity)
+        self.toolbar.remove.connect(self.removeAction.emit)
+        self.toolbar.restart.connect(self.restartAction.emit)
+        self.toolbar.stop.connect(self.stopAction.emit)
         self.layout().addWidget(self.toolbar, 3, 0, 2, 1)
 
         self.progress = QtWidgets.QProgressBar(self)
         self.progress.setVisible(False)
         self.layout().addWidget(self.progress, 3, 1, 1, 1)
 
-    def update(self, entity):
+    @hexdi.inject('actions')
+    def update(self, entity, storage):
         if not hasattr(entity, 'progress'):
             return self
+
+        if hasattr(storage, 'session'):
+            storage.session.refresh(entity)
 
         if entity.progress >= 100:
             self.progress.setValue(100)
             self.progress.setVisible(False)
+            self.destroy()
             return self
 
         self.progress.setValue(entity.progress)

@@ -67,9 +67,12 @@ class PackageListWidget(QtWidgets.QListWidget):
 
         self.setItemWidget(item, widget)
 
-        for image in entity.get('images', None):
-            self.loaderImage.append((image, widget.onImageLoaded))
-            break
+        preview = entity.get('preview', None)
+        if not preview: return None
+
+        self.loaderImage.append(
+            (preview, widget.onImageLoaded)
+        )
 
         if not self.loaderImage.isRunning():
             self.loaderImage.start()

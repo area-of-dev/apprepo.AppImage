@@ -10,10 +10,12 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+from datetime import datetime
 
 import hexdi
 
 from .storage.interface import ActionsStorage
+from .storage.schema import Action
 from .thread.background import BackgroundThread
 from .workspace.dashboard import DashboardWidget
 
@@ -66,3 +68,20 @@ class ActionsStorageInstance(ActionsStorage):
             'action': 'start',
             'appimage': model,
         })
+
+    def stop(self, model):
+        model.cancelled_at = datetime.now()
+        self.session.flush()
+        return model
+
+    def restart(self, model):
+        model.progress = 0
+        model.cancelled_at = None
+        model.finished_at = None
+        self.session.flush()
+        return model
+
+    def clean(self, model: Action):
+        model.finished_at = datetime.now()
+        self.session.flush()
+        return model

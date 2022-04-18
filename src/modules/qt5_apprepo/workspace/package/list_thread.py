@@ -34,14 +34,11 @@ class PackageImageThread(QtCore.QThread):
     def run(self):
 
         while True:
-            for (image, callback) in self.images:
+            for (url, callback) in self.images:
                 if not len(self.images): break
 
-                url = image.get('url', None)
-                if not url: continue
-
-                data = request.urlopen(url).read()
-                self.imageLoaded.emit((data, callback))
+                with request.urlopen(url) as response:
+                    self.imageLoaded.emit((response.read(), callback))
 
             if self.stop: break
             QtCore.QThread.msleep(500)
