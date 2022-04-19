@@ -46,7 +46,6 @@ class BackgroundThread(QtCore.QThread):
         package = action.package
         if not package: return
 
-        print("!!!", package)
         callback = functools.partial(self._progress, entity=action)
         for output in cli_download.actions.download(action.package, Options(True, False), callback):
             yield output
@@ -87,7 +86,7 @@ class BackgroundThread(QtCore.QThread):
         entity.progress = math.ceil(x / y * 100)
         self.storage.session.flush()
 
-        if entity.finished_at is not None or entity.cancelled_at is not None:
+        if entity.cancelled_at is not None:
             raise Exception('Activity cancelled by user')
 
         if entity.progress < 100: return
@@ -111,7 +110,7 @@ class BackgroundThread(QtCore.QThread):
                 continue
 
             try:
-                if action.action not in mapping:
+                if action.action not in mapping.keys():
                     continue
 
                 callback = mapping[action.action]
@@ -121,8 +120,8 @@ class BackgroundThread(QtCore.QThread):
                 for output in callback(action):
                     print(output)
 
-            except Exception:
-                pass
+            except Exception as ex:
+                print(ex)
 
     @hexdi.inject('actions')
     def start(self, actions: ActionsStorage) -> None:

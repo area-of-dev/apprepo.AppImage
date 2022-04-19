@@ -37,39 +37,43 @@ class ActionsItemListWidget(QtWidgets.QWidget):
         self.layout().setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         if entity.package is not None:
-            self.image = ImageWidget(entity)
-            self.layout().addWidget(self.image, 0, 0, 5, 1)
+            return self.__init__remote__(entity)
+        return self.__init__local__(entity)
 
-            widget = Title("{}: {}".format(entity.action.capitalize(), entity.package.get('name')))
-            widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-            self.layout().addWidget(widget, 0, 1, 1, 1)
+    def __init__remote__(self, entity=None):
+        self.image = ImageWidget(entity)
+        self.layout().addWidget(self.image, 0, 0, 5, 1)
 
-            widget = Description(entity.package.get('version'))
-            self.layout().addWidget(widget, 1, 1, 1, 1)
+        widget = Title("{}: {}".format(entity.action.capitalize(), entity.package.get('name')))
+        widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.layout().addWidget(widget, 0, 1, 1, 1)
 
-            widget = Description(entity.package.get('package'))
-            self.layout().addWidget(widget, 2, 1, 1, 1)
+        widget = Description(entity.package.get('version'))
+        self.layout().addWidget(widget, 1, 1, 1, 1)
 
-            widget = Description(entity.package.get('description'))
-            self.layout().addWidget(widget, 3, 1, 1, 1)
+        widget = Description(entity.package.get('package'))
+        self.layout().addWidget(widget, 2, 1, 1, 1)
 
-            widget = Description(entity.package.get('file'))
-            self.layout().addWidget(widget, 4, 1, 1, 1)
+        widget = Description(entity.package.get('description'))
+        self.layout().addWidget(widget, 3, 1, 1, 1)
 
-            widget = Description(entity.package.get('file'))
-            self.layout().addWidget(widget, 4, 1, 1, 1)
+        widget = Description(entity.package.get('file'))
+        self.layout().addWidget(widget, 4, 1, 1, 1)
 
-            self.toolbar = ActionsToolbarWidget(entity)
-            self.toolbar.remove.connect(self.removeAction.emit)
-            self.toolbar.restart.connect(self.restartAction.emit)
-            self.toolbar.stop.connect(self.stopAction.emit)
-            self.layout().addWidget(self.toolbar, 3, 0, 2, 1)
+        widget = Description(entity.package.get('file'))
+        self.layout().addWidget(widget, 4, 1, 1, 1)
 
-            self.progress = QtWidgets.QProgressBar(self)
-            self.progress.setVisible(False)
-            self.layout().addWidget(self.progress, 5, 1, 1, 1)
-            return None
+        self.toolbar = ActionsToolbarWidget(entity)
+        self.toolbar.remove.connect(self.removeAction.emit)
+        self.toolbar.restart.connect(self.restartAction.emit)
+        self.toolbar.stop.connect(self.stopAction.emit)
+        self.layout().addWidget(self.toolbar, 3, 0, 2, 1)
 
+        self.progress = QtWidgets.QProgressBar(self)
+        self.progress.setVisible(False)
+        self.layout().addWidget(self.progress, 5, 1, 1, 1)
+
+    def __init__local__(self, entity=None):
         self.image = ImageWidget(entity)
         self.layout().addWidget(self.image, 0, 0, 5, 1)
 

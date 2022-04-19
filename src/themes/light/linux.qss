@@ -63,3 +63,5 @@ DashboardWidget ActionsListWidget::item { margin: 5px; }
 DashboardWidget ActionsListWidget ActionsItemListWidget Title { font-size: 16px; }
 DashboardWidget ActionsListWidget ActionsItemListWidget Description { font-size: 10px; }
 DashboardWidget ActionsListWidget ActionsItemListWidget ImageWidget { background: #ffffff; padding: 5px; border-radius: 3px; }
+DashboardWidget ActionsListWidget ActionsItemListWidget ActionsToolbarWidget { background: rgba(255,255,255,65%); border: none; }
+

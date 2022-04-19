@@ -45,6 +45,12 @@ class ActionsStorageInstance(ActionsStorage):
             'package': model,
         })
 
+    def validate(self, model):
+        self.add_action({
+            'action': 'validate',
+            'package': model,
+        })
+
     def remove(self, model):
         self.add_action({
             'action': 'remove',
@@ -55,12 +61,6 @@ class ActionsStorageInstance(ActionsStorage):
         self.add_action({
             'action': 'integrate',
             'appimage': model,
-        })
-
-    def validate(self, model):
-        self.add_action({
-            'action': 'validate',
-            'package': model,
         })
 
     def start(self, model):
