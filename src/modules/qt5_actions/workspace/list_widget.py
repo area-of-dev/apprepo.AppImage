@@ -40,7 +40,7 @@ class ActionsItemListWidget(QtWidgets.QWidget):
             self.image = ImageWidget(entity)
             self.layout().addWidget(self.image, 0, 0, 5, 1)
 
-            widget = Title(entity.package.get('name'))
+            widget = Title("{}: {}".format(entity.action.capitalize(), entity.package.get('name')))
             widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             self.layout().addWidget(widget, 0, 1, 1, 1)
 
@@ -73,7 +73,7 @@ class ActionsItemListWidget(QtWidgets.QWidget):
         self.image = ImageWidget(entity)
         self.layout().addWidget(self.image, 0, 0, 5, 1)
 
-        widget = Title(os.path.basename(entity.appimage))
+        widget = Title("{}: {}".format(entity.action.capitalize(), os.path.basename(entity.appimage)))
         widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.layout().addWidget(widget, 0, 1, 1, 1)
 

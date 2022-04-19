@@ -37,7 +37,7 @@ class ActionsStorage(object):
         return self.session.query(Action). \
             filter(Action.finished_at.is_(None)). \
             filter(Action.cancelled_at.is_(None)). \
-            order_by(desc(Action.id)).first()
+            order_by(desc(Action.created_at)).first()
 
     def actions(self):
         collection = self.session.query(Action). \

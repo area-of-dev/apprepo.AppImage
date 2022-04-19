@@ -20,7 +20,12 @@ import hexdi
 from PyQt5 import QtCore
 
 from modules.qt5_actions.storage.interface import ActionsStorage
-from plugins import cli_install, cmd_uninstall, cli_download, cli_integrate, cli_validate
+from modules.qt5_actions.storage.schema import Action
+from plugins import cli_download
+from plugins import cli_install
+from plugins import cli_integrate
+from plugins import cli_validate
+from plugins import cmd_uninstall
 
 Options = namedtuple('Options', 'force systemwide')
 
@@ -31,67 +36,42 @@ class BackgroundThread(QtCore.QThread):
         super(BackgroundThread, self).__init__()
         self.storage = ActionsStorage()
 
-    def run(self):
-        while True:
-            action = self.storage.next()
-            if action is None:
-                time.sleep(1)
-                continue
+    def _do_integrate(self, action):
+        appimage = action.appimage
+        if not appimage: return
+        for output in cli_integrate.actions.integrate(appimage, Options(True, False)):
+            yield self._progress(100, 100, action)
 
-            if action.action in ['integrate']:
-                appimage = action.appimage
-                if not appimage: continue
+    def _do_download(self, action):
+        package = action.package
+        if not package: return
 
-                try:
-                    for output in cli_integrate.actions.integrate(appimage, Options(True, False)):
-                        self._progress(100, 100, action)
-                except Exception:
-                    pass
+        print("!!!", package)
+        callback = functools.partial(self._progress, entity=action)
+        for output in cli_download.actions.download(action.package, Options(True, False), callback):
+            yield output
 
-            if action.action in ['download']:
-                package = action.package
-                if not package: continue
-                try:
-                    callback = functools.partial(self._progress, entity=action)
-                    for output in cli_download.actions.download(action.package, Options(True, False), callback):
-                        print(output)
-                except Exception:
-                    pass
+    def _do_install(self, action):
+        package = action.package
+        if not package: return
+        callback = functools.partial(self._progress, entity=action)
+        for output in cli_install.actions.install(action.package, Options(True, False), callback):
+            yield output
 
-            if action.action in ['install']:
-                package = action.package
-                if not package: continue
+    def _do_remove(self, action):
+        appimage = action.appimage
+        if not appimage: return
+        appimage = os.path.basename(appimage)
+        if not appimage: return
+        for output in cmd_uninstall.actions.remove(appimage, None):
+            yield self._progress(100, 100, action)
 
-                try:
-                    callback = functools.partial(self._progress, entity=action)
-                    for output in cli_install.actions.install(action.package, Options(True, False), callback):
-                        print(output)
-                except Exception:
-                    pass
-
-            if action.action in ['remove']:
-                appimage = action.appimage
-                if not appimage: continue
-
-                appimage = os.path.basename(appimage)
-                if not appimage: continue
-
-                try:
-                    for output in cmd_uninstall.actions.remove(appimage, None):
-                        self._progress(100, 100, action)
-                except Exception:
-                    pass
-
-            if action.action in ['validate']:
-                package = action.package
-                if not package: continue
-
-                try:
-                    callback = functools.partial(self._progress, entity=action)
-                    for output in cli_validate.actions.validate(action.package, Options(True, False), callback):
-                        print(output)
-                except Exception:
-                    pass
+    def _do_validate(self, action):
+        package = action.package
+        if not package: return
+        callback = functools.partial(self._progress, entity=action)
+        for output in cli_validate.actions.validate(action.package, Options(True, False), callback):
+            yield output
 
     def _progress(self, x, y, entity=None):
         """
@@ -113,6 +93,36 @@ class BackgroundThread(QtCore.QThread):
         if entity.progress < 100: return
         entity.finished_at = datetime.now()
         self.storage.session.flush()
+
+    def run(self):
+
+        mapping: dict = {
+            "integrate": self._do_integrate,
+            "download": self._do_download,
+            "install": self._do_install,
+            "remove": self._do_remove,
+            "validate": self._do_validate,
+        }
+
+        while True:
+            action: Action = self.storage.next()
+            if action is None:
+                time.sleep(1)
+                continue
+
+            try:
+                if action.action not in mapping:
+                    continue
+
+                callback = mapping[action.action]
+                if not callable(callback):
+                    continue
+
+                for output in callback(action):
+                    print(output)
+
+            except Exception:
+                pass
 
     @hexdi.inject('actions')
     def start(self, actions: ActionsStorage) -> None:
