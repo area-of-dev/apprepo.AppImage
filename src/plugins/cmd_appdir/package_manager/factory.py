@@ -36,7 +36,7 @@ class PackageManagerFactory(object):
             'xorg-x11-server-utils',
             'adwaita-cursor-theme',
             'xkeyboard-config',
-            'wayland', 'libwayland-cursor',
+            'wayland',
             'ca-certificates',
             'iso-codes',
             'zenity',
