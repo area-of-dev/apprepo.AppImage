@@ -14,7 +14,7 @@ APPDIR := ./AppDir
 PWD := $(shell pwd)
 
 
-all: clean
+all: clean init
 
 
 	mkdir -p $(PWD)/build
@@ -59,4 +59,5 @@ init:
 
 clean:
 	rm -rf ${PWD}/build
+	rm -rf ${PWD}/*.AppImage
 
