@@ -20,7 +20,7 @@ RUN apt-get -y upgrade
 RUN apt-get install -y kmod make gcc wget gpg curl
 RUN apt-get install -y rpm2cpio cpio
 RUN apt-get install -y fuse file
-RUN apt-get install -y python3 python3-venv python3-pip python-apt
+RUN apt-get install -y python3 python3-venv python3-pip python3-dnf python3-apt
 
 RUN apt-get -y install apt-file
 RUN apt-file update
