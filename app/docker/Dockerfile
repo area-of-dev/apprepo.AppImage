@@ -13,7 +13,7 @@ FROM ubuntu:20.04
 
 ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-RUN apt-get update
+RUN apt-get update --fix-missing
 RUN apt-get -y install apt-utils
 RUN apt-get -y upgrade
 
@@ -27,4 +27,4 @@ RUN apt-get install -y python3 python3-venv python3-pip python3-apt
 
 
 RUN apt-get -y install apt-file
-RUN apt-file update
+RUN apt-file update --fix-missing
