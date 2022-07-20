@@ -27,4 +27,4 @@ RUN apt-get install -y python3 python3-venv python3-pip python3-apt
 
 
 RUN apt-get -y install apt-file
-RUN apt-file update --fix-missing
+RUN apt-file update
