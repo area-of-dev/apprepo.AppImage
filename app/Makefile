@@ -57,6 +57,15 @@ init:
 	python3.8 -m venv $(PWD)/venv --system-site-packages
 	source $(PWD)/venv/bin/activate && python3 -m pip install --upgrade pip && python3 -m pip install -r $(PWD)/requirements.txt
 
+	wget https://apprepo.de/appimage/download/apprepo \
+		--output-document=$(PWD)/bin/Apprepo.AppImage
+	chmod +x $(PWD)/bin/Apprepo.AppImage
+
+	wget https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage \
+		--output-document=$(PWD)/bin/appimagetool.AppImage
+	chmod +x $(PWD)/bin/appimagetool.AppImage
+
+
 clean:
 	rm -rf ${PWD}/build
 	rm -rf ${PWD}/*.AppImage
