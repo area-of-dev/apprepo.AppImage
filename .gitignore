@@ -5,10 +5,18 @@ __pycache__/
 .project
 .pydevproject
 .settings
+.bash_history
+.python_history
+
 /venv/
+/venv/*
+/venv/**/
+/venv/**/*
+
 /build/application/
 /AppDir/application/
 
-app/.config/*
-app/.config/**
-app/.config/**/*
+/app/.config
+/app/.config/*
+/app/.config/**
+/app/.config/**/*
