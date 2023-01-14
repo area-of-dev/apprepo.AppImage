@@ -9,4 +9,6 @@ __pycache__/
 /build/application/
 /AppDir/application/
 
-app/.config
+app/.config/*
+app/.config/**
+app/.config/**/*
