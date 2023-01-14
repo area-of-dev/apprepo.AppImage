@@ -16,3 +16,4 @@ hexdi
 distro
 psutil
 sqlalchemy
+PyQt5

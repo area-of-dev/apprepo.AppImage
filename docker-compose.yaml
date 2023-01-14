@@ -16,7 +16,8 @@ services:
         working_dir: /root
         privileged: true
         build:
-            context: app/docker
+            context: app
+            dockerfile: docker/Dockerfile            
             args:
                 TOKEN: ${TOKEN}
         environment:

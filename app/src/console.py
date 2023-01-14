@@ -30,7 +30,7 @@ class OptionParser(optparse.OptionParser):
     def __init__(self):
         super(OptionParser, self).__init__()
 
-        self.add_option("--loglevel", default=logging.INFO, dest="loglevel", help="Logging level")
+        self.add_option("--loglevel", default=logging.ERROR, dest="loglevel", help="Logging level")
         self.add_option("--force", dest="force", help="Force execution", action='store_true')
         self.add_option("--global", dest="systemwide", help="Install the application for all users", action='store_true')
         self.add_option("--cleanup", dest="cleanup", help="Remove unknown packages", action='store_true')

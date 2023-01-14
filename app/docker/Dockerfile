@@ -27,8 +27,8 @@ RUN apt-get install -y fuse file
 RUN apt-get install -y python3 python3-venv python3-pip python3-apt
 # RUN apt-get install -y python3-dnf 
 
-
-
-
 RUN apt-get -y install apt-file
 RUN apt-file update
+
+COPY ./requirements.txt /root/requirements.txt
+RUN python3 -m pip install -r /root/requirements.txt
