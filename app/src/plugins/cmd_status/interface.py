@@ -17,9 +17,10 @@ import hexdi
 from modules.cmd import console
 
 
-@console.task(name=['status', 'stat'],
-              description="display a list of all available "
-                          "AppImage files (/Applications | ~/Applications by default)")
+@console.task(name=['status', 'stat'], description="""
+display a list of all available AppImage files.
+Default locations are /Applications | ~/Applications.
+""")
 @hexdi.inject('appimagetool')
 def main(options=None, args=None, appimagetool=None):
     for appimage in appimagetool.collection():

@@ -58,12 +58,10 @@ def main(options=None, args=None, appimagetool=None, console=None):
                 appimage = appimagetool.integrate(appimage)
                 if not appimage: raise ValueError('Integration failed')
 
-                yield console.green("[integration]: {}, {}, {}, {}".format(
-                    os.path.basename(appimage.path) if os.path.exists(appimage.path) else "---",
-                    os.path.basename(appimage.desktop) if os.path.exists(appimage.desktop) else "---",
-                    os.path.basename(appimage.icon) if glob.glob(appimage.icon) else "---",
-                    os.path.basename(appimage.alias) if os.path.exists(appimage.alias) else "---",
-                ))
+                yield console.green("[integration]: {}".format(appimage.path))
+                yield console.green("[integration]: {}".format(appimage.desktop))
+                yield console.green("[integration]: {}".format(appimage.icon))
+                yield console.green("[integration]: {}".format(appimage.alias))
 
             except Exception as ex:
                 yield console.error("[error]: {}, {}".format(

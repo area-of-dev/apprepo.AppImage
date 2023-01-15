@@ -16,7 +16,9 @@ from modules.cmd import console
 from plugins.cli_install import actions
 
 
-@console.task(name=['install', 'get', 'in'], description="<string>\tinstall the application " "and integrate it into the system")
+@console.task(name=['install', 'get', 'in'], description="""<string>
+install the application and integrate it into the system
+""")
 @hexdi.inject('apprepo')
 def main(options=None, args=None, apprepo=None):
     string = ' '.join(args).strip('\'" ')

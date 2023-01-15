@@ -14,7 +14,10 @@ from modules.cmd import console
 from plugins.cmd_uninstall import actions
 
 
-@console.task(name=['uninstall', 'remove', 'delete'], description="<string>\t- remove the AppImage " "from the system by the name")
+@console.task(name=['uninstall', 'remove', 'delete'], description="""<string>
+removes the AppImage from the system. 
+Uses the package name like Application.AppImage
+""")
 def main(options=None, args=None):
     search = ' '.join(args).strip('\'" ')
     if not len(search): raise Exception('Unknown application')

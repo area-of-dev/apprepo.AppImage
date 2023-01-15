@@ -14,9 +14,10 @@ import hexdi
 from modules.cmd import console
 
 
-@console.task(name=['search', 'find', 'lookup'],
-              description="<string>\tFind an application in the repository "
-                          "using the given string as an application name")
+@console.task(name=['search', 'find', 'lookup'], description="""<string>
+Find an application in the repository 
+using the given string as an application name
+""")
 @hexdi.inject('config', 'apprepo')
 def main(options=None, args=None, config=None, apprepo=None):
     from bs4 import BeautifulSoup
