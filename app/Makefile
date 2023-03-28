@@ -42,7 +42,8 @@ all: clean init
 
 	sed -i 's/APPDIR=`dirname \$${0}`/#APPDIR=`dirname \$${0}`/' $(PWD)/build/Apprepo.AppDir/AppRun
 
-	rm -f $(PWD)/build/Apprepo.AppDir/*.desktop
+	rm --recursive --force $(PWD)/build/Apprepo.AppDir/*.desktop
+	rm --recursive --force $(PWD)/build/Boilerplate.AppDir/lib64/libstdc++.so.6*
 
 	cp --force $(PWD)/AppDir/*.desktop $(PWD)/build/Apprepo.AppDir/
 	cp --force $(PWD)/AppDir/*.png $(PWD)/build/Apprepo.AppDir/ || true

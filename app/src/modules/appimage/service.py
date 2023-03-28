@@ -59,7 +59,7 @@ class AppImageManagerInstance(appimage.AppImageManager):
         return installer.installed(package, systemwide)
 
 
-@hexdi.permanent('apprepo.desktopreader')
+@hexdi.transient('apprepo.desktopreader')
 class DesktopFileReaderInstance(DesktopFileReader):
     pass
 
