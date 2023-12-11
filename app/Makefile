@@ -19,15 +19,15 @@ all: clean init
 
 	mkdir -p $(PWD)/build
 
-	source $(PWD)/venv/bin/activate && python3 ./src/console.py --destination=$(PWD)/build appdir apprepo python3 python3.8-psutil \
-										python3.8-setuptools python3-pip python3-dnf python3-apt \
+	source $(PWD)/venv/bin/activate && python3 ./src/console.py --destination=$(PWD)/build appdir apprepo python3 python3-psutil \
+										python3-setuptools python3-pip python3-dnf python3-apt \
 										openssl libffi7 intltool libgudev-1.0-0 libffi libgudev
 
 	echo '#cd $${OWD}'                                                                      >> $(PWD)/build/Apprepo.AppDir/AppRun
 	echo 'case "$${1}" in'                                                                  >> $(PWD)/build/Apprepo.AppDir/AppRun
-	echo "  '--python') exec \$${APPDIR}/bin/python3.8 \$${*:2} ;;"                         >> $(PWD)/build/Apprepo.AppDir/AppRun
-	echo "  '--desktop') \$${APPDIR}/bin/python3.8 \$${APPDIR}/apprepo/main.py \$${*:2} ;;" >> $(PWD)/build/Apprepo.AppDir/AppRun
-	echo '  *)   $${APPDIR}/bin/python3.8 $${APPDIR}/apprepo/console.py $${@} ;;'           >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo "  '--python') exec \$${APPDIR}/bin/python3* \$${*:2} ;;"                         >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo "  '--desktop') \$${APPDIR}/bin/python3* \$${APPDIR}/apprepo/main.py \$${*:2} ;;" >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo '  *)   $${APPDIR}/bin/python3* $${APPDIR}/apprepo/console.py $${@} ;;'           >> $(PWD)/build/Apprepo.AppDir/AppRun
 	echo 'esac'                                                                             >> $(PWD)/build/Apprepo.AppDir/AppRun
 	
 	sed -i 's/#APPDIR=`pwd`/APPDIR=`dirname \$${0}`/' $(PWD)/build/Apprepo.AppDir/AppRun
@@ -42,8 +42,8 @@ all: clean init
 
 	sed -i 's/APPDIR=`dirname \$${0}`/#APPDIR=`dirname \$${0}`/' $(PWD)/build/Apprepo.AppDir/AppRun
 
-	rm --recursive --force $(PWD)/build/Apprepo.AppDir/*.desktop
-	rm --recursive --force $(PWD)/build/Boilerplate.AppDir/lib64/libstdc++.so.6*
+	rm --recursive --force $(PWD)/build/Apprepo.AppDir/*.desktop                 || true
+	rm --recursive --force $(PWD)/build/Boilerplate.AppDir/lib64/libstdc++.so.6* || true
 
 	cp --force $(PWD)/AppDir/*.desktop $(PWD)/build/Apprepo.AppDir/
 	cp --force $(PWD)/AppDir/*.png $(PWD)/build/Apprepo.AppDir/ || true
@@ -55,14 +55,14 @@ all: clean init
 
 init:
 	rm -rf $(PWD)/venv
-	python3.8 -m venv $(PWD)/venv --system-site-packages
+	python3 -m venv $(PWD)/venv --system-site-packages
 	source $(PWD)/venv/bin/activate && python3 -m pip install --upgrade pip && python3 -m pip install -r $(PWD)/requirements.txt
 
 	wget https://apprepo.de/appimage/download/apprepo \
 		--output-document=$(PWD)/bin/Apprepo.AppImage
 	chmod +x $(PWD)/bin/Apprepo.AppImage
 
-	wget https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage \
+	wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage \
 		--output-document=$(PWD)/bin/appimagetool.AppImage
 	chmod +x $(PWD)/bin/appimagetool.AppImage
 
