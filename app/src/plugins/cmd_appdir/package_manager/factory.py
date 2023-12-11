@@ -89,16 +89,16 @@ class PackageManagerFactory(object):
 
     def _get_package_manager(self):
         try:
-            from . import dnf
-            return dnf
-        except ImportError as ex:
-            pass
-
-        try:
             from . import apt
             return apt
         except ImportError as ex:
             pass
+
+        # try:
+        #     from . import dnf
+        #     return dnf
+        # except ImportError as ex:
+        #     pass
 
         raise Exception('No package manager available')
 
