@@ -12,8 +12,8 @@ soupsieve==2.0.1
 urllib3==1.26.5
 webencodings==0.5.1
 cryptography>=3.4.6
+PyQt5==5.15.0
 hexdi
 distro
 psutil
 sqlalchemy
-PyQt5

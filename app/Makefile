@@ -25,9 +25,9 @@ all: clean init
 
 	echo '#cd $${OWD}'                                                                      >> $(PWD)/build/Apprepo.AppDir/AppRun
 	echo 'case "$${1}" in'                                                                  >> $(PWD)/build/Apprepo.AppDir/AppRun
-	echo "  '--python') exec \$${APPDIR}/bin/python3* \$${*:2} ;;"                         >> $(PWD)/build/Apprepo.AppDir/AppRun
-	echo "  '--desktop') \$${APPDIR}/bin/python3* \$${APPDIR}/apprepo/main.py \$${*:2} ;;" >> $(PWD)/build/Apprepo.AppDir/AppRun
-	echo '  *)   $${APPDIR}/bin/python3* $${APPDIR}/apprepo/console.py $${@} ;;'           >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo "  '--python') exec \$${APPDIR}/bin/python3* \$${*:2} ;;"                          >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo "  '--desktop') \$${APPDIR}/bin/python3* \$${APPDIR}/apprepo/main.py \$${*:2} ;;"  >> $(PWD)/build/Apprepo.AppDir/AppRun
+	echo '  *)   $${APPDIR}/bin/python3* $${APPDIR}/apprepo/console.py $${@} ;;'            >> $(PWD)/build/Apprepo.AppDir/AppRun
 	echo 'esac'                                                                             >> $(PWD)/build/Apprepo.AppDir/AppRun
 	
 	sed -i 's/#APPDIR=`pwd`/APPDIR=`dirname \$${0}`/' $(PWD)/build/Apprepo.AppDir/AppRun
@@ -43,7 +43,7 @@ all: clean init
 	sed -i 's/APPDIR=`dirname \$${0}`/#APPDIR=`dirname \$${0}`/' $(PWD)/build/Apprepo.AppDir/AppRun
 
 	rm --recursive --force $(PWD)/build/Apprepo.AppDir/*.desktop                 || true
-	rm --recursive --force $(PWD)/build/Boilerplate.AppDir/lib64/libstdc++.so.6* || true
+	# rm --recursive --force $(PWD)/build/Boilerplate.AppDir/lib64/libstdc++.so.6* || true
 
 	cp --force $(PWD)/AppDir/*.desktop $(PWD)/build/Apprepo.AppDir/
 	cp --force $(PWD)/AppDir/*.png $(PWD)/build/Apprepo.AppDir/ || true
